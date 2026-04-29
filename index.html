@@ -634,18 +634,13 @@
       from { transform: translateX(-50%) scaleY(0); }
       to   { transform: translateX(-50%) scaleY(1); }
     }
-    /* Napravi wrapper view timeline - prati napredak kako wrapper prolazi kroz viewport */
-    .tl-steps-wrap {
-      view-timeline-name: --tl-wrap;
-      view-timeline-axis: block;
-    }
     .tl-fill-line {
       animation: tl-fill-grow linear both;
-      animation-timeline: --tl-wrap;
-      /* cover = animacija krece od trenutka kad wrapper prvi put dotakne donji deo viewporta,
-         do trenutka kad njegov gornji deo izadje sa vrha viewporta.
-         Tako linija raste paralelno sa scroll-om kroz timeline sekciju. */
-      animation-range: cover 25% cover 100%;
+      /* view() prati visibility ovog elementa kroz viewport - radi smooth jer je fill-line dugacka linija */
+      animation-timeline: view();
+      /* contain 0% = pocetak kad je element potpuno vidljiv,
+         contain 100% = kraj kad pocinje da izlazi sa vrha */
+      animation-range: contain 0% contain 100%;
     }
   }
 
