@@ -1137,7 +1137,7 @@
             </ul>
           </div>
           <div id="owner-passports" class="mb-9"></div>
-          <button class="btn-continue" onclick="goToS8('e')">Continue →</button>
+          <button id="btn-8d" class="btn-continue" disabled onclick="goToS8('e')">Continue →</button>
         </div>
 
         <!-- SUB 8E: Contact Info -->
@@ -1678,6 +1678,7 @@
       // Pre-fill LLC name field for sub-8f
       var llcInput = document.getElementById('s7-llc-name');
       if (llcInput) llcInput.value = llcName || '';
+      checkS8FValid();
       // Reset owners list so sub-8b initializes fresh each time
       var ownersList = document.getElementById('owners-list');
       if (ownersList) ownersList.innerHTML = '';
@@ -2130,6 +2131,7 @@
     var num=document.getElementById('modal-phone').value.trim();
     modalPhone=(dialState.modal.dial||'') + ' ' + num;
     modalEmail=document.getElementById('modal-email').value.trim();
+    if (dialState.modal) dialState.modal.localNumber = num;
     closeContactModal();
     goToStep(6);
   }
@@ -2309,6 +2311,7 @@
     if (id === 'd') {
       collectAddressData();
       buildPassportUploads();
+      checkPassportUploads();
     }
     if (id === 'e') {
       // Contact info - pre-fill from modal
@@ -2316,7 +2319,13 @@
       if (modalItem) setDialCode('s7b', modalItem);
       var ph = document.getElementById('s7b-phone');
       var em = document.getElementById('s7b-email');
-      if (ph && !ph.value && dialState.modal && dialState.modal.localNumber) ph.value = dialState.modal.localNumber;
+      // Extract phone number from modalPhone (which contains dial+number)
+      var modalLocal = (dialState.modal && dialState.modal.localNumber) || '';
+      if (!modalLocal && modalPhone) {
+        // Try to extract just the number part from modalPhone
+        modalLocal = modalPhone.replace(/^\+?\d+\s*/, '').trim();
+      }
+      if (ph && !ph.value && modalLocal) ph.value = modalLocal;
       if (em && !em.value && modalEmail) em.value = modalEmail;
       checkS8cBtn();
     }
@@ -2643,6 +2652,27 @@
     });
   }
 
+  function checkPassportUploads() {
+    var allUploaded = ownersData.length > 0;
+    for (var i = 0; i < ownersData.length; i++) {
+      var ppInput = document.getElementById('pp-upload-'+i);
+      if (!ppInput || !ppInput.files || !ppInput.files[0]) {
+        allUploaded = false;
+        break;
+      }
+      // Ako je passportMatch === 'no', i bill upload je required
+      if (ownersData[i] && ownersData[i].passportMatch === 'no') {
+        var billInput = document.getElementById('bill-upload-'+i);
+        if (!billInput || !billInput.files || !billInput.files[0]) {
+          allUploaded = false;
+          break;
+        }
+      }
+    }
+    var btn = document.getElementById('btn-8d');
+    if (btn) btn.disabled = !allUploaded;
+  }
+  
   // ===== Passport Photos (sub-8b) =====
   function buildPassportUploads() {
     var container = document.getElementById('owner-passports');
@@ -2706,6 +2736,7 @@
         '<svg class="w-5 h-5 text-green-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' +
         '<p class="text-sm font-semibold text-green-700">' + name + '</p>' +
         '<p class="text-xs text-gray-400 mt-0.5">Click to replace</p>';
+      checkPassportUploads();
     }
   }
 
@@ -2717,6 +2748,7 @@
         '<svg class="w-5 h-5 text-green-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' +
         '<p class="text-sm font-semibold text-green-700">' + name + '</p>' +
         '<p class="text-xs text-gray-400 mt-0.5">Click to replace</p>';
+      checkPassportUploads();
     }
   }
 
