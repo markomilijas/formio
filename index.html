@@ -395,8 +395,8 @@
           </div>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="hero-llc-name" type="text" placeholder="e.g. Acme Ventures" autocomplete="off"
-              class="bg-white border rounded-full px-5 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent"
-              style="width:100%; max-width:240px; border-color:rgba(7,24,65,0.14); box-shadow:inset 0 1px 2px rgba(7,24,65,0.04); --tw-ring-color:var(--brand);" />
+              class="w-full sm:max-w-[240px] bg-white border rounded-full px-5 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent"
+              style="border-color:rgba(7,24,65,0.14); box-shadow:inset 0 1px 2px rgba(7,24,65,0.04); --tw-ring-color:var(--brand);" />
             <button onclick="startIncorporating()"
               class="font-semibold px-6 py-3 rounded-full text-sm hover:shadow-lg transition inline-flex items-center justify-center gap-2 whitespace-nowrap"
               style="background:var(--brand); color:#fff; box-shadow:0 8px 22px -6px rgba(29,68,231,0.55);">
@@ -618,12 +618,15 @@
 
   /* Fill line - gradient, pill-shaped */
   .tl-fill-line {
-    position: absolute; left: 50%; transform: translateX(-50%);
-    top: 0; width: 5px; height: 0;
+    position: absolute; left: 50%;
+    top: 0; width: 5px; height: 100%;
     background: linear-gradient(to bottom, #1D44E7, #1D44E7);
     z-index: 2;
     pointer-events: none; border-radius: 10px;
-    will-change: height;
+    /* transform-origin: top center - skaliramo nadole iz vrha */
+    transform: translateX(-50%) scaleY(0);
+    transform-origin: top center;
+    will-change: transform;
   }
 
   .tl-step {
@@ -933,7 +936,9 @@
     if (!wrap || !fillLine || cachedWrapHeight === 0) return;
     const trigger = cachedViewH * 0.55;
     const fillHeight = Math.max(0, Math.min(cachedWrapHeight, window.scrollY + trigger - cachedWrapTop));
-    fillLine.style.height = fillHeight + 'px';
+    // Koristi transform scaleY umesto height - radi u GPU, smooth na svim uredjajima
+    const scale = fillHeight / cachedWrapHeight;
+    fillLine.style.transform = 'translateX(-50%) scaleY(' + scale + ')';
   }
 
   // Throttle preko requestAnimationFrame
