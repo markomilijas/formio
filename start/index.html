@@ -1194,10 +1194,10 @@
             </div>
             <div>
               <label class="s7-label">Business Description</label>
-              <textarea id="s7-description" class="s7-input" rows="3" placeholder="Briefly describe what your business does (e.g. online software consulting services)..." style="resize:none;"></textarea>
+              <textarea id="s7-description" class="s7-input" rows="3" placeholder="Briefly describe what your business does (e.g. online software consulting services)..." style="resize:none;" oninput="checkS8FValid()"></textarea>
             </div>
           </div>
-          <button class="btn-continue" onclick="goToS8('g')">Continue →</button>
+          <button id="btn-8f" class="btn-continue" disabled onclick="goToS8('g')">Continue →</button>
         </div>
 
         <!-- SUB 8G: Final Review -->
@@ -1881,10 +1881,21 @@
 
   function onS7LlcNameInput(v) {
     llcName = v.replace(/\s*LLC\s*$/i,'').trim();
+    checkS8FValid();
   }
 
   function onS7AltNameInput(v) {
     // strip LLC suffix - wrapper shows it visually
+    // Alternative je optional, nema validacije
+  }
+
+  function checkS8FValid() {
+    var name = (document.getElementById('s7-llc-name')||{}).value || '';
+    var desc = (document.getElementById('s7-description')||{}).value || '';
+    var nameOk = name.replace(/\s*LLC\s*$/i,'').trim().length >= 2;
+    var descOk = desc.trim().length >= 10;
+    var btn = document.getElementById('btn-8f');
+    if (btn) btn.disabled = !(nameOk && descOk);
   }
 
   // ===== Step 2: Industry =====
@@ -2107,10 +2118,15 @@
   function handleModalBackdrop(e) {
     if(e.target===document.getElementById('contact-modal')) closeContactModal();
   }
+  // Email validacija - mora imati @ i validan domen sa ekstenzijom
+  function isValidEmail(email) {
+    var re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(email.trim());
+  }
   function checkModalBtn() {
     var ph=document.getElementById('modal-phone').value.trim();
     var em=document.getElementById('modal-email').value.trim();
-    document.getElementById('modal-submit-btn').disabled = !(ph && em);
+    document.getElementById('modal-submit-btn').disabled = !(ph && isValidEmail(em));
   }
   function submitContactModal() {
     var num=document.getElementById('modal-phone').value.trim();
@@ -2465,7 +2481,7 @@
     var ph = document.getElementById('s7b-phone').value.trim();
     var em = document.getElementById('s7b-email').value.trim();
     var btn = document.getElementById('btn-8c');
-    if (btn) btn.disabled = !(ph && em);
+    if (btn) btn.disabled = !(ph && isValidEmail(em));
   }
 
   // ===== Owner Address (sub-7c) =====
