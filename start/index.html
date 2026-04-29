@@ -2144,31 +2144,42 @@
     var trimmed = value.trim();
     if (!trimmed.startsWith('+')) return;
     
-    // Pokušaj da pronađe match za dial code (najduži match prvi)
+    // Pokušaj da pronađe match za dial code (najduži match prvi - npr. +1246 pre +1)
     var sortedCodes = phoneCodes.slice().sort(function(a, b){ return b.dial.length - a.dial.length; });
     var matched = sortedCodes.find(function(p) {
       return trimmed.startsWith(p.dial);
     });
     
     if (matched && matched.code !== dialState[ns].code) {
-      // Postavi dial code i zastavu
+      // Postavi dial code i zastavu - ALI NE BRISI input
+      // Korisnik može da nastavi da kuca duzi prefiks (npr. +1 -> +1246)
       setDialCode(ns, matched);
-      // Ukloni dial prefiks iz input-a, ostavi samo lokalni broj
-      var rest = trimmed.substring(matched.dial.length).trim();
-      input.value = rest;
     }
   }
   
   function checkModalBtn() {
     var ph=document.getElementById('modal-phone').value.trim();
     var em=document.getElementById('modal-email').value.trim();
-    document.getElementById('modal-submit-btn').disabled = !(ph && isValidEmail(em));
+    var dial = (dialState.modal && dialState.modal.dial) || '';
+    var phClean = ph;
+    if (dial && phClean.startsWith(dial)) {
+      phClean = phClean.substring(dial.length).trim();
+    }
+    var phValid = phClean.replace(/\D/g,'').length >= 4;
+    document.getElementById('modal-submit-btn').disabled = !(phValid && isValidEmail(em));
   }
+  
   function submitContactModal() {
     var num=document.getElementById('modal-phone').value.trim();
-    modalPhone=(dialState.modal.dial||'') + ' ' + num;
-    modalEmail=document.getElementById('modal-email').value.trim();
-    if (dialState.modal) dialState.modal.localNumber = num;
+    var dial=(dialState.modal.dial||'');
+    // Ako je broj počinje sa dial code-om (npr. "+381 637..."), ukloni dial da ne dupliramo
+    var localNum = num;
+    if (dial && num.startsWith(dial)) {
+      localNum = num.substring(dial.length).trim();
+    }
+    modalPhone = dial + ' ' + localNum;
+    modalEmail = document.getElementById('modal-email').value.trim();
+    if (dialState.modal) dialState.modal.localNumber = localNum;
     closeContactModal();
     goToStep(6);
   }
@@ -2529,7 +2540,14 @@
     var ph = document.getElementById('s7b-phone').value.trim();
     var em = document.getElementById('s7b-email').value.trim();
     var btn = document.getElementById('btn-8c');
-    if (btn) btn.disabled = !(ph && isValidEmail(em));
+    // Validacija - broj mora imati stvarne digite van dial prefiksa
+    var dial = (dialState.s7b && dialState.s7b.dial) || '';
+    var phClean = ph;
+    if (dial && phClean.startsWith(dial)) {
+      phClean = phClean.substring(dial.length).trim();
+    }
+    var phValid = phClean.replace(/\D/g,'').length >= 4; // bar 4 digit-a
+    if (btn) btn.disabled = !(phValid && isValidEmail(em));
   }
 
   // ===== Owner Address (sub-7c) =====
@@ -2927,7 +2945,14 @@
     var desc    = (document.getElementById('s7-description')||{}).value || '';
     var phone   = (document.getElementById('s7b-phone')||{}).value || '';
     var email7b = (document.getElementById('s7b-email')||{}).value || modalEmail || '';
-    var dialPfx = dialState.s7b ? dialState.s7b.dial + ' ' : '';
+    var dial    = dialState.s7b ? dialState.s7b.dial : '';
+    // Ako broj već sadrži dial prefix, ne dodaj ga ponovo
+    var phoneClean = phone.trim();
+    if (dial && phoneClean.startsWith(dial)) {
+      phoneClean = phoneClean.substring(dial.length).trim();
+    }
+    var dialPfx = dial ? dial + ' ' : '';
+    var phoneDisplay = dialPfx + phoneClean;
 
     var html = '';
 
@@ -2942,7 +2967,7 @@
 
     // 2. Contact Information
     html += frSection('Contact Information',
-      frRow('Phone', frInput('fr-phone', dialPfx + phone, 'tel')) +
+      frRow('Phone', frInput('fr-phone', phoneDisplay, 'tel')) +
       frRow('Email', frInput('fr-email', email7b, 'email'))
     );
 
