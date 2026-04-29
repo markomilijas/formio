@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <script src="https://js.stripe.com/v3/"></script>
   <title>Start Your LLC – Formio.biz</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@400,500,600,700&display=swap" />
@@ -1048,29 +1049,18 @@
             </div>
           </div>
 
-          <div class="border border-gray-100 rounded-2xl overflow-hidden mb-6">
-            <!-- Replace buy-button-id and publishable-key with your Stripe values -->
-            <stripe-buy-button buy-button-id="YOUR_BUY_BUTTON_ID" publishable-key="YOUR_PUBLISHABLE_KEY"></stripe-buy-button>
-            <div id="stripe-placeholder" class="p-6">
+          <div class="border border-gray-100 rounded-2xl mb-6">
+            <div class="p-6">
               <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-5 text-center">Secure Payment</p>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">Card Number</label>
-                  <div class="border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-between bg-white">
-                    <span class="text-gray-300 text-sm">•••• •••• •••• ••••</span>
-                    <div class="flex gap-2">
-                      <svg width="34" height="22" viewBox="0 0 34 22" fill="none"><rect width="34" height="22" rx="4" fill="#1A1F71"/><path d="M13 15.5H10.5L12.2 6.5H14.7L13 15.5Z" fill="white"/><path d="M21.1 6.7C20.6 6.5 19.8 6.3 18.8 6.3C16.3 6.3 14.6 7.6 14.6 9.4C14.5 10.8 15.8 11.5 16.7 12C17.6 12.5 17.9 12.8 17.9 13.2C17.9 13.8 17.2 14.1 16.5 14.1C15.5 14.1 15 14 14.1 13.6L13.8 13.5L13.4 15.8C14 16.1 15.1 16.3 16.2 16.3C18.9 16.3 20.5 15 20.5 13.1C20.5 12 19.8 11.2 18.4 10.5C17.6 10 17.1 9.7 17.1 9.3C17.1 8.9 17.5 8.5 18.4 8.5C19.2 8.5 19.7 8.6 20.1 8.8L20.3 8.9L20.7 6.7L21.1 6.7Z" fill="white"/><path d="M24.4 6.5H22.4C21.8 6.5 21.4 6.7 21.2 7.3L17.7 15.5H20.4L21 13.9H24.1L24.5 15.5H27L24.4 6.5ZM21.7 12.1C21.9 11.6 22.8 9.3 22.8 9.3C22.8 9.3 23 8.8 23.1 8.5L23.3 9.2C23.3 9.2 23.9 11.7 24 12.1H21.7Z" fill="white"/></svg>
-                      <svg width="34" height="22" viewBox="0 0 34 22" fill="none"><rect width="34" height="22" rx="4" fill="#F5F5F5"/><circle cx="13" cy="11" r="6" fill="#EB001B"/><circle cx="21" cy="11" r="6" fill="#F79E1B"/><path d="M17 7.1C18.1 8 18.9 9.4 18.9 11C18.9 12.6 18.1 14 17 14.9C15.9 14 15.1 12.6 15.1 11C15.1 9.4 15.9 8 17 7.1Z" fill="#FF5F00"/></svg>
-                    </div>
-                  </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div><label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">Expiry</label><div class="border border-gray-200 rounded-lg px-4 py-3 bg-white"><span class="text-gray-300 text-sm">MM / YY</span></div></div>
-                  <div><label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">CVC</label><div class="border border-gray-200 rounded-lg px-4 py-3 bg-white"><span class="text-gray-300 text-sm">•••</span></div></div>
-                </div>
-                <div><label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">Name on Card</label><div class="border border-gray-200 rounded-lg px-4 py-3 bg-white"><span class="text-gray-300 text-sm">Full name</span></div></div>
-              </div>
-              <button class="btn-continue mt-6" id="pay-btn" onclick="goToSuccess()">Pay - Register My LLC</button>
+              
+              <!-- Stripe Payment Element će biti mounted ovde -->
+              <div id="payment-element" class="mb-4"></div>
+              
+              <!-- Error poruke iz Stripe-a -->
+              <div id="payment-message" class="hidden text-sm text-red-600 mb-3 px-3 py-2 rounded-lg bg-red-50"></div>
+              
+              <button class="btn-continue mt-6" id="pay-btn" onclick="handleStripePayment()">Pay - Register My LLC</button>
+              
               <div class="flex items-center justify-center gap-4 mt-4">
                 <div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg><span class="text-[11px] text-gray-400">SSL Encrypted</span></div>
                 <div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-[11px] text-gray-400">7-day money-back</span></div>
@@ -1736,6 +1726,174 @@
     document.getElementById('pay-btn').textContent = 'Pay '+pkgPrices[selectedPackage]+' - Register My LLC';
     showSubView('b');
     window.scrollTo({top:0,behavior:'smooth'});
+    
+    // Inicijalizuj Stripe Payment Element
+    initStripePayment();
+  }
+  
+  // ===== STRIPE PAYMENT INTEGRATION =====
+  var stripeInstance = null;
+  var stripeElements = null;
+  var stripePaymentElement = null;
+  var stripeIsProcessing = false;
+  
+  // Stripe publishable key (test mode)
+  var STRIPE_PUBLISHABLE_KEY = 'pk_test_51TR79yKZsRB2SxU6ohKWyP2LT5e15BdVrvcKDmTdgOnPDSCtGfTB7Ey3Z1Vr6rKPHPHwb63liICVvsHnTQAYOf2f003xP5wCzP';
+  
+  // Backend API URL (Vercel)
+  var STRIPE_API_BASE = 'https://formio-kohl.vercel.app';
+  
+  // Mapping LeadFlow plan ID -> backend plan ID
+  function getStripePlanId() {
+    // selectedPackage je 'starter' ili 'growth'
+    return selectedPackage || 'starter';
+  }
+  
+  async function initStripePayment() {
+    // Sprečavaj duplo inicijalizovanje
+    if (stripeElements) {
+      // Ako je već inicijalizovano, samo update amount/plan ako je promenjen
+      return;
+    }
+    
+    if (typeof Stripe === 'undefined') {
+      showStripeError('Stripe.js nije učitan. Osvežite stranicu.');
+      return;
+    }
+    
+    try {
+      // Inicijalizuj Stripe instance
+      stripeInstance = Stripe(STRIPE_PUBLISHABLE_KEY);
+      
+      // Sakupi podatke iz forme
+      var fullName = (modalFirstName || '') + ' ' + (modalLastName || '');
+      
+      // Kreiraj PaymentIntent na backend-u
+      var response = await fetch(STRIPE_API_BASE + '/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: getStripePlanId(),
+          session_id: getSessionId ? getSessionId() : '',
+          llc_name: llcName ? llcName + ' LLC' : '',
+          email: modalEmail || '',
+          full_name: fullName.trim(),
+          registration_state: stateLabels[selectedState] || ''
+        })
+      });
+      
+      if (!response.ok) {
+        var err = await response.json();
+        throw new Error(err.error || 'Server error');
+      }
+      
+      var data = await response.json();
+      
+      // Configure Elements appearance to match site dizajn
+      var appearance = {
+        theme: 'stripe',
+        variables: {
+          colorPrimary: '#1D44E7',
+          colorBackground: '#ffffff',
+          colorText: '#071841',
+          colorDanger: '#dc2626',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          spacingUnit: '4px',
+          borderRadius: '10px'
+        },
+        rules: {
+          '.Input': {
+            border: '1px solid rgba(7,24,65,0.12)',
+            boxShadow: 'none',
+            padding: '12px 14px'
+          },
+          '.Input:focus': {
+            borderColor: '#1D44E7',
+            boxShadow: '0 0 0 3px rgba(29,68,231,.1)'
+          },
+          '.Label': {
+            fontWeight: '700',
+            fontSize: '11px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            color: '#9ca3af'
+          }
+        }
+      };
+      
+      // Mountuj Elements i Payment Element
+      stripeElements = stripeInstance.elements({
+        clientSecret: data.clientSecret,
+        appearance: appearance
+      });
+      
+      stripePaymentElement = stripeElements.create('payment', {
+        layout: 'tabs'
+      });
+      
+      stripePaymentElement.mount('#payment-element');
+      
+    } catch (err) {
+      console.error('Stripe init error:', err);
+      showStripeError('Greška pri učitavanju forme: ' + err.message);
+    }
+  }
+  
+  async function handleStripePayment() {
+    if (stripeIsProcessing) return;
+    if (!stripeInstance || !stripeElements) {
+      showStripeError('Forma nije spremna. Osvežite stranicu.');
+      return;
+    }
+    
+    stripeIsProcessing = true;
+    var btn = document.getElementById('pay-btn');
+    var originalBtnText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
+    hideStripeError();
+    
+    try {
+      var returnUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + 'payment-success.html';
+      
+      var result = await stripeInstance.confirmPayment({
+        elements: stripeElements,
+        confirmParams: {
+          return_url: returnUrl
+        }
+      });
+      
+      // Stripe redirects on success - ovo se izvršava SAMO ako ima error
+      if (result.error) {
+        showStripeError(result.error.message || 'Plaćanje nije uspešno.');
+        btn.disabled = false;
+        btn.textContent = originalBtnText;
+        stripeIsProcessing = false;
+      }
+      
+    } catch (err) {
+      console.error('Stripe confirm error:', err);
+      showStripeError('Greška: ' + err.message);
+      btn.disabled = false;
+      btn.textContent = originalBtnText;
+      stripeIsProcessing = false;
+    }
+  }
+  
+  function showStripeError(msg) {
+    var el = document.getElementById('payment-message');
+    if (el) {
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+  }
+  
+  function hideStripeError() {
+    var el = document.getElementById('payment-message');
+    if (el) {
+      el.classList.add('hidden');
+      el.textContent = '';
+    }
   }
 
   function goBackToPackages() {
