@@ -1487,7 +1487,8 @@
   }
 
   document.addEventListener('click', function(e) {
-    if (!e.target.closest('.phone-wrap')) {
+    // Zatvori dropdown ako klik nije unutar dropdown-a i nije na dial trigger dugmetu
+    if (!e.target.closest('.phone-dial-dropdown') && !e.target.closest('.phone-dial-btn')) {
       document.querySelectorAll('.phone-dial-dropdown').forEach(function(d){ d.classList.add('hidden'); });
     }
   });
