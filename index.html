@@ -623,10 +623,26 @@
     background: linear-gradient(to bottom, #1D44E7, #1D44E7);
     z-index: 2;
     pointer-events: none; border-radius: 10px;
-    /* transform-origin: top center - skaliramo nadole iz vrha */
     transform: translateX(-50%) scaleY(0);
     transform-origin: top center;
     will-change: transform;
+  }
+  
+  /* MODERNI BROWSERI: CSS scroll-driven animation - radi na compositor thread-u, BEZ JANK-A */
+  @supports (animation-timeline: view()) {
+    @keyframes tl-fill-grow {
+      from { transform: translateX(-50%) scaleY(0); }
+      to   { transform: translateX(-50%) scaleY(1); }
+    }
+    .tl-fill-line {
+      animation: tl-fill-grow linear forwards;
+      animation-timeline: view(--tl-wrap);
+      animation-range: contain 0% contain 100%;
+    }
+    .tl-steps-wrap {
+      view-timeline-name: --tl-wrap;
+      view-timeline-axis: block;
+    }
   }
 
   .tl-step {
@@ -934,16 +950,22 @@
   // updateTimeline radi SAMO sa cache-om - bez getBoundingClientRect (bez reflow-a)
   function updateTimeline() {
     if (!wrap || !fillLine || cachedWrapHeight === 0) return;
+    if (supportsScrollTimeline) return; // CSS preuzima - ne diraj DOM
     const trigger = cachedViewH * 0.55;
     const fillHeight = Math.max(0, Math.min(cachedWrapHeight, window.scrollY + trigger - cachedWrapTop));
-    // Koristi transform scaleY umesto height - radi u GPU, smooth na svim uredjajima
     const scale = fillHeight / cachedWrapHeight;
     fillLine.style.transform = 'translateX(-50%) scaleY(' + scale + ')';
   }
 
+  // Detektuj da li browser podrzava CSS scroll-driven animations (Chrome 115+, Safari 26+)
+  // Ako da - CSS animacija je vec aktivna i radi na compositor thread-u (zero jank)
+  // Ako ne - JavaScript fallback
+  const supportsScrollTimeline = CSS.supports('animation-timeline: view()');
+  
   // Throttle preko requestAnimationFrame
   let tlScrollTicking = false;
   function tlOnScroll() {
+    if (supportsScrollTimeline) return; // CSS preuzima posao - ne radi nista
     if (!tlScrollTicking) {
       window.requestAnimationFrame(function() {
         updateTimeline();
