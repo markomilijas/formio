@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Payment Successful · Formio.biz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f9fafb; }
+    .checkmark-circle {
+      width: 80px; height: 80px; border-radius: 50%; background: #10b981;
+      display: flex; align-items: center; justify-content: center; margin: 0 auto;
+      animation: pop 0.4s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(0); }
+      60% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
+    <div id="loading-state">
+      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-gray-600">Verifying your payment...</p>
+    </div>
+    
+    <div id="success-state" class="hidden">
+      <div class="checkmark-circle mb-5">
+        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold mb-2" style="color:#071841">Payment Successful!</h1>
+      <p class="text-gray-600 mb-2">Thank you for your purchase.</p>
+      <p class="text-sm text-gray-500 mb-6">Your LLC registration is now in process. We'll start working on it within 24 hours.</p>
+      <p class="text-xs text-gray-400 mb-6">A confirmation email has been sent to your email address.</p>
+      <a href="/formio/" class="inline-block bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 transition-colors">Back to Home</a>
+    </div>
+    
+    <div id="error-state" class="hidden">
+      <div class="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-5">
+        <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold mb-2" style="color:#071841">Payment Failed</h1>
+      <p id="error-message" class="text-gray-600 mb-6">Something went wrong with your payment.</p>
+      <a href="/formio/start/" class="inline-block bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 transition-colors">Try Again</a>
+    </div>
+  </div>
+  
+  <script>
+    var STRIPE_PUBLISHABLE_KEY = 'pk_test_51TR79yKZsRB2SxU6ohKWyP2LT5e15BdVrvcKDmTdgOnPDSCtGfTB7Ey3Z1Vr6rKPHPHwb63liICVvsHnTQAYOf2f003xP5wCzP';
+    
+    (async function() {
+      var stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+      var clientSecret = new URLSearchParams(window.location.search).get('payment_intent_client_secret');
+      
+      if (!clientSecret) {
+        showError('Invalid payment session.');
+        return;
+      }
+      
+      try {
+        var result = await stripe.retrievePaymentIntent(clientSecret);
+        var pi = result.paymentIntent;
+        
+        if (pi.status === 'succeeded') {
+          showSuccess();
+        } else if (pi.status === 'processing') {
+          showSuccess(); // Treat processing as success for UX
+        } else if (pi.status === 'requires_payment_method') {
+          showError('Payment was not completed. Please try again.');
+        } else {
+          showError('Payment status: ' + pi.status);
+        }
+      } catch (err) {
+        showError('Could not verify payment: ' + err.message);
+      }
+    })();
+    
+    function showSuccess() {
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('success-state').classList.remove('hidden');
+    }
+    
+    function showError(msg) {
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('error-message').textContent = msg;
+      document.getElementById('error-state').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
