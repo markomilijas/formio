@@ -2752,16 +2752,69 @@
     }
   }
 
+  function checkFinalReviewValid() {
+    // LLC Name (required) - osnovno polje
+    var llcN = (document.getElementById('fr-llc-name')||{}).value || '';
+    if (llcN.replace(/\s*LLC\s*$/i,'').trim().length < 2) { setFinalBtnState(false); return; }
+    
+    // Alternative LLC Name i Business Description - SU OPTIONAL, ne proveravamo
+    
+    // Phone i Email (required)
+    var phone = (document.getElementById('fr-phone')||{}).value || '';
+    var email = (document.getElementById('fr-email')||{}).value || '';
+    if (!phone.trim()) { setFinalBtnState(false); return; }
+    if (!isValidEmail(email)) { setFinalBtnState(false); return; }
+    
+    // Owner data - svi owners
+    for (var i = 0; i < ownersData.length; i++) {
+      var fn = (document.getElementById('fr-owner-' + i + '-first')||{}).value || '';
+      var ln = (document.getElementById('fr-owner-' + i + '-last')||{}).value || '';
+      var st = (document.getElementById('fr-addr-' + i + '-street')||{}).value || '';
+      var ci = (document.getElementById('fr-addr-' + i + '-city')||{}).value || '';
+      var pc = (document.getElementById('fr-addr-' + i + '-postal')||{}).value || '';
+      var cn = (document.getElementById('fr-addr-' + i + '-country')||{}).value || '';
+      
+      if (!fn.trim() || !ln.trim() || !st.trim() || !ci.trim() || !pc.trim() || !cn) {
+        setFinalBtnState(false);
+        return;
+      }
+      
+      // Passport photo - required
+      var ppInput = document.getElementById('fr-pp-' + i);
+      var origPpInput = document.getElementById('pp-upload-' + i);
+      var hasPpFile = (ppInput && ppInput.files && ppInput.files[0]) || (origPpInput && origPpInput.files && origPpInput.files[0]);
+      if (!hasPpFile) { setFinalBtnState(false); return; }
+      
+      // Bill (samo ako passport ne odgovara adresi)
+      if (ownersData[i].passportMatch === 'no') {
+        var billInput = document.getElementById('fr-bill-' + i);
+        var origBillInput = document.getElementById('bill-upload-' + i);
+        var hasBillFile = (billInput && billInput.files && billInput.files[0]) || (origBillInput && origBillInput.files && origBillInput.files[0]);
+        if (!hasBillFile) { setFinalBtnState(false); return; }
+      }
+    }
+    
+    // Sve required popunjeno → checkbox određuje finalno stanje
+    var box = document.getElementById('final-cbox');
+    var isConfirmed = box && box.classList.contains('on');
+    setFinalBtnState(isConfirmed);
+  }
+  
+  function setFinalBtnState(enabled) {
+    var btn = document.getElementById('btn-8e');
+    if (btn) btn.disabled = !enabled;
+  }
+
   function toggleFinalConfirm() {
     var box = document.getElementById('final-cbox');
     var check = document.getElementById('final-ccheck');
-    var btn = document.getElementById('btn-8e');
     var confirmed = box.classList.contains('on');
     if (confirmed) {
-      box.classList.remove('on'); check.classList.add('hidden'); btn.disabled = true;
+      box.classList.remove('on'); check.classList.add('hidden');
     } else {
-      box.classList.add('on'); check.classList.remove('hidden'); btn.disabled = false;
+      box.classList.add('on'); check.classList.remove('hidden');
     }
+    checkFinalReviewValid();
   }
 
   function frRow(label, content) {
@@ -2769,7 +2822,7 @@
   }
 
   function frInput(id, val, type) {
-    return '<input type="' + (type||'text') + '" id="' + id + '" class="s7-input" value="' + (val||'').replace(/"/g,'&quot;') + '"/>';
+    return '<input type="' + (type||'text') + '" id="' + id + '" class="s7-input" value="' + (val||'').replace(/"/g,'&quot;') + '" oninput="checkFinalReviewValid()"/>';
   }
 
   function frCountrySelect(id) {
@@ -2780,12 +2833,14 @@
   function frLlcInput(id, val) {
     var base = (val||'').replace(/\s*LLC\s*$/i,'').trim();
     return '<div class="llc-wrapper">' +
-      '<input type="text" id="' + id + '" class="llc-name-field" value="' + base.replace(/"/g,'&quot;') + '" autocomplete="off"/>' +
+      '<input type="text" id="' + id + '" class="llc-name-field" value="' + base.replace(/"/g,'&quot;') + '" autocomplete="off" oninput="checkFinalReviewValid()"/>' +
+      '<div class="llc-divider"></div>' +
+      '<span class="llc-suffix">LLC</span>' +
     '</div>';
   }
 
   function frTextarea(id, val) {
-    return '<textarea id="' + id + '" class="s7-input" rows="2" style="resize:none">' + (val||'') + '</textarea>';
+    return '<textarea id="' + id + '" class="s7-input" rows="2" style="resize:none" oninput="checkFinalReviewValid()">' + (val||'') + '</textarea>';
   }
 
   function frReadonly(val) {
@@ -2890,6 +2945,7 @@
     ownersData.forEach(function(owner, i) {
       var sel = document.getElementById('fr-addr-' + i + '-country');
       if (!sel) return;
+      sel.onchange = checkFinalReviewValid;
       var opt0 = document.createElement('option'); opt0.value = ''; opt0.textContent = '- Select country -'; sel.appendChild(opt0);
       countries.forEach(function(c) {
         var opt = document.createElement('option');
@@ -2915,6 +2971,7 @@
       document.getElementById('fr-pp-lbl-'+idx).innerHTML =
         '<svg class="w-5 h-5 text-green-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' +
         '<p class="text-sm font-semibold text-green-700">' + n + '</p><p class="text-xs text-gray-400 mt-0.5">Click to replace</p>';
+      checkFinalReviewValid();
     }
   }
 
@@ -2925,6 +2982,7 @@
       document.getElementById('fr-bill-lbl-'+idx).innerHTML =
         '<svg class="w-5 h-5 text-green-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' +
         '<p class="text-sm font-semibold text-green-700">' + n + '</p><p class="text-xs text-gray-400 mt-0.5">Click to replace</p>';
+      checkFinalReviewValid();
     }
   }
 
