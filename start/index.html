@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.11.4/bundle/libphonenumber-min.js"></script>
   <title>Start Your LLC – Formio.biz</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@400,500,600,700&display=swap" />
@@ -2363,16 +2364,28 @@
   }
   
   function checkModalBtn() {
-    var ph=document.getElementById('modal-phone').value.trim();
-    var em=document.getElementById('modal-email').value.trim();
+    var ph = document.getElementById('modal-phone').value.trim();
+    var em = document.getElementById('modal-email').value.trim();
     var dial = (dialState.modal && dialState.modal.dial) || '';
+    var countryCode = (dialState.modal && dialState.modal.code) || '';
+    
     var phClean = ph;
     if (dial && phClean.startsWith(dial)) {
       phClean = phClean.substring(dial.length).trim();
     }
-    var phValid = phClean.replace(/\D/g,'').length >= 4;
+    
+    // Koristi libphonenumber-js za pravu validaciju po zemlji
+    var phValid = false;
+    if (countryCode && phClean) {
+      try {
+        phValid = libphonenumber.isValidPhoneNumber(phClean, countryCode);
+      } catch (e) {
+        phValid = false;
+      }
+    }
+    
     document.getElementById('modal-submit-btn').disabled = !(phValid && isValidEmail(em));
-  }
+}
   
   function submitContactModal() {
     var num=document.getElementById('modal-phone').value.trim();
@@ -2815,19 +2828,28 @@
     return result;
   }
 
-  // ===== Contact sub-step (8c) =====
-  function checkS7bBtn() { checkS8cBtn(); }
   function checkS8cBtn() {
     var ph = document.getElementById('s7b-phone').value.trim();
     var em = document.getElementById('s7b-email').value.trim();
     var btn = document.getElementById('btn-8c');
-    // Validacija - broj mora imati stvarne digite van dial prefiksa
     var dial = (dialState.s7b && dialState.s7b.dial) || '';
+    var countryCode = (dialState.s7b && dialState.s7b.code) || '';
+    
     var phClean = ph;
     if (dial && phClean.startsWith(dial)) {
       phClean = phClean.substring(dial.length).trim();
     }
-    var phValid = phClean.replace(/\D/g,'').length >= 4; // bar 4 digit-a
+    
+    // Validacija po zemlji preko libphonenumber-js
+    var phValid = false;
+    if (countryCode && phClean) {
+      try {
+        phValid = libphonenumber.isValidPhoneNumber(phClean, countryCode);
+      } catch (e) {
+        phValid = false;
+      }
+    }
+    
     if (btn) btn.disabled = !(phValid && isValidEmail(em));
   }
 
