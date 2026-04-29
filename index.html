@@ -916,20 +916,27 @@
   const fillLine = document.getElementById('tl-fill');
   const wrap = document.querySelector('.tl-steps-wrap');
 
+  // Cache pozicija (recompute samo na resize, ne na svaki scroll)
+  let cachedWrapTop = 0;
+  let cachedWrapHeight = 0;
+  let cachedViewH = 0;
+  
+  function recalcTimelineBounds() {
+    if (!wrap) return;
+    cachedWrapTop = wrap.getBoundingClientRect().top + window.scrollY;
+    cachedWrapHeight = wrap.offsetHeight;
+    cachedViewH = window.innerHeight;
+  }
+  
+  // updateTimeline radi SAMO sa cache-om - bez getBoundingClientRect (bez reflow-a)
   function updateTimeline() {
-    if (!wrap || !fillLine || steps.length === 0) return;
-    const wrapTop  = wrap.getBoundingClientRect().top + window.scrollY;
-    const viewH    = window.innerHeight;
-    const trigger  = viewH * 0.55;
-    const fillHeight = Math.max(0, Math.min(wrap.offsetHeight, window.scrollY + trigger - wrapTop));
+    if (!wrap || !fillLine || cachedWrapHeight === 0) return;
+    const trigger = cachedViewH * 0.55;
+    const fillHeight = Math.max(0, Math.min(cachedWrapHeight, window.scrollY + trigger - cachedWrapTop));
     fillLine.style.height = fillHeight + 'px';
-    const activeThreshold = viewH * 0.60;
-    steps.forEach(function(step) {
-      step.classList.toggle('tl-active', step.getBoundingClientRect().top < activeThreshold);
-    });
   }
 
-  // Throttle preko requestAnimationFrame - sprecava overload
+  // Throttle preko requestAnimationFrame
   let tlScrollTicking = false;
   function tlOnScroll() {
     if (!tlScrollTicking) {
@@ -940,10 +947,51 @@
       tlScrollTicking = true;
     }
   }
+  
+  // tl-active class koristi IntersectionObserver - native browser API, BEZ reflow-a
+  if (typeof IntersectionObserver !== 'undefined' && steps.length > 0) {
+    const stepObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        // Aktivan kad gornji deo kartice predje 60% viewporta
+        if (entry.boundingClientRect.top < window.innerHeight * 0.60) {
+          entry.target.classList.add('tl-active');
+        } else if (!entry.isIntersecting && entry.boundingClientRect.top > 0) {
+          entry.target.classList.remove('tl-active');
+        }
+      });
+    }, {
+      // rootMargin pomera "trigger zonu" naviše/naniže
+      rootMargin: '0px 0px -40% 0px',
+      threshold: [0, 0.1, 0.5, 1]
+    });
+    steps.forEach(function(step) { stepObserver.observe(step); });
+  } else {
+    // Fallback za jako stare browsere
+    function checkActive() {
+      const t = window.innerHeight * 0.60;
+      steps.forEach(function(s) {
+        s.classList.toggle('tl-active', s.getBoundingClientRect().top < t);
+      });
+    }
+    window.addEventListener('scroll', checkActive, { passive: true });
+    checkActive();
+  }
 
   window.addEventListener('scroll', tlOnScroll, { passive: true });
-  window.addEventListener('resize', tlOnScroll, { passive: true });
+  window.addEventListener('resize', function() {
+    recalcTimelineBounds();
+    tlOnScroll();
+  }, { passive: true });
+  
+  // Inicijalno
+  recalcTimelineBounds();
   updateTimeline();
+  
+  // Recompute kad page završi load (slike, fontovi) - mogu da pomere stvari
+  window.addEventListener('load', function() {
+    recalcTimelineBounds();
+    updateTimeline();
+  });
 })();
 </script>
 
@@ -2148,7 +2196,7 @@
     <!-- Compare table (always visible) -->
     <style>
       /* Divider heading */
-      .cmp-divider { display:flex; align-items:center; gap:20px; max-width:880px; margin:56px auto 0; padding:0 24px; }
+      .cmp-divider { display:flex; align-items:center; gap:20px; max-width:896px; margin:56px auto 0; padding:0; }
       .cmp-divider-line { flex:1; height:1px; background:rgba(255,255,255,0.12); flex-shrink:0; }
       .cmp-divider-text {
         font-family:'Inter Tight','Inter',sans-serif;
@@ -2163,7 +2211,7 @@
       }
 
       /* Dark table */
-      .cmp-dark-wrap { max-width:880px; margin:0 auto; padding:0 24px; }
+      .cmp-dark-wrap { max-width:896px; margin:0 auto; padding:0; }
       .cmp-dtable-shell {
         border:1px solid rgba(255,255,255,0.1);
         border-radius:20px;
