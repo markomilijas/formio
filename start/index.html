@@ -539,7 +539,7 @@
                 <p class="text-xs text-gray-600 leading-relaxed mb-1.5"><strong>Starting from the second year, the yearly cost for maintaining the company is low <span class="price-badge">~$112/yr</span></strong></p>
                 <p class="text-xs text-gray-500 leading-relaxed">Offers full privacy with strong owner anonymity and no corporate or franchise tax. A simple, cost-efficient choice for most online and service-based businesses.</p>
               </div>
-              <div id="ind-wyoming" class="state-sq mt-1"></div>
+              <div id="ind-wyoming" class="state-sq mt-1"><svg id="ind-wyoming-check" class="hidden" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
             </div>
           </div>
           <div id="opt-delaware" class="state-card" onclick="selectState('delaware')">
@@ -550,7 +550,7 @@
                 <p class="text-xs text-gray-600 leading-relaxed mb-1.5"><strong>Starting from the second year, the yearly cost for maintaining the company is higher <span class="price-badge price-badge-red">~$349/yr</span></strong></p>
                 <p class="text-xs text-gray-500 leading-relaxed">Best suited if you plan to raise investment or transition into a C/S Corporation. Widely preferred by investors, with no state income tax if operating outside Delaware.</p>
               </div>
-              <div id="ind-delaware" class="state-sq mt-0.5"></div>
+              <div id="ind-delaware" class="state-sq mt-0.5"><svg id="ind-delaware-check" class="hidden" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
             </div>
           </div>
         </div>
@@ -1181,16 +1181,12 @@
           <div class="flex flex-col gap-4 mb-9">
             <div>
               <label class="s7-label">LLC Name</label>
-              <div class="llc-wrapper">
-                <input type="text" id="s7-llc-name" class="llc-name-field" placeholder="e.g. Acme Ventures LLC" oninput="onS7LlcNameInput(this.value)" autocomplete="off"/>
-              </div>
+              <input type="text" id="s7-llc-name" class="s7-input" placeholder="e.g. Acme Ventures LLC" oninput="onS7LlcNameInput(this.value)" autocomplete="off"/>
             </div>
             <div>
               <label class="s7-label">Alternative LLC Name</label>
               <p class="text-xs text-gray-500 font-medium mb-1.5 -mt-1">Optional - in case your first choice is already taken, we'll use this as a backup.</p>
-              <div class="llc-wrapper">
-                <input type="text" id="s7-alt-llc-name" class="llc-name-field" placeholder="e.g. Acme Group LLC" oninput="onS7AltNameInput(this.value)" autocomplete="off"/>
-              </div>
+              <input type="text" id="s7-alt-llc-name" class="s7-input" placeholder="e.g. Acme Group LLC" oninput="onS7AltNameInput(this.value)" autocomplete="off"/>
             </div>
             <div>
               <label class="s7-label">Business Description</label>
@@ -1675,9 +1671,9 @@
       showSubView('a');
     }
     if (step === 8) {
-      // Pre-fill LLC name field for sub-8f
+      // Pre-fill LLC name field for sub-8f - sa "LLC" suffix-om
       var llcInput = document.getElementById('s7-llc-name');
-      if (llcInput) llcInput.value = llcName || '';
+      if (llcInput) llcInput.value = llcName ? (llcName + ' LLC') : '';
       checkS8FValid();
       // Reset owners list so sub-8b initializes fresh each time
       var ownersList = document.getElementById('owners-list');
@@ -1881,6 +1877,7 @@
   }
 
   function onS7LlcNameInput(v) {
+    // User može uneti sa ili bez "LLC" - mi ga uvek čuvamo bez suffix-a interno
     llcName = v.replace(/\s*LLC\s*$/i,'').trim();
     checkS8FValid();
   }
@@ -1921,9 +1918,18 @@
   // ===== Step 3: State =====
   function selectState(state) {
     selectedState=state;
-    ['delaware','wyoming'].forEach(function(s){ document.getElementById('opt-'+s).classList.remove('selected'); var ind=document.getElementById('ind-'+s); ind.style.background=''; ind.style.borderColor=''; });
+    ['delaware','wyoming'].forEach(function(s){ 
+      document.getElementById('opt-'+s).classList.remove('selected'); 
+      var ind=document.getElementById('ind-'+s); 
+      ind.style.background=''; 
+      ind.style.borderColor=''; 
+      var chk=document.getElementById('ind-'+s+'-check');
+      if (chk) chk.classList.add('hidden');
+    });
     document.getElementById('opt-'+state).classList.add('selected');
     var ind=document.getElementById('ind-'+state); ind.style.background='#1D44E7'; ind.style.borderColor='#1D44E7';
+    var chkSel=document.getElementById('ind-'+state+'-check');
+    if (chkSel) chkSel.classList.remove('hidden');
     document.getElementById('btn-3').disabled=false;
     var warn = document.getElementById('delaware-warning');
     if (warn) warn.classList.toggle('hidden', state !== 'delaware');
@@ -2330,6 +2336,8 @@
       checkS8cBtn();
     }
     if (id === 'g') {
+      // Sakupi address podatke pre review-a (uključuje country)
+      collectAddressData();
       if (!ownersData.length) ownersData = [{ first: ownerFirstName, last: ownerLastName, fullName: (ownerFirstName+' '+ownerLastName).trim(), street: ownerStreet, city: ownerCity, postal: ownerZip, addrCountry: selectedCountryLabel, passportMatch: null }];
       buildFinalReview();
     }
@@ -2831,12 +2839,10 @@
   }
 
   function frLlcInput(id, val) {
+    // Vrednost uvek sadrži "LLC" suffix kao stvarni tekst
     var base = (val||'').replace(/\s*LLC\s*$/i,'').trim();
-    return '<div class="llc-wrapper">' +
-      '<input type="text" id="' + id + '" class="llc-name-field" value="' + base.replace(/"/g,'&quot;') + '" autocomplete="off" oninput="checkFinalReviewValid()"/>' +
-      '<div class="llc-divider"></div>' +
-      '<span class="llc-suffix">LLC</span>' +
-    '</div>';
+    var fullVal = base ? (base + ' LLC') : '';
+    return '<input type="text" id="' + id + '" class="s7-input" value="' + fullVal.replace(/"/g,'&quot;') + '" autocomplete="off" oninput="checkFinalReviewValid()"/>';
   }
 
   function frTextarea(id, val) {
