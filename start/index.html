@@ -1601,10 +1601,15 @@
       var wrap = dd.parentElement;
       if (wrap && !wrap.contains(e.target)) dd.classList.add('hidden');
     }
-    // Close all addr country pickers
-    document.querySelectorAll('[id^="addr-cdrop-"]').forEach(function(drop) {
+    // Close all FR country pickers
+    document.querySelectorAll('[id^="fr-addr-"][id$="-drop"]').forEach(function(drop) {
       if (!drop.classList.contains('hidden') && !drop.parentElement.contains(e.target)) {
         drop.classList.add('hidden');
+        var id = drop.id.replace('-drop', '');
+        var chev = document.getElementById(id + '-chev');
+        if (chev) chev.style.transform = '';
+      }
+    });
       }
     });
   });
@@ -2707,7 +2712,11 @@
     list.forEach(function(c) {
       var div = document.createElement('div');
       div.className = 'country-item';
-      div.textContent = c.name;
+      // Zastava + ime
+      div.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+        '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(c.code) + '</span>' +
+        '<span>' + c.name + '</span>' +
+        '</span>';
       div.onclick = (function(cc, ii) { return function() { pickAddrCountry(ii, cc.code, cc.name); }; })(c, idx);
       container.appendChild(div);
     });
@@ -2745,7 +2754,7 @@
       showSanctionModal(name);
       // Reset the picker text
       var txt = document.getElementById('addr-ctxt-'+idx);
-      if (txt) { txt.textContent = 'Select your country...'; txt.className = 'text-sm text-gray-400'; }
+      if (txt) { txt.innerHTML = 'Select your country...'; txt.className = 'text-sm text-gray-400'; }
       var picker = document.getElementById('addr-cpicker-'+idx);
       if (picker) { delete picker.dataset.code; delete picker.dataset.name; }
       // Reset i u ownersData
@@ -2756,7 +2765,13 @@
       return;
     }
     var txt = document.getElementById('addr-ctxt-'+idx);
-    if (txt) { txt.textContent = name; txt.className = 'text-sm font-semibold text-gray-900'; }
+    if (txt) {
+      txt.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+        '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(code) + '</span>' +
+        '<span>' + name + '</span>' +
+        '</span>';
+      txt.className = 'text-sm font-semibold text-gray-900';
+    }
     var picker = document.getElementById('addr-cpicker-'+idx);
     if (picker) { picker.dataset.code = code; picker.dataset.name = name; }
     // DIREKTNO ažuriraj ownersData - tako se ne gubi pri prelasku između stepova
@@ -2928,7 +2943,9 @@
       var st = (document.getElementById('fr-addr-' + i + '-street')||{}).value || '';
       var ci = (document.getElementById('fr-addr-' + i + '-city')||{}).value || '';
       var pc = (document.getElementById('fr-addr-' + i + '-postal')||{}).value || '';
-      var cn = (document.getElementById('fr-addr-' + i + '-country')||{}).value || '';
+      var picker = document.getElementById('fr-addr-' + i + '-country-picker');
+      var cn = (picker && picker.dataset.code) ? picker.dataset.code : '';
+      var cnLabel = (picker && picker.dataset.name) ? picker.dataset.name : '';
       
       if (!fn.trim() || !ln.trim() || !st.trim() || !ci.trim() || !pc.trim() || !cn) {
         setFinalBtnState(false);
@@ -2981,9 +2998,84 @@
     return '<input type="' + (type||'text') + '" id="' + id + '" class="s7-input" value="' + (val||'').replace(/"/g,'&quot;') + '" oninput="checkFinalReviewValid()"/>';
   }
 
+  // Final Review country picker functions
+  function renderFrCList(id, list) {
+    var container = document.getElementById(id + '-list');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!list.length) { container.innerHTML = '<div class="px-4 py-3 text-sm text-gray-400">No results found</div>'; return; }
+    list.forEach(function(c) {
+      var div = document.createElement('div');
+      div.className = 'country-item';
+      div.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+        '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(c.code) + '</span>' +
+        '<span>' + c.name + '</span>' +
+        '</span>';
+      div.onclick = function() { pickFrCountry(id, c.code, c.name); };
+      container.appendChild(div);
+    });
+  }
+
+  function toggleFrCPicker(id) {
+    var drop = document.getElementById(id + '-drop');
+    var chev = document.getElementById(id + '-chev');
+    if (!drop) return;
+    var isHidden = drop.classList.contains('hidden');
+    // Close all FR dropdowns
+    document.querySelectorAll('[id^="fr-addr-"][id$="-drop"]').forEach(function(d){ d.classList.add('hidden'); });
+    if (isHidden) {
+      drop.classList.remove('hidden');
+      if (chev) chev.style.transform = 'rotate(180deg)';
+      var search = drop.querySelector('.country-search-input');
+      if (search) { search.value = ''; renderFrCList(id, countries); setTimeout(function(){ search.focus(); }, 50); }
+    } else {
+      if (chev) chev.style.transform = '';
+    }
+  }
+
+  function filterFrC(id, query) {
+    var filtered = query ? countries.filter(function(c){ return c.name.toLowerCase().indexOf(query.toLowerCase()) !== -1; }) : countries;
+    renderFrCList(id, filtered);
+  }
+
+  function pickFrCountry(id, code, name) {
+    var drop = document.getElementById(id + '-drop');
+    var chev = document.getElementById(id + '-chev');
+    if (drop) drop.classList.add('hidden');
+    if (chev) chev.style.transform = '';
+    if (isSanctioned(code)) {
+      showSanctionModal(name);
+      var txt = document.getElementById(id + '-text');
+      if (txt) { txt.innerHTML = 'Select country...'; txt.className = 'text-sm text-gray-400'; }
+      var picker = document.getElementById(id + '-picker');
+      if (picker) { delete picker.dataset.code; delete picker.dataset.name; }
+      return;
+    }
+    var txt = document.getElementById(id + '-text');
+    if (txt) {
+      txt.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+        '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(code) + '</span>' +
+        '<span>' + name + '</span>' +
+        '</span>';
+      txt.className = 'text-sm font-semibold text-gray-900';
+    }
+    var picker = document.getElementById(id + '-picker');
+    if (picker) { picker.dataset.code = code; picker.dataset.name = name; }
+    checkFinalReviewValid();
+  }
+  
   function frCountrySelect(id) {
-    // Shell only - populated after innerHTML is set
-    return '<select id="' + id + '" class="s7-input"></select>';
+    // Custom dropdown sa zastavama (zameni <select>)
+    return '<div class="relative" id="' + id + '-picker">' +
+      '<div id="' + id + '-trigger" class="country-trigger" onclick="toggleFrCPicker(\'' + id + '\')">' +
+        '<span id="' + id + '-text" class="text-sm text-gray-400">Select country...</span>' +
+        '<svg id="' + id + '-chev" class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
+      '</div>' +
+      '<div id="' + id + '-drop" class="country-dropdown hidden">' +
+        '<input type="text" class="country-search-input" placeholder="Search country..." oninput="filterFrC(\'' + id + '\', this.value)" autocomplete="off"/>' +
+        '<div id="' + id + '-list" class="country-list"></div>' +
+      '</div>' +
+    '</div>';
   }
 
   function frLlcInput(id, val) {
