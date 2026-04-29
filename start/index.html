@@ -2180,8 +2180,84 @@
     modalPhone = dial + ' ' + localNum;
     modalEmail = document.getElementById('modal-email').value.trim();
     if (dialState.modal) dialState.modal.localNumber = localNum;
+    
+    // PARTIAL SUBMIT - posalji sve podatke sakupljene do sad na Make webhook
+    sendPartialSubmit(dial, localNum);
+    
     closeContactModal();
     goToStep(6);
+  }
+  
+  // Generise i cuva session_id u sessionStorage da ne pravi novi pri svakom submit-u
+  function getSessionId() {
+    try {
+      var sid = sessionStorage.getItem('formio_session_id');
+      if (!sid) {
+        sid = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+        sessionStorage.setItem('formio_session_id', sid);
+      }
+      return sid;
+    } catch(e) {
+      return 'sess_' + Date.now();
+    }
+  }
+  
+  // Partial submit - salje sve trenutne podatke na Make webhook
+  function sendPartialSubmit(dialCode, localNumber) {
+    try {
+      var stateMap = { 'wyoming':'Wyoming', 'delaware':'Delaware' };
+      
+      var payload = {
+        // Stage info
+        stage: 'contact_captured',
+        timestamp: new Date().toISOString(),
+        session_id: getSessionId(),
+        
+        // Kontakt info (iz modala)
+        first_name: ownerFirstName || '',
+        last_name: ownerLastName || '',
+        full_name: (ownerFirstName + ' ' + ownerLastName).trim(),
+        email: modalEmail || '',
+        phone: modalPhone || '',
+        phone_dial_code: dialCode || '',
+        phone_local: localNumber || '',
+        phone_country_code: (dialState.modal && dialState.modal.code) || '',
+        
+        // LLC info
+        llc_name: llcName || '',
+        llc_name_full: llcName ? (llcName + ' LLC') : '',
+        
+        // Industry
+        industry: selectedIndustry || '',
+        industry_label: selectedIndustryLabel || '',
+        
+        // Registration State
+        registration_state: selectedState || '',
+        registration_state_label: stateMap[selectedState] || '',
+        
+        // Owner Address (iz Step 4b)
+        address_street: ownerStreet || '',
+        address_city: ownerCity || '',
+        address_postal: ownerZip || '',
+        address_country: selectedCountryLabel || '',
+        address_country_code: selectedCountry || '',
+        
+        // Page info
+        page_url: window.location.href,
+        user_agent: navigator.userAgent
+      };
+      
+      // Posalji na Make webhook (fire and forget - ne blokiramo flow)
+      fetch('https://hook.eu1.make.com/j6oejvy94aiylpbr172xyfyvskxh99cb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(function(err) {
+        console.warn('Partial submit failed:', err);
+      });
+    } catch(e) {
+      console.warn('Error preparing partial submit:', e);
+    }
   }
 
   // ===== Step 6: Package selection =====
