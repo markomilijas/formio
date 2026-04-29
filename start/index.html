@@ -3142,7 +3142,126 @@
     }
   }
 
+  // Final submit - salje sve podatke + uploaded fajlove preko multipart form-data
+  function sendFinalSubmit() {
+    try {
+      var stateMap = { 'wyoming':'Wyoming', 'delaware':'Delaware' };
+      var pkgLabels = {
+        'starter': selectedState === 'delaware' ? 'Get Started DE LLC (€499)' : 'Get Started WYO LLC (€399)',
+        'growth':  selectedState === 'delaware' ? 'Growth-Ready DE LLC (€599)' : 'Growth-Ready WYO LLC (€499)'
+      };
+      
+      // Sakupi izmenjene podatke iz Final Review polja (jer korisnik moze da menja)
+      var frLlcName = (document.getElementById('fr-llc-name')||{}).value || llcName || '';
+      var frAltName = (document.getElementById('fr-alt-name')||{}).value || '';
+      var frDescription = (document.getElementById('fr-description')||{}).value || '';
+      var frPhone = (document.getElementById('fr-phone')||{}).value || modalPhone || '';
+      var frEmail = (document.getElementById('fr-email')||{}).value || modalEmail || '';
+      
+      // Cisti LLC name (uklanja " LLC" suffix iz vrednosti)
+      var llcNameClean = frLlcName.replace(/\s*LLC\s*$/i,'').trim();
+      var altNameClean = frAltName.replace(/\s*LLC\s*$/i,'').trim();
+      
+      // Multipart FormData - dozvoljava i fajlove i text fieldove
+      var fd = new FormData();
+      
+      // Stage info
+      fd.append('stage', 'final_submit');
+      fd.append('timestamp', new Date().toISOString());
+      fd.append('session_id', getSessionId());
+      
+      // Kontakt
+      fd.append('email', frEmail);
+      fd.append('phone', frPhone);
+      
+      // LLC info
+      fd.append('llc_name', llcNameClean);
+      fd.append('llc_name_full', llcNameClean ? (llcNameClean + ' LLC') : '');
+      fd.append('alternative_llc_name', altNameClean);
+      fd.append('alternative_llc_name_full', altNameClean ? (altNameClean + ' LLC') : '');
+      fd.append('business_description', frDescription);
+      
+      // Industry
+      fd.append('industry', selectedIndustry || '');
+      fd.append('industry_label', selectedIndustryLabel || '');
+      
+      // State i Plan
+      fd.append('registration_state', selectedState || '');
+      fd.append('registration_state_label', stateMap[selectedState] || '');
+      fd.append('plan', selectedPackage || '');
+      fd.append('plan_label', pkgLabels[selectedPackage] || '');
+      
+      // Owners - sakupi sve owner podatke iz Final Review polja
+      var ownersFinal = [];
+      ownersData.forEach(function(owner, i) {
+        var first  = (document.getElementById('fr-owner-' + i + '-first')||{}).value || owner.first || '';
+        var last   = (document.getElementById('fr-owner-' + i + '-last')||{}).value || owner.last || '';
+        var street = (document.getElementById('fr-addr-' + i + '-street')||{}).value || owner.street || '';
+        var city   = (document.getElementById('fr-addr-' + i + '-city')||{}).value || owner.city || '';
+        var postal = (document.getElementById('fr-addr-' + i + '-postal')||{}).value || owner.postal || '';
+        var countrySel = document.getElementById('fr-addr-' + i + '-country');
+        var countryCode = countrySel ? countrySel.value : (owner.addrCountryCode || '');
+        var countryName = countrySel && countrySel.selectedIndex >= 0 
+          ? countrySel.options[countrySel.selectedIndex].textContent 
+          : (owner.addrCountry || '');
+        
+        ownersFinal.push({
+          owner_index: i + 1,
+          first_name: first,
+          last_name: last,
+          full_name: (first + ' ' + last).trim(),
+          street: street,
+          city: city,
+          postal: postal,
+          country: countryName,
+          country_code: countryCode,
+          passport_match_address: owner.passportMatch || ''
+        });
+      });
+      fd.append('owners', JSON.stringify(ownersFinal));
+      fd.append('owners_count', ownersFinal.length);
+      
+      // Fajlovi - passport i bill za svakog owner-a
+      ownersData.forEach(function(owner, i) {
+        // Passport - prvo proveri Final Review input, onda originalni
+        var ppFr  = document.getElementById('fr-pp-' + i);
+        var ppOrig = document.getElementById('pp-upload-' + i);
+        var ppFile = (ppFr && ppFr.files && ppFr.files[0]) || (ppOrig && ppOrig.files && ppOrig.files[0]);
+        if (ppFile) {
+          fd.append('passport_file_owner_' + i, ppFile, ppFile.name);
+        }
+        
+        // Bill (samo ako passport ne odgovara adresi)
+        if (owner.passportMatch === 'no') {
+          var billFr  = document.getElementById('fr-bill-' + i);
+          var billOrig = document.getElementById('bill-upload-' + i);
+          var billFile = (billFr && billFr.files && billFr.files[0]) || (billOrig && billOrig.files && billOrig.files[0]);
+          if (billFile) {
+            fd.append('bill_file_owner_' + i, billFile, billFile.name);
+          }
+        }
+      });
+      
+      // Page info
+      fd.append('page_url', window.location.href);
+      fd.append('user_agent', navigator.userAgent);
+      
+      // Posalji multipart na isti webhook (ne stavljamo Content-Type header - browser sam dodaje sa boundary)
+      fetch('https://hook.eu1.make.com/j6oejvy94aiylpbr172xyfyvskxh99cb', {
+        method: 'POST',
+        body: fd
+      }).catch(function(err) {
+        console.warn('Final submit failed:', err);
+      });
+    } catch(e) {
+      console.warn('Error preparing final submit:', e);
+    }
+  }
+  
   function submitStep8() {
+    // PRE prikaza Thank you ekrana, posalji final submit na webhook
+    sendFinalSubmit();
+    
     // Expand to full width - hide sidebar
     var sidebar = document.querySelector('.left-sidebar');
     var mainEl = document.querySelector('main');
