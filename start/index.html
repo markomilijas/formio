@@ -2659,7 +2659,7 @@
         '<div class="s7-field"><label class="s7-label">Country</label>' +
           '<div class="country-picker" id="addr-cpicker-'+i+'">' +
             '<div id="addr-ctrigger-'+i+'" class="country-trigger" onclick="toggleAddrCPicker('+i+')">' +
-              '<span id="addr-ctxt-'+i+'" class="text-sm ' + (owner.addrCountry ? 'font-semibold text-gray-900' : 'text-gray-400') + '">' + (owner.addrCountry || 'Select your country...') + '</span>' +
+              '<span id="addr-ctxt-'+i+'" class="text-sm ' + (owner.addrCountry ? 'font-semibold text-gray-900' : 'text-gray-400') + '">' + (owner.addrCountry ? '<span style="display:inline-flex;align-items:center;gap:10px;"><span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(owner.addrCountryCode || '') + '</span><span>' + owner.addrCountry + '</span></span>' : 'Select your country...') + '</span>' +
               '<svg id="addr-cchev-'+i+'" class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             '</div>' +
             '<div id="addr-cdrop-'+i+'" class="country-dropdown hidden">' +
@@ -2703,7 +2703,13 @@
       var c = countries.find(function(x){ return x.code === preCode; });
       if (c) {
         var txt = document.getElementById('addr-ctxt-'+idx);
-        if (txt) { txt.textContent = c.name; txt.className = 'text-sm font-semibold text-gray-900'; }
+        if (txt) { 
+          txt.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+            '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(c.code) + '</span>' +
+            '<span>' + c.name + '</span>' +
+            '</span>';
+          txt.className = 'text-sm font-semibold text-gray-900';
+        }
       }
     }
   }
