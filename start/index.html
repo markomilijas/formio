@@ -1519,7 +1519,11 @@
     list.forEach(function(c) {
       var div = document.createElement('div');
       div.className = 'country-item' + (selectedCountry === c.code ? ' active' : '');
-      div.textContent = c.name;
+      // Zastava + ime
+      div.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+        '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(c.code) + '</span>' +
+        '<span>' + c.name + '</span>' +
+        '</span>';
       div.onclick = function() { pickCountry(c.code, c.name); };
       container.appendChild(div);
     });
@@ -1573,7 +1577,7 @@
       selectedCountry = null;
       selectedCountryLabel = '';
       var txt = document.getElementById('country-trigger-text');
-      txt.textContent = 'Select your country...';
+      txt.innerHTML = 'Select your country...';
       txt.className = 'text-sm text-gray-400';
       onOwnerAddressInput();
       return;
@@ -1581,7 +1585,10 @@
     selectedCountry = code;
     selectedCountryLabel = name;
     var txt = document.getElementById('country-trigger-text');
-    txt.textContent = name;
+    txt.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+      '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(code) + '</span>' +
+      '<span>' + name + '</span>' +
+      '</span>';
     txt.className = 'text-sm font-semibold text-gray-900';
     onOwnerAddressInput();
   }
