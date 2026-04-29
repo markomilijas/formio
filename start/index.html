@@ -2616,12 +2616,22 @@
       if (txt) { txt.textContent = 'Select your country...'; txt.className = 'text-sm text-gray-400'; }
       var picker = document.getElementById('addr-cpicker-'+idx);
       if (picker) { delete picker.dataset.code; delete picker.dataset.name; }
+      // Reset i u ownersData
+      if (ownersData[idx]) {
+        ownersData[idx].addrCountry = '';
+        ownersData[idx].addrCountryCode = '';
+      }
       return;
     }
     var txt = document.getElementById('addr-ctxt-'+idx);
     if (txt) { txt.textContent = name; txt.className = 'text-sm font-semibold text-gray-900'; }
     var picker = document.getElementById('addr-cpicker-'+idx);
     if (picker) { picker.dataset.code = code; picker.dataset.name = name; }
+    // DIREKTNO ažuriraj ownersData - tako se ne gubi pri prelasku između stepova
+    if (ownersData[idx]) {
+      ownersData[idx].addrCountry = name;
+      ownersData[idx].addrCountryCode = code;
+    }
     checkOwnerAddresses();
   }
 
@@ -2644,12 +2654,18 @@
       var picker = document.getElementById('addr-cpicker-'+i);
       var yesEl = document.getElementById('paddr-'+i+'-yes');
       var noEl = document.getElementById('paddr-'+i+'-no');
-      owner.street = street ? street.value.trim() : '';
-      owner.city = city ? city.value.trim() : '';
-      owner.postal = postal ? postal.value.trim() : '';
-      owner.addrCountry = picker ? (picker.dataset.name || '') : '';
-      owner.addrCountryCode = picker ? (picker.dataset.code || '') : '';
-      owner.passportMatch = noEl && noEl.classList.contains('selected') ? 'no' : (yesEl && yesEl.classList.contains('selected') ? 'yes' : null);
+      if (street) owner.street = street.value.trim();
+      if (city) owner.city = city.value.trim();
+      if (postal) owner.postal = postal.value.trim();
+      // Country: koristi picker dataset ako postoji, INAČE zadrži postojeći
+      if (picker && picker.dataset.name) {
+        owner.addrCountry = picker.dataset.name;
+        owner.addrCountryCode = picker.dataset.code || '';
+      }
+      // Passport match: koristi DOM ako postoji, inače zadrži postojeći
+      if (yesEl || noEl) {
+        owner.passportMatch = noEl && noEl.classList.contains('selected') ? 'no' : (yesEl && yesEl.classList.contains('selected') ? 'yes' : owner.passportMatch || null);
+      }
       // Build full address string
       var parts = [];
       if (owner.street) parts.push(owner.street);
