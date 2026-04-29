@@ -1460,20 +1460,48 @@
   }
 
   function detectCountryByIP() {
-    fetch('https://ipapi.co/json/')
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        if (data && data.country_code) {
-          var found = phoneCodes.find(function(p){ return p.code === data.country_code; });
-          if (found) {
-            setDialCode('modal', found);
-            setDialCode('s7b', found);
-            renderDialList('modal', phoneCodes);
-            renderDialList('s7b', phoneCodes);
+    // Probaj više servisa redom (ako prvi padne, idi na drugi, pa treci)
+    var providers = [
+      { url: 'https://api.country.is/',        field: 'country' },
+      { url: 'https://ipwho.is/',              field: 'country_code' },
+      { url: 'https://ipapi.co/json/',         field: 'country_code' }
+    ];
+    
+    function tryProvider(index) {
+      if (index >= providers.length) {
+        console.warn('Country IP detection: svi provideri pali, koristim default US');
+        return;
+      }
+      var p = providers[index];
+      fetch(p.url)
+        .then(function(r){ 
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json(); 
+        })
+        .then(function(data){
+          var code = data && data[p.field];
+          if (code) {
+            var found = phoneCodes.find(function(c){ return c.code === code; });
+            if (found) {
+              setDialCode('modal', found);
+              setDialCode('s7b', found);
+              renderDialList('modal', phoneCodes);
+              renderDialList('s7b', phoneCodes);
+              console.log('Country detected:', code, 'via', p.url);
+            } else {
+              console.warn('Country code', code, 'nije u phoneCodes listi');
+            }
+          } else {
+            throw new Error('No country code in response');
           }
-        }
-      })
-      .catch(function(){});
+        })
+        .catch(function(err){ 
+          console.warn('Provider', p.url, 'failed:', err.message);
+          tryProvider(index + 1);
+        });
+    }
+    
+    tryProvider(0);
   }
 
   document.addEventListener('click', function(e) {
