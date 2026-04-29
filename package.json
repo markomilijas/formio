@@ -1,0 +1,7 @@
+{
+  "name": "formio-backend",
+  "version": "1.0.0",
+  "dependencies": {
+    "stripe": "^17.0.0"
+  }
+}
