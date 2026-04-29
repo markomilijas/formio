@@ -1152,11 +1152,11 @@
               <div class="phone-wrap">
                 <div class="phone-inner">
                   <button type="button" id="s7b-dial-btn" class="phone-dial-btn" onclick="toggleDialPicker('s7b')">
-                    <span id="s7b-dial-flag" style="font-size:18px;line-height:1;width:22px;text-align:center">🌐</span>
+                    <span id="s7b-dial-flag" style="line-height:1;width:22px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0"></span>
                     <span id="s7b-dial-code" style="font-size:12px;font-weight:700;color:#374151;min-width:28px">+1</span>
                     <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="text-gray-400"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </button>
-                  <input type="tel" id="s7b-phone" class="phone-num-input" placeholder="555 000 000" oninput="checkS7bBtn()" autocomplete="tel"/>
+                  <input type="tel" id="s7b-phone" class="phone-num-input" placeholder="555 000 000" oninput="autoDetectDial('s7b', this.value); checkS7bBtn();" autocomplete="tel"/>
                 </div>
                 <div id="s7b-dial-dropdown" class="phone-dial-dropdown hidden">
                   <input type="text" class="phone-dial-search" placeholder="Search country or code..." oninput="filterDialList('s7b',this.value)" autocomplete="off"/>
@@ -1255,11 +1255,11 @@
       <div class="phone-wrap">
         <div class="phone-inner modal-style">
           <button type="button" id="modal-dial-btn" class="phone-dial-btn" onclick="toggleDialPicker('modal')">
-            <span id="modal-dial-flag" style="font-size:18px;line-height:1;width:22px;text-align:center">🌐</span>
+            <span id="modal-dial-flag" style="line-height:1;width:22px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0"></span>
             <span id="modal-dial-code" style="font-size:12px;font-weight:700;color:#374151;min-width:28px">+1</span>
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="text-gray-400"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <input type="tel" id="modal-phone" class="phone-num-input modal-size" placeholder="555 000 000" oninput="checkModalBtn()" autocomplete="tel"/>
+          <input type="tel" id="modal-phone" class="phone-num-input modal-size" placeholder="555 000 000" oninput="autoDetectDial('modal', this.value); checkModalBtn();" autocomplete="tel"/>
         </div>
         <div id="modal-dial-dropdown" class="phone-dial-dropdown hidden">
           <input type="text" class="phone-dial-search" placeholder="Search country or code..." oninput="filterDialList('modal',this.value)" autocomplete="off"/>
@@ -1399,9 +1399,10 @@
   };
 
   function flagEmoji(code) {
-    return code.toUpperCase().replace(/./g, function(c) {
-      return String.fromCodePoint(0x1F1E0 + c.charCodeAt(0) - 65);
-    });
+    // Koristi flagcdn.com SVG za pravu sliku zastave (radi i na Windows-u)
+    var lower = (code || '').toLowerCase();
+    if (!lower) return '';
+    return '<img src="https://flagcdn.com/' + lower + '.svg" alt="' + code.toUpperCase() + '" style="width:20px;height:14px;object-fit:cover;border-radius:2px;display:inline-block;vertical-align:middle;"/>';
   }
 
   function renderDialList(ns, list) {
@@ -1412,7 +1413,7 @@
       var div = document.createElement('div');
       div.className = 'phone-dial-item' + (item.code === dialState[ns].code ? ' active' : '');
       div.innerHTML =
-        '<span style="font-size:18px;line-height:1;width:24px;text-align:center;flex-shrink:0">' + flagEmoji(item.code) + '</span>' +
+        '<span style="line-height:1;width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">' + flagEmoji(item.code) + '</span>' +
         '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + item.name + '</span>' +
         '<span style="color:#9ca3af;font-size:12px;flex-shrink:0">' + item.dial + '</span>';
       div.onclick = function() { setDialCode(ns, item); };
@@ -1433,7 +1434,7 @@
     dialState[ns].dial = item.dial;
     var flagEl = document.getElementById(ns + '-dial-flag');
     var codeEl = document.getElementById(ns + '-dial-code');
-    if (flagEl) flagEl.textContent = flagEmoji(item.code);
+    if (flagEl) flagEl.innerHTML = flagEmoji(item.code);
     if (codeEl) codeEl.textContent = item.dial;
     var dd = document.getElementById(ns + '-dial-dropdown');
     if (dd) dd.classList.add('hidden');
@@ -1459,6 +1460,12 @@
   function initDialPickers() {
     renderDialList('modal', phoneCodes);
     renderDialList('s7b', phoneCodes);
+    // Inicijalno postavi US zastavu na trigger dugmićima
+    var defaultUS = phoneCodes.find(function(p){ return p.code === 'US'; });
+    if (defaultUS) {
+      setDialCode('modal', defaultUS);
+      setDialCode('s7b', defaultUS);
+    }
     detectCountryByIP();
   }
 
@@ -2128,6 +2135,29 @@
     var re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(email.trim());
   }
+  
+  // Auto-detekcija dial code-a kada korisnik kuca + na pocetku
+  function autoDetectDial(ns, value) {
+    var input = document.getElementById(ns + '-phone');
+    if (!input) return;
+    var trimmed = value.trim();
+    if (!trimmed.startsWith('+')) return;
+    
+    // Pokušaj da pronađe match za dial code (najduži match prvi)
+    var sortedCodes = phoneCodes.slice().sort(function(a, b){ return b.dial.length - a.dial.length; });
+    var matched = sortedCodes.find(function(p) {
+      return trimmed.startsWith(p.dial);
+    });
+    
+    if (matched && matched.code !== dialState[ns].code) {
+      // Postavi dial code i zastavu
+      setDialCode(ns, matched);
+      // Ukloni dial prefiks iz input-a, ostavi samo lokalni broj
+      var rest = trimmed.substring(matched.dial.length).trim();
+      input.value = rest;
+    }
+  }
+  
   function checkModalBtn() {
     var ph=document.getElementById('modal-phone').value.trim();
     var em=document.getElementById('modal-email').value.trim();
