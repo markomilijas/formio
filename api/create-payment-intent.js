@@ -3,62 +3,85 @@ import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Plan prices in cents (EUR)
-const PLAN_PRICES = {
+// Base prices in cents (Wyoming = base, no surcharge)
+const BASE_PRICES = {
   starter: 39900,  // €399.00
   growth:  49900   // €499.00
 };
 
-const PLAN_LABELS = {
-  starter: 'Get Started LLC (€399)',
-  growth:  'Growth-Ready LLC (€499)'
+// State surcharges in cents
+const STATE_SURCHARGES = {
+  wyoming:  0,      // base
+  delaware: 10000   // +€100
 };
 
+const PLAN_LABELS = {
+  starter: 'Get Started LLC',
+  growth:  'Growth-Ready LLC'
+};
+
+const STATE_LABELS = {
+  wyoming:  'Wyoming',
+  delaware: 'Delaware'
+};
+
+function calculateAmount(plan, state) {
+  const base = BASE_PRICES[plan];
+  const surcharge = STATE_SURCHARGES[state] || 0;
+  return base + surcharge;
+}
+
 export default async function handler(req, res) {
-  // CORS headers - dozvoli pozive sa GitHub Pages domena
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   
   try {
     const { plan, session_id, llc_name, email, full_name, registration_state } = req.body;
     
-    // Validacija plana
-    if (!plan || !PLAN_PRICES[plan]) {
+    // Plan validation
+    if (!plan || !BASE_PRICES[plan]) {
       return res.status(400).json({ error: 'Invalid plan' });
     }
     
-    // Validacija osnovnih podataka
+    // State validation - mora biti 'wyoming' ili 'delaware'
+    if (!registration_state || !(registration_state in STATE_SURCHARGES)) {
+      return res.status(400).json({ error: 'Invalid registration state. Must be wyoming or delaware.' });
+    }
+    
+    // Required fields validation
     if (!email || !llc_name) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
-    const amount = PLAN_PRICES[plan];
+    // Calculate final amount based on plan + state
+    const amount = calculateAmount(plan, registration_state);
+    const planLabel = PLAN_LABELS[plan];
+    const stateLabel = STATE_LABELS[registration_state];
+    const amountEur = (amount / 100).toFixed(0);
+    const fullPlanLabel = `${planLabel} (${stateLabel}) - €${amountEur}`;
     
-    // Kreiraj PaymentIntent
+    // Create PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
       currency: 'eur',
-      payment_method_types: ['card'],
+      automatic_payment_methods: { enabled: true },
       receipt_email: email,
-      description: `Formio.biz - ${PLAN_LABELS[plan]} - ${llc_name}`,
+      description: `Formio.biz - ${fullPlanLabel} - ${llc_name}`,
       metadata: {
         session_id: session_id || '',
         llc_name: llc_name || '',
         email: email || '',
         full_name: full_name || '',
         plan: plan,
-        plan_label: PLAN_LABELS[plan],
-        registration_state: registration_state || '',
+        plan_label: planLabel,
+        registration_state: registration_state,
+        registration_state_label: stateLabel,
+        amount_eur: amountEur,
         source: 'formio.biz'
       }
     });
