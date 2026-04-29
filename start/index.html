@@ -1610,6 +1610,10 @@
         if (chev) chev.style.transform = '';
       }
     });
+    // Close all addr country pickers
+    document.querySelectorAll('[id^="addr-cdrop-"]').forEach(function(drop) {
+      if (!drop.classList.contains('hidden') && !drop.parentElement.contains(e.target)) {
+        drop.classList.add('hidden');
       }
     });
   });
@@ -3194,20 +3198,31 @@
 
     document.getElementById('final-review-content').innerHTML = html;
 
-    // Populate country dropdowns in review
+    // Pre-select country u FR custom picker-ima na osnovu owner.addrCountryCode/addrCountry
     ownersData.forEach(function(owner, i) {
-      var sel = document.getElementById('fr-addr-' + i + '-country');
-      if (!sel) return;
-      sel.onchange = checkFinalReviewValid;
-      var opt0 = document.createElement('option'); opt0.value = ''; opt0.textContent = '- Select country -'; sel.appendChild(opt0);
-      countries.forEach(function(c) {
-        var opt = document.createElement('option');
-        opt.value = c.code; opt.textContent = c.name;
-        // Poređenje po code-u (preciznije nego po imenu)
-        if (owner.addrCountryCode && c.code === owner.addrCountryCode) opt.selected = true;
-        else if (!owner.addrCountryCode && c.name === owner.addrCountry) opt.selected = true;
-        sel.appendChild(opt);
-      });
+      var picker = document.getElementById('fr-addr-' + i + '-country-picker');
+      if (!picker) return;
+      var matchedCode = '';
+      var matchedName = '';
+      if (owner.addrCountryCode) {
+        var c = countries.find(function(x){ return x.code === owner.addrCountryCode; });
+        if (c) { matchedCode = c.code; matchedName = c.name; }
+      } else if (owner.addrCountry) {
+        var c2 = countries.find(function(x){ return x.name === owner.addrCountry; });
+        if (c2) { matchedCode = c2.code; matchedName = c2.name; }
+      }
+      if (matchedCode) {
+        picker.dataset.code = matchedCode;
+        picker.dataset.name = matchedName;
+        var txt = document.getElementById('fr-addr-' + i + '-country-text');
+        if (txt) {
+          txt.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+            '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(matchedCode) + '</span>' +
+            '<span>' + matchedName + '</span>' +
+            '</span>';
+          txt.className = 'text-sm font-semibold text-gray-900';
+        }
+      }
     });
 
     // Reset checkbox
@@ -3298,11 +3313,9 @@
         var street = (document.getElementById('fr-addr-' + i + '-street')||{}).value || owner.street || '';
         var city   = (document.getElementById('fr-addr-' + i + '-city')||{}).value || owner.city || '';
         var postal = (document.getElementById('fr-addr-' + i + '-postal')||{}).value || owner.postal || '';
-        var countrySel = document.getElementById('fr-addr-' + i + '-country');
-        var countryCode = countrySel ? countrySel.value : (owner.addrCountryCode || '');
-        var countryName = countrySel && countrySel.selectedIndex >= 0 
-          ? countrySel.options[countrySel.selectedIndex].textContent 
-          : (owner.addrCountry || '');
+        var countryPicker = document.getElementById('fr-addr-' + i + '-country-picker');
+        var countryCode = (countryPicker && countryPicker.dataset.code) || owner.addrCountryCode || '';
+        var countryName = (countryPicker && countryPicker.dataset.name) || owner.addrCountry || '';
         
         ownersFinal.push({
           owner_index: i + 1,
