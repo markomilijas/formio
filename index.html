@@ -636,12 +636,11 @@
     }
     .tl-fill-line {
       animation: tl-fill-grow linear forwards;
-      animation-timeline: view(--tl-wrap);
-      animation-range: contain 0% contain 100%;
-    }
-    .tl-steps-wrap {
-      view-timeline-name: --tl-wrap;
-      view-timeline-axis: block;
+      /* view() timeline progress prati scroll kroz wrapper - od pojavljivanja do nestajanja */
+      animation-timeline: view();
+      /* contain: animacija krece kad je wrapper potpuno u viewportu, zavrsava kad pocinje da izlazi */
+      /* Kao alternativu, mozemo koristiti cover sa offsetom za prirodniji efekat */
+      animation-range: cover 0% cover 80%;
     }
   }
 
