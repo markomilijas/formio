@@ -621,8 +621,9 @@
     position: absolute; left: 50%; transform: translateX(-50%);
     top: 0; width: 5px; height: 0;
     background: linear-gradient(to bottom, #1D44E7, #1D44E7);
-    z-index: 2; transition: height 0.08s linear;
+    z-index: 2;
     pointer-events: none; border-radius: 10px;
+    will-change: height;
   }
 
   .tl-step {
@@ -922,13 +923,26 @@
     const trigger  = viewH * 0.55;
     const fillHeight = Math.max(0, Math.min(wrap.offsetHeight, window.scrollY + trigger - wrapTop));
     fillLine.style.height = fillHeight + 'px';
+    const activeThreshold = viewH * 0.60;
     steps.forEach(function(step) {
-      step.classList.toggle('tl-active', step.getBoundingClientRect().top < viewH * 0.60);
+      step.classList.toggle('tl-active', step.getBoundingClientRect().top < activeThreshold);
     });
   }
 
-  window.addEventListener('scroll', updateTimeline, { passive: true });
-  window.addEventListener('resize', updateTimeline, { passive: true });
+  // Throttle preko requestAnimationFrame - sprecava overload
+  let tlScrollTicking = false;
+  function tlOnScroll() {
+    if (!tlScrollTicking) {
+      window.requestAnimationFrame(function() {
+        updateTimeline();
+        tlScrollTicking = false;
+      });
+      tlScrollTicking = true;
+    }
+  }
+
+  window.addEventListener('scroll', tlOnScroll, { passive: true });
+  window.addEventListener('resize', tlOnScroll, { passive: true });
   updateTimeline();
 })();
 </script>
