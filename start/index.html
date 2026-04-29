@@ -2956,7 +2956,9 @@
       countries.forEach(function(c) {
         var opt = document.createElement('option');
         opt.value = c.code; opt.textContent = c.name;
-        if (c.name === owner.addrCountry) opt.selected = true;
+        // Poređenje po code-u (preciznije nego po imenu)
+        if (owner.addrCountryCode && c.code === owner.addrCountryCode) opt.selected = true;
+        else if (!owner.addrCountryCode && c.name === owner.addrCountry) opt.selected = true;
         sel.appendChild(opt);
       });
     });
