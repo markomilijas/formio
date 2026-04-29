@@ -1866,7 +1866,7 @@
         btn.textContent = originalBtnText;
         stripeIsProcessing = false;
       } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-        showPaymentSuccess(result.paymentIntent);
+        goToSuccess();
       } else {
         showStripeError('Plaćanje je u obradi. Molimo sačekajte i osvežite stranicu.');
         btn.disabled = false;
@@ -1897,46 +1897,6 @@
       el.classList.add('hidden');
       el.textContent = '';
     }
-  }
-
-  function showPaymentSuccess(paymentIntent) {
-    var paymentEl = document.getElementById('payment-element');
-    var payBtn = document.getElementById('pay-btn');
-    var paymentMsg = document.getElementById('payment-message');
-    
-    if (paymentEl) paymentEl.style.display = 'none';
-    if (payBtn) payBtn.style.display = 'none';
-    if (paymentMsg) paymentMsg.style.display = 'none';
-    
-    var container = paymentEl ? paymentEl.parentElement : null;
-    if (!container) return;
-    
-    var amountEur = (paymentIntent.amount / 100).toFixed(0);
-    
-    var successHtml = '' +
-      '<div class="text-center py-8">' +
-        '<div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-6">' +
-          '<svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>' +
-          '</svg>' +
-        '</div>' +
-        '<h2 class="text-2xl font-black mb-3" style="color:#071841">Payment Successful! 🎉</h2>' +
-        '<p class="text-gray-600 mb-2">Hvala na uplati od <strong>€' + amountEur + '</strong></p>' +
-        '<p class="text-gray-600 mb-6 text-sm">Poslali smo potvrdu na vaš email.</p>' +
-        '<div class="bg-gray-50 rounded-xl p-4 mb-6 text-left max-w-sm mx-auto">' +
-          '<div class="text-xs uppercase font-bold text-gray-400 mb-2">What happens next?</div>' +
-          '<ol class="text-sm text-gray-700 space-y-2">' +
-            '<li>1. Pregled vaših podataka (24h)</li>' +
-            '<li>2. Submission ka državnom registru</li>' +
-            '<li>3. LLC formation potvrda (3-5 dana)</li>' +
-            '<li>4. Email sa sledećim koracima</li>' +
-          '</ol>' +
-        '</div>' +
-        '<p class="text-xs text-gray-400">Payment ID: ' + paymentIntent.id + '</p>' +
-      '</div>';
-    
-    container.innerHTML = successHtml;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function goBackToPackages() {
