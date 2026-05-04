@@ -252,6 +252,7 @@
     .country-trigger:hover { border-color: rgba(7,24,65,0.22); }
     .country-trigger.open { border-color: #1D44E7; box-shadow: 0 0 0 4px rgba(29,68,231,.08); }
     .country-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; border: 1px solid rgba(7,24,65,0.12); border-radius: 12px; background: #fff; box-shadow: 0 12px 36px rgba(7,24,65,.08); z-index: 100; overflow: hidden; }
+    .country-dropdown-fixed { position: fixed; z-index: 10000; }
     .country-search-input { width: 100%; border: none; border-bottom: 1px solid #f3f4f6; padding: 12px 16px; font-size: 14px; outline: none; box-sizing: border-box; background: #fafafa; }
     .country-list { max-height: 240px; overflow-y: auto; }
     .country-item { padding: 11px 16px; font-size: 14px; font-weight: 500; cursor: pointer; color: #111; border-bottom: 1px solid #f9fafb; transition: background .1s; }
@@ -712,20 +713,32 @@
               <p class="text-[11px] text-gray-400 uppercase tracking-wide font-semibold mb-0.5">Owner Address</p>
               <div id="owner-address-view"><p id="review-owner-address" class="text-sm font-bold" style="line-height:1.5">-</p></div>
               <div id="owner-address-edit" class="hidden">
-                <input type="text" id="edit-owner-street" class="edit-inline-input" placeholder="Street address" autocomplete="street-address" style="margin-top:4px;" oninput="onEditOwnerAddressInput()"/>
-                <div class="grid grid-cols-2 gap-2 mt-2">
-                  <input type="text" id="edit-owner-city" class="edit-inline-input" placeholder="City" autocomplete="address-level2" oninput="onEditOwnerAddressInput()"/>
-                  <input type="text" id="edit-owner-zip" class="edit-inline-input" placeholder="Postal code" autocomplete="postal-code" oninput="onEditOwnerAddressInput()"/>
-                </div>
-                <div style="margin-top:6px;">
-                  <div class="relative" id="edit-owner-country-picker">
-                    <div id="edit-owner-country-trigger" class="country-trigger" onclick="toggleEditOwnerCountryDropdown()">
-                      <span id="edit-owner-country-text" class="text-sm text-gray-400">Select country...</span>
-                      <svg id="edit-owner-country-chev" class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <div class="flex flex-col gap-3 mt-3">
+                  <div>
+                    <label class="s7-label">Street Address</label>
+                    <input type="text" id="edit-owner-street" class="s7-input" placeholder="e.g. 123 Main St" autocomplete="street-address" oninput="onEditOwnerAddressInput()"/>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="s7-label">City</label>
+                      <input type="text" id="edit-owner-city" class="s7-input" placeholder="e.g. London" autocomplete="address-level2" oninput="onEditOwnerAddressInput()"/>
                     </div>
-                    <div id="edit-owner-country-drop" class="country-dropdown hidden">
-                      <input type="text" class="country-search-input" placeholder="Search country..." oninput="filterEditOwnerCountry(this.value)" autocomplete="off"/>
-                      <div id="edit-owner-country-list" class="country-list"></div>
+                    <div>
+                      <label class="s7-label">Postal Code</label>
+                      <input type="text" id="edit-owner-zip" class="s7-input" placeholder="e.g. SW1A 1AA" autocomplete="postal-code" oninput="onEditOwnerAddressInput()"/>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="s7-label">Country</label>
+                    <div class="country-picker" id="edit-owner-country-picker">
+                      <div id="edit-owner-country-trigger" class="country-trigger" onclick="toggleEditOwnerCountryDropdown()">
+                        <span id="edit-owner-country-text" class="text-sm text-gray-400">Select your country...</span>
+                        <svg id="edit-owner-country-chev" class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </div>
+                      <div id="edit-owner-country-drop" class="country-dropdown country-dropdown-fixed hidden">
+                        <input type="text" id="edit-owner-country-search" class="country-search-input" placeholder="Search country..." oninput="filterEditOwnerCountry(this.value)" autocomplete="off"/>
+                        <div id="edit-owner-country-list" class="country-list"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2292,25 +2305,27 @@
       document.getElementById('owner-address-view').classList.remove('hidden');
       document.getElementById('owner-address-edit').classList.add('hidden');
       document.getElementById('edit-owner-address-btn').textContent='Edit';
+      // Sakrij dropdown ako je otvoren
+      var drop = document.getElementById('edit-owner-country-drop');
+      if (drop) drop.classList.add('hidden');
     } else {
       document.getElementById('edit-owner-street').value = ownerStreet;
       document.getElementById('edit-owner-city').value = ownerCity;
       document.getElementById('edit-owner-zip').value = ownerZip;
       
-      // Render country picker sa već izabranom zemljom
-      renderEditOwnerCountryList(countries);
+      // Postavi country picker text
       var txt = document.getElementById('edit-owner-country-text');
       if (selectedCountry && selectedCountryLabel) {
         if (txt) {
           txt.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
             '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(selectedCountry) + '</span>' +
             '<span>' + selectedCountryLabel + '</span>' +
-            '</span>';
+          '</span>';
           txt.className = 'text-sm font-semibold text-gray-900';
         }
       } else {
         if (txt) {
-          txt.innerHTML = 'Select country...';
+          txt.innerHTML = 'Select your country...';
           txt.className = 'text-sm text-gray-400';
         }
       }
@@ -2323,17 +2338,36 @@
   }
   function onEditOwnerAddressInput() {}
   
+  function positionEditOwnerDropdown() {
+    var trigger = document.getElementById('edit-owner-country-trigger');
+    var drop = document.getElementById('edit-owner-country-drop');
+    if (!trigger || !drop) return;
+    var rect = trigger.getBoundingClientRect();
+    drop.style.top = (rect.bottom + 6) + 'px';
+    drop.style.left = rect.left + 'px';
+    drop.style.width = rect.width + 'px';
+  }
+  
   function toggleEditOwnerCountryDropdown() {
     var drop = document.getElementById('edit-owner-country-drop');
     var chev = document.getElementById('edit-owner-country-chev');
+    var trigger = document.getElementById('edit-owner-country-trigger');
     if (!drop) return;
     if (drop.classList.contains('hidden')) {
       drop.classList.remove('hidden');
       if (chev) chev.style.transform = 'rotate(180deg)';
+      if (trigger) trigger.classList.add('open');
+      positionEditOwnerDropdown();
       renderEditOwnerCountryList(countries);
+      // Auto-focus search
+      setTimeout(function(){
+        var search = document.getElementById('edit-owner-country-search');
+        if (search) search.focus();
+      }, 50);
     } else {
       drop.classList.add('hidden');
       if (chev) chev.style.transform = '';
+      if (trigger) trigger.classList.remove('open');
     }
   }
   
@@ -2346,21 +2380,30 @@
   function renderEditOwnerCountryList(list) {
     var container = document.getElementById('edit-owner-country-list');
     if (!container) return;
+    if (list.length === 0) {
+      container.innerHTML = '<div class="px-4 py-3 text-sm text-gray-400">No results found</div>';
+      return;
+    }
     var html = '';
     list.forEach(function(c){
-      html += '<div class="country-item" onclick="pickEditOwnerCountry(\'' + c.code + '\', \'' + c.name.replace(/'/g, "\\'") + '\')">' +
-        '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(c.code) + '</span>' +
-        '<span>' + c.name + '</span>' +
+      var safeName = c.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      html += '<div class="country-item" onclick="pickEditOwnerCountry(\'' + c.code + '\', \'' + safeName + '\')">' +
+        '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+          '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(c.code) + '</span>' +
+          '<span>' + c.name + '</span>' +
+        '</span>' +
       '</div>';
     });
-    container.innerHTML = html || '<div class="country-item" style="color:#999;cursor:default">No results</div>';
+    container.innerHTML = html;
   }
   
   function pickEditOwnerCountry(code, name) {
     var drop = document.getElementById('edit-owner-country-drop');
     var chev = document.getElementById('edit-owner-country-chev');
+    var trigger = document.getElementById('edit-owner-country-trigger');
     if (drop) drop.classList.add('hidden');
     if (chev) chev.style.transform = '';
+    if (trigger) trigger.classList.remove('open');
     
     // SANCTION CHECK - kao na Step 4
     if (isSanctioned(code)) {
@@ -2368,7 +2411,7 @@
       // Reset selection
       var txt = document.getElementById('edit-owner-country-text');
       if (txt) {
-        txt.innerHTML = 'Select country...';
+        txt.innerHTML = 'Select your country...';
         txt.className = 'text-sm text-gray-400';
       }
       return;
@@ -2388,9 +2431,18 @@
   }
   
   function onEditOwnerCountryChange(val) {
-    // Legacy funkcija - više se ne koristi (zamenjena sa pickEditOwnerCountry)
-    // Ali ostavlja se za backward compatibility ako je negde pozvana
+    // Legacy - više se ne koristi
   }
+  
+  // Reposition dropdown on scroll/resize ako je otvoren
+  window.addEventListener('scroll', function(){
+    var drop = document.getElementById('edit-owner-country-drop');
+    if (drop && !drop.classList.contains('hidden')) positionEditOwnerDropdown();
+  }, true);
+  window.addEventListener('resize', function(){
+    var drop = document.getElementById('edit-owner-country-drop');
+    if (drop && !drop.classList.contains('hidden')) positionEditOwnerDropdown();
+  });
 
   // ===== Contact Modal =====
   function openContactModal() {
