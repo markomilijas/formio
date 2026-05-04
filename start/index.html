@@ -717,9 +717,18 @@
                   <input type="text" id="edit-owner-city" class="edit-inline-input" placeholder="City" autocomplete="address-level2" oninput="onEditOwnerAddressInput()"/>
                   <input type="text" id="edit-owner-zip" class="edit-inline-input" placeholder="Postal code" autocomplete="postal-code" oninput="onEditOwnerAddressInput()"/>
                 </div>
-                <select id="edit-owner-country" class="edit-inline-select" style="margin-top:6px;" onchange="onEditOwnerCountryChange(this.value)">
-                  <option value="">- Country -</option>
-                </select>
+                <div style="margin-top:6px;">
+                  <div class="relative" id="edit-owner-country-picker">
+                    <div id="edit-owner-country-trigger" class="country-trigger" onclick="toggleEditOwnerCountryDropdown()">
+                      <span id="edit-owner-country-text" class="text-sm text-gray-400">Select country...</span>
+                      <svg id="edit-owner-country-chev" class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </div>
+                    <div id="edit-owner-country-drop" class="country-dropdown hidden">
+                      <input type="text" class="country-search-input" placeholder="Search country..." oninput="filterEditOwnerCountry(this.value)" autocomplete="off"/>
+                      <div id="edit-owner-country-list" class="country-list"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <button id="edit-owner-address-btn" onclick="toggleEditOwnerAddress()" class="text-[12px] font-semibold text-gray-400 hover:text-black transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-100 flex-shrink-0">Edit</button>
@@ -2297,10 +2306,25 @@
       document.getElementById('edit-owner-street').value = ownerStreet;
       document.getElementById('edit-owner-city').value = ownerCity;
       document.getElementById('edit-owner-zip').value = ownerZip;
-      var sel = document.getElementById('edit-owner-country');
-      if (sel && selectedCountry) {
-        for (var i=0; i<sel.options.length; i++) { if (sel.options[i].value === selectedCountry) { sel.selectedIndex = i; break; } }
+      
+      // Render country picker sa već izabranom zemljom
+      renderEditOwnerCountryList(countries);
+      var txt = document.getElementById('edit-owner-country-text');
+      if (selectedCountry && selectedCountryLabel) {
+        if (txt) {
+          txt.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+            '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(selectedCountry) + '</span>' +
+            '<span>' + selectedCountryLabel + '</span>' +
+            '</span>';
+          txt.className = 'text-sm font-semibold text-gray-900';
+        }
+      } else {
+        if (txt) {
+          txt.innerHTML = 'Select country...';
+          txt.className = 'text-sm text-gray-400';
+        }
       }
+      
       document.getElementById('owner-address-view').classList.add('hidden');
       document.getElementById('owner-address-edit').classList.remove('hidden');
       document.getElementById('edit-owner-address-btn').textContent='Save';
@@ -2308,9 +2332,74 @@
     }
   }
   function onEditOwnerAddressInput() {}
+  
+  function toggleEditOwnerCountryDropdown() {
+    var drop = document.getElementById('edit-owner-country-drop');
+    var chev = document.getElementById('edit-owner-country-chev');
+    if (!drop) return;
+    if (drop.classList.contains('hidden')) {
+      drop.classList.remove('hidden');
+      if (chev) chev.style.transform = 'rotate(180deg)';
+      renderEditOwnerCountryList(countries);
+    } else {
+      drop.classList.add('hidden');
+      if (chev) chev.style.transform = '';
+    }
+  }
+  
+  function filterEditOwnerCountry(query) {
+    var q = (query || '').toLowerCase().trim();
+    var filtered = countries.filter(function(c){ return c.name.toLowerCase().indexOf(q) !== -1; });
+    renderEditOwnerCountryList(filtered);
+  }
+  
+  function renderEditOwnerCountryList(list) {
+    var container = document.getElementById('edit-owner-country-list');
+    if (!container) return;
+    var html = '';
+    list.forEach(function(c){
+      html += '<div class="country-item" onclick="pickEditOwnerCountry(\'' + c.code + '\', \'' + c.name.replace(/'/g, "\\'") + '\')">' +
+        '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(c.code) + '</span>' +
+        '<span>' + c.name + '</span>' +
+      '</div>';
+    });
+    container.innerHTML = html || '<div class="country-item" style="color:#999;cursor:default">No results</div>';
+  }
+  
+  function pickEditOwnerCountry(code, name) {
+    var drop = document.getElementById('edit-owner-country-drop');
+    var chev = document.getElementById('edit-owner-country-chev');
+    if (drop) drop.classList.add('hidden');
+    if (chev) chev.style.transform = '';
+    
+    // SANCTION CHECK - kao na Step 4
+    if (isSanctioned(code)) {
+      showSanctionModal(name);
+      // Reset selection
+      var txt = document.getElementById('edit-owner-country-text');
+      if (txt) {
+        txt.innerHTML = 'Select country...';
+        txt.className = 'text-sm text-gray-400';
+      }
+      return;
+    }
+    
+    // Postavi country
+    selectedCountry = code;
+    selectedCountryLabel = name;
+    var txt = document.getElementById('edit-owner-country-text');
+    if (txt) {
+      txt.innerHTML = '<span style="display:inline-flex;align-items:center;gap:10px;">' +
+        '<span style="width:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + flagEmoji(code) + '</span>' +
+        '<span>' + name + '</span>' +
+      '</span>';
+      txt.className = 'text-sm font-semibold text-gray-900';
+    }
+  }
+  
   function onEditOwnerCountryChange(val) {
-    var c = countries.find(function(x){return x.code===val;});
-    if (c) { selectedCountry=c.code; selectedCountryLabel=c.name; }
+    // Legacy funkcija - više se ne koristi (zamenjena sa pickEditOwnerCountry)
+    // Ali ostavlja se za backward compatibility ako je negde pozvana
   }
 
   // ===== Contact Modal =====
