@@ -1514,16 +1514,6 @@
   function initCountryDropdown() {
     renderCountryList(countries);
     // Populate all country select dropdowns
-    ['edit-owner-country'].forEach(function(id) {
-      var sel = document.getElementById(id);
-      if (!sel) return;
-      var opt0 = document.createElement('option'); opt0.value = ''; opt0.textContent = '- Select country -'; sel.appendChild(opt0);
-      countries.forEach(function(c) {
-        var opt = document.createElement('option');
-        opt.value = c.code; opt.textContent = c.name;
-        sel.appendChild(opt);
-      });
-    });
   }
 
   function renderCountryList(list) {
