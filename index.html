@@ -934,37 +934,57 @@
   const fillLine = document.getElementById('tl-fill');
   const wrap = document.querySelector('.tl-steps-wrap');
 
-  // Cache pozicija (recompute samo na resize, ne na svaki scroll)
+  // Detektuj da li browser podrzava CSS scroll-driven animations
+  const supportsScrollTimeline = CSS.supports('animation-timeline: view()');
+  
+  // Cache pozicija
   let cachedWrapTop = 0;
   let cachedWrapHeight = 0;
   let cachedViewH = 0;
+  let cachedStepOffsets = []; // pozicije kruzica unutar wrap-a (top each step)
   
   function recalcTimelineBounds() {
     if (!wrap) return;
     cachedWrapTop = wrap.getBoundingClientRect().top + window.scrollY;
     cachedWrapHeight = wrap.offsetHeight;
     cachedViewH = window.innerHeight;
+    
+    // Izmeri offset svakog .tl-step relativno na wrap (gde se kruzic nalazi)
+    cachedStepOffsets = steps.map(function(step) {
+      return step.offsetTop; // offsetTop je u odnosu na wrap (parent)
+    });
   }
   
-  // updateTimeline radi SAMO sa cache-om - bez getBoundingClientRect (bez reflow-a)
+  // Glavna funkcija - radi i fill liniju i kruzice u sinhronizaciji
   function updateTimeline() {
     if (!wrap || !fillLine || cachedWrapHeight === 0) return;
-    if (supportsScrollTimeline) return; // CSS preuzima - ne diraj DOM
+    
+    // Izracunaj fill height (koliko je linija "puna" u px-ima)
     const trigger = cachedViewH * 0.55;
     const fillHeight = Math.max(0, Math.min(cachedWrapHeight, window.scrollY + trigger - cachedWrapTop));
-    const scale = fillHeight / cachedWrapHeight;
-    fillLine.style.transform = 'translateX(-50%) scaleY(' + scale + ')';
+    
+    // Postavi transformu linije (samo ako CSS scroll-timeline NIJE podrzan)
+    if (!supportsScrollTimeline) {
+      const scale = fillHeight / cachedWrapHeight;
+      fillLine.style.transform = 'translateX(-50%) scaleY(' + scale + ')';
+    }
+    
+    // Sinhronizuj kruzice sa fill linijom
+    // Svaki kruzic je aktivan AKO je fillHeight stigao do njegove pozicije
+    steps.forEach(function(step, i) {
+      const stepOffset = cachedStepOffsets[i];
+      // Margin od ~5px da kruzic ne treperi tacno na granici
+      if (fillHeight >= stepOffset + 5) {
+        step.classList.add('tl-active');
+      } else {
+        step.classList.remove('tl-active');
+      }
+    });
   }
-
-  // Detektuj da li browser podrzava CSS scroll-driven animations (Chrome 115+, Safari 26+)
-  // Ako da - CSS animacija je vec aktivna i radi na compositor thread-u (zero jank)
-  // Ako ne - JavaScript fallback
-  const supportsScrollTimeline = CSS.supports('animation-timeline: view()');
   
   // Throttle preko requestAnimationFrame
   let tlScrollTicking = false;
   function tlOnScroll() {
-    if (supportsScrollTimeline) return; // CSS preuzima posao - ne radi nista
     if (!tlScrollTicking) {
       window.requestAnimationFrame(function() {
         updateTimeline();
@@ -972,40 +992,6 @@
       });
       tlScrollTicking = true;
     }
-  }
-  
-  // tl-active class koristi IntersectionObserver - native browser API, BEZ reflow-a
-  if (typeof IntersectionObserver !== 'undefined' && steps.length > 0) {
-    const stepObserver = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        var top = entry.boundingClientRect.top;
-        var vh = window.innerHeight;
-        
-        // Asimetricne trigger zone:
-        // - Dodaj kad vrh kartice (=kruzic) predje 60% viewporta naniže (NETAKNUTO)
-        // - Ukloni kad vrh kartice (=kruzic) predje 45% viewporta naviše (tighter)
-        if (top < vh * 0.60) {
-          entry.target.classList.add('tl-active');
-        } else if (top >= vh * 0.45) {
-          entry.target.classList.remove('tl-active');
-        }
-        // Izmedju 45% i 60% - hysteresis zone, ostaje koja god je trenutno aktivna
-      });
-    }, {
-      rootMargin: '0px 0px -40% 0px',
-      threshold: [0, 0.1, 0.5, 1]
-    });
-    steps.forEach(function(step) { stepObserver.observe(step); });
-  } else {
-    // Fallback za jako stare browsere
-    function checkActive() {
-      const t = window.innerHeight * 0.60;
-      steps.forEach(function(s) {
-        s.classList.toggle('tl-active', s.getBoundingClientRect().top < t);
-      });
-    }
-    window.addEventListener('scroll', checkActive, { passive: true });
-    checkActive();
   }
 
   window.addEventListener('scroll', tlOnScroll, { passive: true });
@@ -1018,7 +1004,7 @@
   recalcTimelineBounds();
   updateTimeline();
   
-  // Recompute kad page završi load (slike, fontovi) - mogu da pomere stvari
+  // Recompute kad page završi load (slike, fontovi)
   window.addEventListener('load', function() {
     recalcTimelineBounds();
     updateTimeline();
