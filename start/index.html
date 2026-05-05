@@ -2714,10 +2714,14 @@
       hide();
       if (!same) show(wrap);
     };
-    document.querySelectorAll('.s7-tip-wrap').forEach(function(wrap) {
-      wrap.addEventListener('mouseenter', function() { show(wrap); });
-      wrap.addEventListener('mouseleave', function() { hide(); });
-    });
+    // Hover listeners samo za desktop (non-touch device)
+    var supportsHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    if (supportsHover) {
+      document.querySelectorAll('.s7-tip-wrap').forEach(function(wrap) {
+        wrap.addEventListener('mouseenter', function() { show(wrap); });
+        wrap.addEventListener('mouseleave', function() { hide(); });
+      });
+    }
     document.addEventListener('click', function(e) {
       if (!e.target.closest('.s7-tip-btn') && e.target !== gt) hide();
     });
