@@ -978,17 +978,20 @@
   if (typeof IntersectionObserver !== 'undefined' && steps.length > 0) {
     const stepObserver = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
-        // Aktivan kad gornji deo kartice predje 60% viewporta
-        if (entry.boundingClientRect.top < window.innerHeight * 0.60) {
+        var top = entry.boundingClientRect.top;
+        var vh = window.innerHeight;
+        
+        // Asimetricne trigger zone:
+        // - Dodaj kad vrh kartice (=kruzic) predje 60% viewporta naniže (NETAKNUTO)
+        // - Ukloni kad vrh kartice (=kruzic) predje 45% viewporta naviše (tighter)
+        if (top < vh * 0.60) {
           entry.target.classList.add('tl-active');
-        } else {
-          // Ukloni tl-active kad je kartica iznad trigger zone (60% mark)
-          // Ovo radi za sve scroll smerove - i napred i nazad
+        } else if (top >= vh * 0.45) {
           entry.target.classList.remove('tl-active');
         }
+        // Izmedju 45% i 60% - hysteresis zone, ostaje koja god je trenutno aktivna
       });
     }, {
-      // rootMargin pomera "trigger zonu" naviše/naniže
       rootMargin: '0px 0px -40% 0px',
       threshold: [0, 0.1, 0.5, 1]
     });
