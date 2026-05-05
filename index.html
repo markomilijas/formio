@@ -2482,6 +2482,11 @@
       document.addEventListener('click', function(e) {
         if (!e.target.closest('.cmp-tip-btn') && e.target !== gt) hide();
       });
+      
+      // Sakrij tooltip kad korisnik scroll-uje (sprečava 'lebdeci' tooltip na touch device-ima)
+      window.addEventListener('scroll', function() {
+        if (gt._wrap) hide();
+      }, { passive: true });
     })();
   </script>
 </section>
