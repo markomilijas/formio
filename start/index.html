@@ -2725,6 +2725,12 @@
     document.addEventListener('click', function(e) {
       if (!e.target.closest('.s7-tip-btn') && e.target !== gt) hide();
     });
+    
+    // Sakrij tooltip kad korisnik scroll-uje (sprečava 'lebdeci' tooltip na touch device-ima)
+    var scrollHideTimeout;
+    window.addEventListener('scroll', function() {
+      if (gt._wrap) hide();
+    }, { passive: true });
   })();
 
   function toggleCompare() {
