@@ -981,7 +981,9 @@
         // Aktivan kad gornji deo kartice predje 60% viewporta
         if (entry.boundingClientRect.top < window.innerHeight * 0.60) {
           entry.target.classList.add('tl-active');
-        } else if (!entry.isIntersecting && entry.boundingClientRect.top > 0) {
+        } else {
+          // Ukloni tl-active kad je kartica iznad trigger zone (60% mark)
+          // Ovo radi za sve scroll smerove - i napred i nazad
           entry.target.classList.remove('tl-active');
         }
       });
