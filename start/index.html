@@ -1858,12 +1858,7 @@
       });
       
       stripePaymentElement = stripeElements.create('payment', {
-        layout: 'tabs',
-        paymentMethodOrder: ['card'],
-        wallets: {
-          applePay: 'auto',
-          googlePay: 'auto'
-        }
+        layout: 'tabs'
       });
       
       stripePaymentElement.mount('#payment-element');
