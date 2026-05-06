@@ -749,7 +749,15 @@
 
         </div>
 
-        <button id="btn-5" class="btn-continue" onclick="openContactModal()">Confirm and choose your plan →</button>
+        <!-- Terms consent checkbox (Step 5) -->
+        <div class="mb-5 mt-5" style="display:flex;align-items:flex-start;gap:10px;padding:14px 16px;background:rgba(29,68,231,0.04);border:1px solid rgba(29,68,231,0.12);border-radius:12px;">
+          <input type="checkbox" id="step5-terms-checkbox" onchange="checkStep5Btn()" style="margin-top:3px;width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:#1D44E7;"/>
+          <label for="step5-terms-checkbox" style="font-size:12px;line-height:1.6;color:rgba(7,24,65,0.75);cursor:pointer;">
+            I agree to the <a href="/terms-of-service/" target="_blank" style="color:#1D44E7;text-decoration:underline;font-weight:600;">Terms of Service</a>, <a href="/privacy-policy/" target="_blank" style="color:#1D44E7;text-decoration:underline;font-weight:600;">Privacy Policy</a>, and <a href="/refund-policy/" target="_blank" style="color:#1D44E7;text-decoration:underline;font-weight:600;">Refund Policy</a> of Formio.biz (operated by Otvori LLC).
+          </label>
+        </div>
+
+        <button id="btn-5" class="btn-continue" disabled onclick="openContactModal()">Confirm and choose your plan →</button>
 
         <div class="flex items-center justify-center gap-2 mt-5">
           <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
@@ -2188,7 +2196,13 @@
     var box=document.getElementById('confirm-box'); var chk=document.getElementById('confirm-check');
     if(confirmed){box.classList.add('on');chk.classList.remove('hidden');}
     else{box.classList.remove('on');chk.classList.add('hidden');}
-    document.getElementById('btn-5').disabled=!confirmed;
+    checkStep5Btn();
+  }
+  
+  function checkStep5Btn() {
+    var termsCheckbox = document.getElementById('step5-terms-checkbox');
+    var termsAccepted = termsCheckbox ? termsCheckbox.checked : false;
+    document.getElementById('btn-5').disabled = !termsAccepted;
   }
 
   // ===== Step 5: Inline edits =====
