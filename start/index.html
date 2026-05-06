@@ -2504,7 +2504,7 @@
       phClean = phClean.substring(dial.length).trim();
     }
     
-    // Koristi libphonenumber-js za pravu validaciju po zemlji
+    // Validacija po zemlji preko libphonenumber-js
     var phValid = false;
     if (countryCode && phClean) {
       try {
@@ -2514,8 +2514,12 @@
       }
     }
     
-    document.getElementById('modal-submit-btn').disabled = !(phValid && isValidEmail(em));
-}
+    // Terms consent checkbox mora biti cekiran
+    var termsCheckbox = document.getElementById('modal-terms-checkbox');
+    var termsAccepted = termsCheckbox ? termsCheckbox.checked : false;
+    
+    document.getElementById('modal-submit-btn').disabled = !(phValid && isValidEmail(em) && termsAccepted);
+  }
   
   function submitContactModal() {
     var num=document.getElementById('modal-phone').value.trim();
@@ -2558,6 +2562,8 @@
       var payload = {
         // Stage info
         stage: 'contact_captured',
+        terms_accepted: true,
+        terms_accepted_at: new Date().toISOString(),
         timestamp: new Date().toISOString(),
         session_id: getSessionId(),
         
@@ -3640,6 +3646,7 @@
       fd.append('stage', 'final_submit');
       fd.append('timestamp', new Date().toISOString());
       fd.append('session_id', getSessionId());
+      fd.append('terms_accepted', 'true');
       
       // Kontakt
       fd.append('email', frEmail);
