@@ -1906,7 +1906,7 @@
       var timeoutPromise = new Promise(function(_, reject) {
         setTimeout(function() {
           reject(new Error('TIMEOUT'));
-        }, 45000);
+        }, 20000);
       });
       
       var confirmPromise = stripeInstance.confirmPayment({
