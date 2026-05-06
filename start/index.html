@@ -1270,9 +1270,19 @@
       </div>
     </div>
     <div class="mb-6">
+      <div class="mb-5">
       <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Email Address</label>
       <input type="email" id="modal-email" class="modal-input" placeholder="e.g. john@company.com" oninput="checkModalBtn()" autocomplete="email"/>
     </div>
+    
+    <!-- Terms consent checkbox -->
+    <div class="mb-5" style="display:flex;align-items:flex-start;gap:10px;">
+      <input type="checkbox" id="modal-terms-checkbox" onchange="checkModalBtn()" style="margin-top:3px;width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:#1D44E7;"/>
+      <label for="modal-terms-checkbox" style="font-size:11px;line-height:1.55;color:rgba(7,24,65,0.7);cursor:pointer;">
+        I agree to receive calls, SMS, and emails from Formio.biz (operated by Otvori LLC) at the number and address provided, including via automated technology, for service updates and marketing. Consent is not a condition of purchase. Msg & data rates may apply. Reply STOP to unsubscribe. See <a href="/privacy-policy/" target="_blank" style="color:#1D44E7;text-decoration:underline;font-weight:600;">Privacy Policy</a>.
+      </label>
+    </div>
+    
     <button id="modal-submit-btn" class="btn-continue" disabled onclick="submitContactModal()">Continue to choose your plan →</button>
     <input type="hidden" id="modal-first-name" value=""/>
     <input type="hidden" id="modal-last-name" value=""/>
