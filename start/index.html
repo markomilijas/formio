@@ -1902,21 +1902,30 @@
     hideStripeError();
     
     try {
-      var result = await stripeInstance.confirmPayment({
+      // Timeout od 45 sekundi - sprečava infinite Processing kada Stripe acquirer kasni
+      var timeoutPromise = new Promise(function(_, reject) {
+        setTimeout(function() {
+          reject(new Error('TIMEOUT'));
+        }, 45000);
+      });
+      
+      var confirmPromise = stripeInstance.confirmPayment({
         elements: stripeElements,
         redirect: 'if_required'
       });
       
+      var result = await Promise.race([confirmPromise, timeoutPromise]);
+      
       // Inline handling - bez redirect-a
       if (result.error) {
-        showStripeError(result.error.message || 'Plaćanje nije uspešno.');
+        showStripeError(result.error.message || 'Payment was not successful.');
         btn.disabled = false;
         btn.textContent = originalBtnText;
         stripeIsProcessing = false;
       } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
         goToSuccess();
       } else {
-        showStripeError('Plaćanje je u obradi. Molimo sačekajte i osvežite stranicu.');
+        showStripeError('Payment is being processed. Please wait and refresh the page.');
         btn.disabled = false;
         btn.textContent = originalBtnText;
         stripeIsProcessing = false;
@@ -1924,7 +1933,14 @@
       
     } catch (err) {
       console.error('Stripe confirm error:', err);
-      showStripeError('Greška: ' + err.message);
+      
+      // Specifična poruka za timeout
+      if (err.message === 'TIMEOUT') {
+        showStripeError('Payment is taking longer than expected. Your payment may have processed - please check your email for confirmation. If you don\'t receive it within 5 minutes, please try again.');
+      } else {
+        showStripeError('Error: ' + err.message);
+      }
+      
       btn.disabled = false;
       btn.textContent = originalBtnText;
       stripeIsProcessing = false;
