@@ -2143,9 +2143,8 @@
   <!-- subtle vignette -->
   <div aria-hidden="true" style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%, rgba(255,91,127,0.12), transparent 55%);pointer-events:none;"></div>
 
+  <!-- Header (centered, narrow) -->
   <div class="max-w-7xl mx-auto px-6" style="position:relative;">
-
-    <!-- Header -->
     <div class="text-center max-w-2xl mx-auto mb-10">
       <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#D9D9D9;margin-bottom:18px;">
         <span style="width:6px;height:6px;border-radius:999px;background:#C8FF3E;box-shadow:0 0 10px #C8FF3E;"></span>
@@ -2153,11 +2152,16 @@
       </div>
       <h2 style="font-family:'Clash Grotesk','Inter Tight',sans-serif;font-size:clamp(32px,5.2vw,54px);font-weight:600;letter-spacing:-0.025em;line-height:1.05;margin:0 0 16px;color:#fff;">Choose Your <span style="color:#C8FF3E;">LLC Package</span></h2>
     </div>
+  </div>
 
-    <!-- Logo slider on dark -->
-    <div class="logo-slider mb-14 pricing-logos" style="--logo-fade:#0A0A0A;">
-      <div class="logo-slider-inner">
-        <div class="logo-slider-track">
+  <!-- Logo slider on dark - FULL WIDTH (outside max-w-7xl) -->
+  <div class="logo-slider-wrap pricing-logos relative overflow-hidden h-14 mb-14" style="position:relative;">
+    <!-- Gradient fade left - dark color -->
+    <div class="logo-fade-left pointer-events-none absolute inset-y-0 left-0 z-10" style="width:200px; background: linear-gradient(to right, #0A0A0A 40%, rgba(10,10,10,0) 100%);"></div>
+    <!-- Gradient fade right - dark color -->
+    <div class="logo-fade-right pointer-events-none absolute inset-y-0 right-0 z-10" style="width:200px; background: linear-gradient(to left, #0A0A0A 40%, rgba(10,10,10,0) 100%);"></div>
+    <!-- Slider track -->
+    <div class="logo-slider-track">
         <!-- SET 1 -->
         <div class="logo-slide-item"><img src="logos/stripe.svg"   alt="Stripe"   /></div>
         <div class="logo-divider"></div>
@@ -2219,10 +2223,10 @@
       <div class="logo-slide-item"><img src="logos/fanbasis.avif" alt="Fanbasis" /></div>
       <div class="logo-divider"></div>
     </div>
-      </div>
-    </div>
+  </div>
 
-    <!-- Cards grid -->
+  <!-- Cards grid - back inside max-w-7xl container -->
+  <div class="max-w-7xl mx-auto px-6" style="position:relative;">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
 
       <!-- Get Started LLC (dark outline) -->
@@ -2503,7 +2507,7 @@
       </div>
     </div>
     <div style="height:80px;"></div>
-
+  </div>
   </div><!-- /max-w-7xl -->
 
   <script>
