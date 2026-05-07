@@ -1200,7 +1200,7 @@
             </div>
             <div>
               <label class="s7-label">Business Description</label>
-              <textarea id="s7-description" class="s7-input" rows="3" placeholder="Briefly describe what your business does (e.g. online software consulting services)..." style="resize:none;"></textarea>
+              <textarea id="s7-description" class="s7-input" rows="3" placeholder="Briefly describe what your business does (e.g. online software consulting services)..." style="resize:none;" oninput="checkS8FValid()"></textarea>
             </div>
           </div>
           <button id="btn-8f" class="btn-continue" disabled onclick="goToS8('g')">Continue →</button>
@@ -2122,8 +2122,13 @@
   function checkS8FValid() {
     var name = (document.getElementById('s7-llc-name')||{}).value || '';
     var nameOk = name.replace(/\s*LLC\s*$/i,'').trim().length >= 2;
+    
+    // Business Description - REQUIRED
+    var desc = (document.getElementById('s7-description')||{}).value || '';
+    var descOk = desc.trim().length > 0;
+    
     var btn = document.getElementById('btn-8f');
-    if (btn) btn.disabled = !nameOk;
+    if (btn) btn.disabled = !(nameOk && descOk);
   }
 
   // ===== Step 2: Industry =====
