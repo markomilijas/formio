@@ -1214,11 +1214,11 @@
           <p class="text-gray-400 text-sm mb-7">Take a moment to verify everything. You can edit any field directly before submitting.</p>
           <div id="final-review-content" class="mb-7"></div>
           <!-- Confirmation checkbox -->
-          <div class="border border-gray-200 rounded-xl px-4 py-4 mb-6 flex items-start gap-3 cursor-pointer" onclick="toggleFinalConfirm()" id="final-confirm-box">
+          <div class="border border-gray-200 rounded-xl px-4 py-4 mb-6 flex items-start gap-3 cursor-pointer" onclick="toggleFinalConfirm(event)" id="final-confirm-box">
             <div id="final-cbox" class="cbox mt-0.5 flex-shrink-0">
               <svg id="final-ccheck" class="hidden w-3 h-3" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
-            <p class="text-sm text-gray-600 leading-relaxed select-none">I confirm that all information provided above is accurate and complete to the best of my knowledge, and I authorize the processing of my LLC registration based on these details.</p>
+            <p class="text-sm text-gray-600 leading-relaxed select-none" style="line-height:1.65;">I confirm that the information provided is true, correct, and complete to the best of my knowledge, as required for IRS submissions under penalty of perjury. I authorize Formio.biz (operated by Otvori LLC) to act as my Organizer for state filings, as my Third Party Designee on IRS Form SS-4 to apply for my EIN, and to share my information with registered agents and service providers as needed to complete the registration. I understand that once filing begins, certain fees are non-refundable per the <a href="/refund-policy/" target="_blank" onclick="event.stopPropagation()" style="color:#1D44E7;text-decoration:underline;font-weight:600;">Refund Policy</a>. This checkbox is my electronic signature.</p>
           </div>
           <button id="btn-8e" class="btn-continue" disabled onclick="submitStep8()">Confirm & Submit Registration →</button>
         </div>
