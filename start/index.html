@@ -3268,10 +3268,10 @@
               '<div id="pp-label-'+i+'">' +
                 '<svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>' +
                 '<p class="text-sm font-semibold text-gray-500">Click to upload passport photo</p>' +
-                '<p class="text-xs text-gray-400 mt-1">JPG, PNG or PDF - max 10MB</p>' +
+                '<p class="text-xs text-gray-400 mt-1">JPG or PNG - max 10MB</p>' +
               '</div>' +
             '</div>' +
-            '<input id="pp-upload-'+i+'" type="file" class="hidden" accept="image/*,.pdf" onchange="handlePP(this,'+i+')"/>' +
+            '<input id="pp-upload-'+i+'" type="file" class="hidden" accept="image/jpeg,image/png" onchange="handlePP(this,'+i+')"/>' +
           '</label>' +
         '</div>' +
         billHtml;
@@ -3293,7 +3293,25 @@
 
   function handlePP(input, idx) {
     if (input.files && input.files[0]) {
-      var name = input.files[0].name;
+      var file = input.files[0];
+      var name = file.name;
+      
+      // Validacija - samo JPG/PNG
+      var validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+      var validExtensions = /\.(jpg|jpeg|png)$/i;
+      if (!validTypes.includes(file.type) && !validExtensions.test(name)) {
+        alert('Please upload a JPG or PNG image only.');
+        input.value = ''; // resetuj input
+        return;
+      }
+      
+      // Validacija veličine - max 10MB
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File is too large. Maximum size is 10MB.');
+        input.value = '';
+        return;
+      }
+      
       document.getElementById('pp-zone-'+idx).classList.add('has-file');
       document.getElementById('pp-label-'+idx).innerHTML =
         '<svg class="w-5 h-5 text-green-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' +
