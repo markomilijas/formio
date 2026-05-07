@@ -154,6 +154,28 @@
         transform-origin: top center;
         flex-shrink: 0;
       }
+    }
+    /* 4K and ultra-wide screens - scale up the card */
+    @media (min-width: 1920px) {
+      .hero-card-scene {
+        transform: scale(1.2);
+        transform-origin: center;
+      }
+      .hero-card-wrap {
+        min-height: 580px;
+      }
+    }
+    @media (min-width: 2560px) {
+      .hero-card-scene {
+        transform: scale(1.5);
+        transform-origin: center;
+      }
+      .hero-card-wrap {
+        min-height: 720px;
+      }
+    }
+    /* Mobile media query continues below */
+    @media (max-width: 767px) {
       /* Keep Step 1 chip + question on a single line */
       .hero-step-row { gap: 8px; }
       .hero-step-q { font-size: 12.5px; min-width: 0; letter-spacing: -0.01em; }
