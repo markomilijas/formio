@@ -3326,7 +3326,11 @@
     var llcN = (document.getElementById('fr-llc-name')||{}).value || '';
     if (llcN.replace(/\s*LLC\s*$/i,'').trim().length < 2) { setFinalBtnState(false); return; }
     
-    // Alternative LLC Name i Business Description - SU OPTIONAL, ne proveravamo
+    // Alternative LLC Name - OPTIONAL, ne proveravamo
+    
+    // Business Description - REQUIRED
+    var desc = (document.getElementById('fr-description')||{}).value || '';
+    if (!desc.trim()) { setFinalBtnState(false); return; }
     
     // Phone i Email (required)
     var phone = (document.getElementById('fr-phone')||{}).value || '';
