@@ -3748,6 +3748,17 @@
           country_code: countryCode,
           passport_match_address: owner.passportMatch || ''
         });
+        
+        // FLATTEN polja po owneru - za Zapier/Make iteraciju
+        fd.append('owner_' + i + '_first_name', first);
+        fd.append('owner_' + i + '_last_name', last);
+        fd.append('owner_' + i + '_full_name', (first + ' ' + last).trim());
+        fd.append('owner_' + i + '_street', street);
+        fd.append('owner_' + i + '_city', city);
+        fd.append('owner_' + i + '_postal', postal);
+        fd.append('owner_' + i + '_country', countryName);
+        fd.append('owner_' + i + '_country_code', countryCode);
+        fd.append('owner_' + i + '_passport_match', owner.passportMatch || '');
       });
       fd.append('owners', JSON.stringify(ownersFinal));
       fd.append('owners_count', ownersFinal.length);
