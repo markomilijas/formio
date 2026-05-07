@@ -77,7 +77,7 @@ export default async function handler(req, res) {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
       currency: 'eur',
-      payment_method_types: ['card'],
+      automatic_payment_methods: { enabled: true },
       receipt_email: email,
       description: `Formio.biz - ${fullPlanLabel} - ${llc_name}`,
       metadata: {
