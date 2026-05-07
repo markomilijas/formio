@@ -3358,14 +3358,22 @@
     if (btn) btn.disabled = !enabled;
   }
 
-  function toggleFinalConfirm() {
+  // Globalna varijabla za pamcenje timestamp-a kad je korisnik prihvatio finalni consent
+  var legalConsentAcceptedAt = null;
+  
+  function toggleFinalConfirm(event) {
+    // Ignoriši ako je klik bio na linku unutar checkbox box-a (npr. Refund Policy)
+    if (event && event.target && event.target.tagName === 'A') return;
+    
     var box = document.getElementById('final-cbox');
     var check = document.getElementById('final-ccheck');
     var confirmed = box.classList.contains('on');
     if (confirmed) {
       box.classList.remove('on'); check.classList.add('hidden');
+      legalConsentAcceptedAt = null; // resetuj timestamp ako uncheck
     } else {
       box.classList.add('on'); check.classList.remove('hidden');
+      legalConsentAcceptedAt = new Date().toISOString(); // sacuvaj timestamp pri prihvatanju
     }
     checkFinalReviewValid();
   }
@@ -3660,6 +3668,13 @@
       fd.append('timestamp', new Date().toISOString());
       fd.append('session_id', getSessionId());
       fd.append('terms_accepted', 'true');
+      
+      // Legal consent (electronic signature) - klijentov tekst
+      var legalConsentText = 'I confirm that the information provided is true, correct, and complete to the best of my knowledge, as required for IRS submissions under penalty of perjury. I authorize Formio.biz (operated by Otvori LLC) to act as my Organizer for state filings, as my Third Party Designee on IRS Form SS-4 to apply for my EIN, and to share my information with registered agents and service providers as needed to complete the registration. I understand that once filing begins, certain fees are non-refundable per the Refund Policy. This checkbox is my electronic signature.';
+      fd.append('legal_consent_accepted', 'true');
+      fd.append('legal_consent_text', legalConsentText);
+      fd.append('legal_consent_accepted_at', legalConsentAcceptedAt || new Date().toISOString());
+      fd.append('legal_consent_signature_type', 'electronic_checkbox');
       
       // Kontakt
       fd.append('email', frEmail);
