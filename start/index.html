@@ -266,6 +266,14 @@
     .modal-input { width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; font-size: 14px; font-weight: 500; outline: none; transition: border-color .15s, box-shadow .15s; color: #111; background: #fff; box-sizing: border-box; }
     .modal-input:focus { border-color: #1D44E7; box-shadow: 0 0 0 3px rgba(29,68,231,.12); }
     .modal-input::placeholder { color: #d1d5db; font-weight: 400; }
+    .modal-input.has-error,
+    .phone-inner.has-error { border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08) !important; }
+    .modal-input.has-error:focus,
+    .phone-inner.has-error:focus-within { border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important; }
+    .modal-error-msg { display: none; margin-top: 6px; font-size: 12px; color: #DC2626; font-weight: 500; line-height: 1.4; align-items: flex-start; gap: 5px; }
+    .modal-error-msg.show { display: flex; animation: errFadeIn 0.18s ease; }
+    .modal-error-msg svg { flex-shrink: 0; margin-top: 1px; }
+    @keyframes errFadeIn { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Step 7 */
     .s7-section { border: 1.5px solid #f3f4f6; border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
@@ -1269,17 +1277,25 @@
             <span id="modal-dial-code" style="font-size:12px;font-weight:700;color:#374151;min-width:28px">+1</span>
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="text-gray-400"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <input type="tel" id="modal-phone" class="phone-num-input modal-size" placeholder="555 000 000" oninput="autoDetectDial('modal', this.value); checkModalBtn();" autocomplete="tel"/>
+          <input type="tel" id="modal-phone" class="phone-num-input modal-size" placeholder="555 000 000" oninput="autoDetectDial('modal', this.value); checkModalBtn(); validateModalField('phone');" onblur="markModalTouched('phone')" autocomplete="tel"/>
         </div>
         <div id="modal-dial-dropdown" class="phone-dial-dropdown hidden">
           <input type="text" class="phone-dial-search" placeholder="Search country or code..." oninput="filterDialList('modal',this.value)" autocomplete="off"/>
           <div id="modal-dial-list" class="phone-dial-list"></div>
         </div>
       </div>
+      <div class="modal-error-msg" id="modal-phone-error">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+        <span class="err-text"></span>
+      </div>
     </div>
     <div class="mb-5">
       <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Email Address</label>
-      <input type="email" id="modal-email" class="modal-input" placeholder="e.g. john@company.com" oninput="checkModalBtn()" autocomplete="email"/>
+      <input type="email" id="modal-email" class="modal-input" placeholder="e.g. john@company.com" oninput="checkModalBtn(); validateModalField('email');" onblur="markModalTouched('email')" autocomplete="email"/>
+      <div class="modal-error-msg" id="modal-email-error">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+        <span class="err-text"></span>
+      </div>
     </div>
     
     <!-- Terms consent checkbox -->
@@ -2476,6 +2492,16 @@
   function openContactModal() {
     document.getElementById('contact-modal').classList.remove('hidden');
     document.body.style.overflow='hidden';
+    // Reset error state - korisnik tek otvorio modal, polja nisu još "touched"
+    modalTouched = { phone: false, email: false };
+    var phoneErr = document.getElementById('modal-phone-error');
+    var emailErr = document.getElementById('modal-email-error');
+    var phoneInner = document.querySelector('#contact-modal .phone-inner');
+    var emailEl = document.getElementById('modal-email');
+    if (phoneErr) phoneErr.classList.remove('show');
+    if (emailErr) emailErr.classList.remove('show');
+    if (phoneInner) phoneInner.classList.remove('has-error');
+    if (emailEl) emailEl.classList.remove('has-error');
     setTimeout(function(){ var el=document.getElementById('modal-phone'); if(el) el.focus(); },100);
   }
   function closeContactModal() {
@@ -2508,6 +2534,71 @@
       // Postavi dial code i zastavu - ALI NE BRISI input
       // Korisnik može da nastavi da kuca duzi prefiks (npr. +1 -> +1246)
       setDialCode(ns, matched);
+    }
+  }
+  
+  // Modal validation state - tracks da li je polje "touched" (korisnik kucao i napustio)
+  var modalTouched = { phone: false, email: false };
+  
+  function markModalTouched(field) {
+    modalTouched[field] = true;
+    validateModalField(field);
+  }
+  
+  function validateModalField(field) {
+    if (!modalTouched[field]) return; // Ne validiraj dok nije touched (prvi blur)
+    
+    if (field === 'phone') {
+      var ph = document.getElementById('modal-phone').value.trim();
+      var dial = (dialState.modal && dialState.modal.dial) || '';
+      var countryCode = (dialState.modal && dialState.modal.code) || '';
+      var phClean = ph;
+      if (dial && phClean.startsWith(dial)) phClean = phClean.substring(dial.length).trim();
+      
+      var phoneInner = document.querySelector('#contact-modal .phone-inner');
+      var errEl = document.getElementById('modal-phone-error');
+      if (!phoneInner || !errEl) return;
+      var errText = errEl.querySelector('.err-text');
+      
+      if (!phClean) {
+        phoneInner.classList.add('has-error');
+        errText.textContent = 'Please enter your phone number';
+        errEl.classList.add('show');
+      } else {
+        var valid = false;
+        if (countryCode) {
+          try { valid = libphonenumber.isValidPhoneNumber(phClean, countryCode); } catch(e) { valid = false; }
+        }
+        if (!valid) {
+          phoneInner.classList.add('has-error');
+          errText.textContent = 'Please enter a valid phone number';
+          errEl.classList.add('show');
+        } else {
+          phoneInner.classList.remove('has-error');
+          errEl.classList.remove('show');
+        }
+      }
+    }
+    
+    if (field === 'email') {
+      var em = document.getElementById('modal-email').value.trim();
+      var emEl = document.getElementById('modal-email');
+      var errEl = document.getElementById('modal-email-error');
+      if (!emEl || !errEl) return;
+      var errText = errEl.querySelector('.err-text');
+      
+      if (!em) {
+        emEl.classList.add('has-error');
+        errText.textContent = 'Please enter your email address';
+        errEl.classList.add('show');
+      } else if (!isValidEmail(em)) {
+        emEl.classList.add('has-error');
+        errText.textContent = 'Please enter a valid email address';
+        errEl.classList.add('show');
+      } else {
+        emEl.classList.remove('has-error');
+        errEl.classList.remove('show');
+      }
     }
   }
   
