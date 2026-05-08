@@ -267,8 +267,10 @@
     .modal-input:focus { border-color: #1D44E7; box-shadow: 0 0 0 3px rgba(29,68,231,.12); }
     .modal-input::placeholder { color: #d1d5db; font-weight: 400; }
     .modal-input.has-error,
+    .s7-input.has-error,
     .phone-inner.has-error { border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08) !important; }
     .modal-input.has-error:focus,
+    .s7-input.has-error:focus,
     .phone-inner.has-error:focus-within { border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important; }
     .modal-error-msg { display: none; margin-top: 6px; font-size: 12px; color: #DC2626; font-weight: 500; line-height: 1.4; align-items: flex-start; gap: 5px; }
     .modal-error-msg.show { display: flex; animation: errFadeIn 0.18s ease; }
@@ -1174,20 +1176,28 @@
                     <span id="s7b-dial-code" style="font-size:12px;font-weight:700;color:#374151;min-width:28px">+1</span>
                     <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="text-gray-400"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </button>
-                  <input type="tel" id="s7b-phone" class="phone-num-input" placeholder="555 000 000" oninput="autoDetectDial('s7b', this.value); checkS7bBtn();" autocomplete="tel"/>
+                  <input type="tel" id="s7b-phone" class="phone-num-input" placeholder="555 000 000" oninput="autoDetectDial('s7b', this.value); checkS8cBtn(); validateS7bField('phone');" onblur="markS7bTouched('phone')" autocomplete="tel"/>
                 </div>
                 <div id="s7b-dial-dropdown" class="phone-dial-dropdown hidden">
                   <input type="text" class="phone-dial-search" placeholder="Search country or code..." oninput="filterDialList('s7b',this.value)" autocomplete="off"/>
                   <div id="s7b-dial-list" class="phone-dial-list"></div>
                 </div>
               </div>
+              <div class="modal-error-msg" id="s7b-phone-error">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+                <span class="err-text"></span>
+              </div>
             </div>
             <div>
               <label class="s7-label">Email Address</label>
-              <input type="email" id="s7b-email" class="s7-input" placeholder="john@company.com" oninput="checkS7bBtn()" autocomplete="email"/>
+              <input type="email" id="s7b-email" class="s7-input" placeholder="john@company.com" oninput="checkS8cBtn(); validateS7bField('email');" onblur="markS7bTouched('email')" autocomplete="email"/>
+              <div class="modal-error-msg" id="s7b-email-error">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+                <span class="err-text"></span>
+              </div>
             </div>
           </div>
-          <button id="btn-8c" class="btn-continue" onclick="goToS8('f')">Continue →</button>
+          <button id="btn-8c" class="btn-continue" disabled onclick="goToS8('f')">Continue →</button>
         </div>
 
         <!-- SUB 8F: LLC Details -->
@@ -2924,6 +2934,15 @@
       }
       if (ph && !ph.value && modalLocal) ph.value = modalLocal;
       if (em && !em.value && modalEmail) em.value = modalEmail;
+      // Reset error state - polja su pre-filled, nemoj da prikazuješ error odmah
+      s7bTouched = { phone: false, email: false };
+      var phoneInner = ph ? ph.closest('.phone-inner') : null;
+      var phErr = document.getElementById('s7b-phone-error');
+      var emErr = document.getElementById('s7b-email-error');
+      if (phoneInner) phoneInner.classList.remove('has-error');
+      if (em) em.classList.remove('has-error');
+      if (phErr) phErr.classList.remove('show');
+      if (emErr) emErr.classList.remove('show');
       checkS8cBtn();
     }
     if (id === 'g') {
@@ -3083,6 +3102,72 @@
     return result;
   }
 
+  // S7b validation state - tracks da li je polje "touched" (korisnik kucao i napustio)
+  var s7bTouched = { phone: false, email: false };
+  
+  function markS7bTouched(field) {
+    s7bTouched[field] = true;
+    validateS7bField(field);
+  }
+  
+  function validateS7bField(field) {
+    if (!s7bTouched[field]) return;
+    
+    if (field === 'phone') {
+      var ph = document.getElementById('s7b-phone').value.trim();
+      var dial = (dialState.s7b && dialState.s7b.dial) || '';
+      var countryCode = (dialState.s7b && dialState.s7b.code) || '';
+      var phClean = ph;
+      if (dial && phClean.startsWith(dial)) phClean = phClean.substring(dial.length).trim();
+      
+      var phoneEl = document.getElementById('s7b-phone');
+      var phoneInner = phoneEl ? phoneEl.closest('.phone-inner') : null;
+      var errEl = document.getElementById('s7b-phone-error');
+      if (!phoneInner || !errEl) return;
+      var errText = errEl.querySelector('.err-text');
+      
+      if (!phClean) {
+        phoneInner.classList.add('has-error');
+        errText.textContent = 'Please enter your phone number';
+        errEl.classList.add('show');
+      } else {
+        var valid = false;
+        if (countryCode) {
+          try { valid = libphonenumber.isValidPhoneNumber(phClean, countryCode); } catch(e) { valid = false; }
+        }
+        if (!valid) {
+          phoneInner.classList.add('has-error');
+          errText.textContent = 'Please enter a valid phone number';
+          errEl.classList.add('show');
+        } else {
+          phoneInner.classList.remove('has-error');
+          errEl.classList.remove('show');
+        }
+      }
+    }
+    
+    if (field === 'email') {
+      var em = document.getElementById('s7b-email').value.trim();
+      var emEl = document.getElementById('s7b-email');
+      var errEl = document.getElementById('s7b-email-error');
+      if (!emEl || !errEl) return;
+      var errText = errEl.querySelector('.err-text');
+      
+      if (!em) {
+        emEl.classList.add('has-error');
+        errText.textContent = 'Please enter your email address';
+        errEl.classList.add('show');
+      } else if (!isValidEmail(em)) {
+        emEl.classList.add('has-error');
+        errText.textContent = 'Please enter a valid email address';
+        errEl.classList.add('show');
+      } else {
+        emEl.classList.remove('has-error');
+        errEl.classList.remove('show');
+      }
+    }
+  }
+  
   function checkS8cBtn() {
     var ph = document.getElementById('s7b-phone').value.trim();
     var em = document.getElementById('s7b-email').value.trim();
