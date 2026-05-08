@@ -169,6 +169,20 @@
       .hero-benefits { font-size: 11.5px; gap: 10px !important; letter-spacing: -0.005em; }
       .hero-benefits svg { width: 11px; height: 11px; }
     }
+
+    /* Hero gradient — mobile gets smoother transition */
+    .hero-gradient-bg {
+      background:
+        radial-gradient(1100px 500px at 50% -60px, #B7FBFE 0%, transparent 65%),
+        linear-gradient(180deg, #EAF9FB 0%, #DCEBFE 35%, #B9CCFA 65%, #D5DFFB 80%, #EBF0FD 92%, #FFFFFF 100%);
+    }
+    @media (max-width: 768px) {
+      .hero-gradient-bg {
+        background:
+          radial-gradient(800px 400px at 50% -40px, #B7FBFE 0%, transparent 65%),
+          linear-gradient(180deg, #EAF9FB 0%, #DCEBFE 25%, #B9CCFA 50%, #D5DFFB 70%, #EBF0FD 85%, #F5F8FE 95%, #FFFFFF 100%);
+      }
+    }
   </style>
 </head>
 <style>
@@ -372,10 +386,7 @@
 </script>
 
 <!-- ===================== HERO ===================== -->
-<section class="pt-20 md:pt-32 min-h-[60vh] flex flex-col justify-center overflow-visible"
-         style="background:
-            radial-gradient(1100px 500px at 50% -60px, #B7FBFE 0%, transparent 65%),
-            linear-gradient(180deg, #EAF9FB 0%, #DCEBFE 35%, #B9CCFA 65%, #D5DFFB 80%, #EBF0FD 92%, #FFFFFF 100%);">
+<section class="pt-20 md:pt-32 min-h-[60vh] flex flex-col justify-center overflow-visible hero-gradient-bg">
   <div class="max-w-7xl mx-auto w-full px-6 md:px-12 lg:px-16 py-6 md:py-10 flex flex-col md:flex-row items-center gap-6 md:gap-12">
     <!-- Left -->
     <div class="flex-1 max-w-2xl">
