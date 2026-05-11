@@ -73,15 +73,20 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'invalid_tier' });
   }
   
-  // Update the row where this code matches
-  // We use PATCH on PostgREST with filter
-  const tierCol = `discount_code_${tier}_internal`;
-  const usedAtCol = `code_${tier}_used_at`;
+  // ONE-AND-DONE LOGIC:
+  // When ANY tier is paid, mark ALL 3 tiers (10/20/30) as used
+  // This prevents the user (or someone with the link) from reusing remaining tiers
+  // after they've already paid once.
   
+  const tierCol = `discount_code_${tier}_internal`;
   const updateUrl = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?${tierCol}=eq.${encodeURIComponent(code)}`;
   
-  const patchBody = {};
-  patchBody[usedAtCol] = new Date().toISOString();
+  const nowIso = new Date().toISOString();
+  const patchBody = {
+    code_10_used_at: nowIso,
+    code_20_used_at: nowIso,
+    code_30_used_at: nowIso
+  };
   
   try {
     const supabaseResponse = await fetch(updateUrl, {
@@ -114,7 +119,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       tier: tier,
-      used_at: updated[0][usedAtCol],
+      used_at: nowIso,
+      all_tiers_marked: true,
       payment_intent_id: paymentIntentId
     });
     
