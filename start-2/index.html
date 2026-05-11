@@ -1487,14 +1487,51 @@
   }
   
   function updateCheckoutWithDiscount() {
+    // IMPORTANT: This function is called when backend returns an UPDATED discount tier
+    // (e.g., upgraded from 10% to 20% because 10% was expired).
+    // We must recalculate prices from BASE (€399/€499/€599) NOT from current pkgPrices
+    // (which may already be discounted at 10% if user opened URL with -llc10 code).
+    
+    if (!selectedPackage) return;
+    
+    var isDelaware = selectedState === 'delaware';
+    var rawPrice = 0;
+    if (selectedPackage === 'starter') rawPrice = isDelaware ? 499 : 399;
+    if (selectedPackage === 'growth')  rawPrice = isDelaware ? 599 : 499;
+    
+    // Use current discountTier (which backend may have upgraded) to recalculate
+    var discounted = discountActive ? Math.floor(rawPrice * (1 - discountTier / 100)) : rawPrice;
+    var savings = rawPrice - discounted;
+    
+    // Update pkgPrices to reflect new tier (so refreshPackagePricing doesn't undo this)
+    // Note: pkgPrices is keyed by 'starter'/'growth' regardless of state - state surcharge baked in
+    pkgPrices[selectedPackage] = '€' + discounted;
+    // Also update label
+    var stateAbbr = isDelaware ? 'DE' : 'WYO';
+    var labels = {
+      starter: 'Get Started ' + stateAbbr + ' LLC',
+      growth:  'Growth-Ready ' + stateAbbr + ' LLC'
+    };
+    pkgLabels[selectedPackage] = labels[selectedPackage] + ' (€' + discounted + ')';
+    
+    // Update Order Summary
     var coPrice = document.getElementById('co-price');
-    if (coPrice) {
-      var p = pkgPrices[selectedPackage] || '';
-      coPrice.textContent = p;
-    }
+    if (coPrice) coPrice.textContent = '€' + discounted;
+    
+    var coPlan = document.getElementById('co-plan');
+    if (coPlan) coPlan.textContent = pkgLabels[selectedPackage];
+    
     var payBtn = document.getElementById('pay-btn');
-    if (payBtn) {
-      payBtn.textContent = 'Pay ' + (pkgPrices[selectedPackage] || '') + ' - Register My LLC';
+    if (payBtn) payBtn.textContent = 'Pay €' + discounted + ' - Register My LLC';
+    
+    // Update discount row in order summary
+    var discRow = document.getElementById('co-discount-row');
+    var discPct = document.getElementById('co-discount-pct');
+    var discAmount = document.getElementById('co-discount-amount');
+    if (discountActive && discRow && discPct && discAmount) {
+      discPct.textContent = '(' + discountTier + '% off)';
+      discAmount.textContent = '-€' + savings;
+      discRow.classList.remove('hidden');
     }
   }
   
@@ -2385,7 +2422,6 @@
           }
           // Refresh UI to show actual discount being charged
           refreshDiscountedUI();
-          updateCheckoutWithDiscount();
         }
       } else {
         // Backend did NOT apply discount even though frontend had one (validation failed server-side)
