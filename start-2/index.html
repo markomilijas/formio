@@ -2369,6 +2369,33 @@
       
       var data = await response.json();
       
+      // === Handle discount info returned by backend ===
+      // Backend may apply discount or auto-upgrade to next tier if user's tier expired
+      if (data.discount) {
+        var serverTier = data.discount.tier;
+        var wasUpgraded = data.discount.upgraded;
+        
+        // Update frontend discount state if backend upgraded the tier
+        if (wasUpgraded || serverTier !== discountTier) {
+          console.log('[start-2] Backend applied discount tier:', serverTier, wasUpgraded ? '(UPGRADED from ' + data.discount.upgraded_from + ')' : '');
+          discountTier = serverTier;
+          discountPercent = serverTier / 100;
+          if (data.discount.code) {
+            discountCodeInternal = data.discount.code;
+          }
+          // Refresh UI to show actual discount being charged
+          refreshDiscountedUI();
+          updateCheckoutWithDiscount();
+        }
+      } else {
+        // Backend did NOT apply discount even though frontend had one (validation failed server-side)
+        if (discountActive) {
+          console.warn('[start-2] Backend did NOT apply discount - frontend may be misleading');
+          // We do not remove the visual discount because user already sees the price
+          // Backend charges what's correct anyway
+        }
+      }
+      
       // Configure Elements appearance to match site dizajn
       var appearance = {
         theme: 'stripe',
@@ -2446,6 +2473,24 @@
         btn.textContent = originalBtnText;
         stripeIsProcessing = false;
       } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+        // Mark discount code as used in Supabase (fire and forget - ne blokiramo flow)
+        if (discountActive && discountCodeInternal) {
+          fetch(BACKEND_API_BASE + '/api/mark-code-used', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              code: discountCodeInternal,
+              tier: discountTier,
+              payment_intent_id: result.paymentIntent.id || ''
+            })
+          }).then(function(r) {
+            return r.json().catch(function(){ return {}; });
+          }).then(function(data) {
+            console.log('[start-2] Code marked as used:', data);
+          }).catch(function(err) {
+            console.warn('[start-2] mark-code-used error (non-blocking):', err);
+          });
+        }
         goToSuccess();
       } else {
         showStripeError('Plaćanje je u obradi. Molimo sačekajte i osvežite stranicu.');
