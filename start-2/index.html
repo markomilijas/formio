@@ -1499,21 +1499,110 @@
   }
   
   // ============================================================
+  // BACKEND API for user data lookup
   // ============================================================
-  // ENTRY: parse URL, apply discount, initialize start-2 page
+  var BACKEND_API_BASE = 'https://formio-kohl.vercel.app';
+  
+  async function fetchUserDataByCode(internalCode) {
+    try {
+      var response = await fetch(BACKEND_API_BASE + '/api/get-user-data?code=' + encodeURIComponent(internalCode), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!response.ok) {
+        var errBody = await response.json().catch(function(){ return {}; });
+        return { found: false, error: errBody.error || 'http_error', status: response.status };
+      }
+      return await response.json();
+    } catch (err) {
+      console.warn('fetchUserDataByCode error:', err);
+      return { found: false, error: 'network_error' };
+    }
+  }
+  
   // ============================================================
-  function initStart2Page() {
+  // POPULATE FORM DATA FROM SUPABASE RESPONSE
+  // Fills internal variables + updates UI labels
+  // ============================================================
+  function populateFormFromUserData(data) {
+    if (!data) return;
+    
+    // === LLC ===
+    if (data.llc_name) {
+      llcName = data.llc_name;
+      // Update UI: Step 1 headline
+      var pkgLlcName = document.getElementById('pkg-llc-name');
+      if (pkgLlcName) pkgLlcName.textContent = data.llc_name_full || (data.llc_name + ' LLC');
+    }
+    
+    // === Industry ===
+    if (data.industry) {
+      selectedIndustry = data.industry;
+      selectedIndustryLabel = data.industry_label || industryLabels[data.industry] || '';
+    }
+    
+    // === Registration State ===
+    if (data.registration_state) {
+      selectedState = data.registration_state;
+      // Update state switcher UI
+      if (typeof switchPkgState === 'function') {
+        // Don't call switchPkgState() here because it calls refreshPackagePricing which we call after
+        var stateLbl = document.getElementById('pkg-state-label');
+        if (stateLbl) stateLbl.textContent = stateLabels[selectedState] || '';
+        var stateNote = document.getElementById('pkg-state-price-note');
+        if (stateNote) stateNote.classList.toggle('hidden', selectedState !== 'delaware');
+      }
+    }
+    
+    // === Owner name ===
+    if (data.first_name) ownerFirstName = data.first_name;
+    if (data.last_name) ownerLastName = data.last_name;
+    if (data.first_name) modalFirstName = data.first_name;
+    if (data.last_name) modalLastName = data.last_name;
+    
+    // === Owner address (Step 4b in original) ===
+    if (data.address_street) ownerStreet = data.address_street;
+    if (data.address_city) ownerCity = data.address_city;
+    if (data.address_postal) ownerZip = data.address_postal;
+    if (data.address_country_code) {
+      selectedCountry = data.address_country_code;
+      selectedCountryLabel = data.address_country || '';
+    }
+    
+    // === Contact (modal) ===
+    if (data.email) modalEmail = data.email;
+    if (data.phone) modalPhone = data.phone;
+    
+    // === Phone dial state ===
+    if (data.phone_country_code && data.phone_dial_code) {
+      dialState.modal = {
+        code: data.phone_country_code,
+        dial: data.phone_dial_code,
+        localNumber: data.phone_local || ''
+      };
+      dialState.s7b = {
+        code: data.phone_country_code,
+        dial: data.phone_dial_code,
+        localNumber: data.phone_local || ''
+      };
+    }
+    
+    console.log('[start-2] Pre-filled user data:', {
+      llc: llcName,
+      industry: selectedIndustry,
+      state: selectedState,
+      owner: ownerFirstName + ' ' + ownerLastName,
+      email: modalEmail
+    });
+  }
+  
+  // ============================================================
+  // ENTRY: parse URL, fetch user data, apply discount, initialize
+  // ============================================================
+  async function initStart2Page() {
     var urlParams = new URLSearchParams(window.location.search);
     var rawCode = urlParams.get('discount');
     var parsed = rawCode ? parseDiscountCode(rawCode) : null;
-    
-    if (parsed) {
-      // Auto-apply
-      applyDiscount(parsed);
-    } else {
-      // Show popup fallback after a short delay
-      setTimeout(function(){ showDiscountPopup(); }, 300);
-    }
     
     // Set initial step state (step-7 is already active via HTML class)
     currentStep = 7;
@@ -1537,11 +1626,38 @@
     // Update sidebar - mark step 1 as active
     updateSidebarStart2(1);
     
-    // Set LLC name placeholder
-    var pkgLlcName = document.getElementById('pkg-llc-name');
-    if (pkgLlcName) pkgLlcName.textContent = 'your LLC';
+    // === DISCOUNT CODE PRESENT ===
+    if (parsed) {
+      // Auto-apply discount immediately (visual)
+      applyDiscount(parsed);
+      
+      // Fetch user data from backend in parallel
+      var result = await fetchUserDataByCode(parsed.internal);
+      
+      if (result && result.found && result.data) {
+        // Pre-fill all form data
+        populateFormFromUserData(result.data);
+        
+        // If backend returned a different tier (upgrade scenario - not implemented yet),
+        // we'd update discount tier here. For now, frontend tier from URL is authoritative.
+      } else {
+        // Code not found in Supabase (rare edge case - older link, etc.)
+        // Continue with discount applied but without pre-filled data
+        console.warn('[start-2] User data not found for code:', parsed.internal, result);
+      }
+    } else {
+      // === NO CODE IN URL ===
+      // Show popup fallback (user manually enters code)
+      setTimeout(function(){ showDiscountPopup(); }, 300);
+    }
     
-    // Initialize pricing with discount applied
+    // Set fallback LLC name in UI if not set
+    var pkgLlcName = document.getElementById('pkg-llc-name');
+    if (pkgLlcName && !pkgLlcName.textContent.trim()) {
+      pkgLlcName.textContent = 'your LLC';
+    }
+    
+    // Initialize pricing with discount applied (uses selectedState)
     if (typeof refreshPackagePricing === 'function') {
       refreshPackagePricing();
     }
@@ -2090,7 +2206,40 @@
       var ownersList = document.getElementById('owners-list');
       if (ownersList) ownersList.innerHTML = '';
       ownersData = [];
+      // /start-2: pre-fill first owner if we have data from Supabase
+      if (ownerFirstName || ownerLastName) {
+        // appendOwnerCard accepts (firstName, lastName) and creates an owner card
+        if (typeof appendOwnerCard === 'function') {
+          appendOwnerCard(ownerFirstName || '', ownerLastName || '');
+        }
+      }
       goToS8('b');
+      // After goToS8 navigates, pre-fill contact info (sub-8e) inputs
+      // so when user navigates there it's already filled
+      setTimeout(function(){
+        var s7bEmailInput = document.getElementById('s7b-email');
+        if (s7bEmailInput && modalEmail) s7bEmailInput.value = modalEmail;
+        var s7bPhoneInput = document.getElementById('s7b-phone');
+        if (s7bPhoneInput && modalPhone) {
+          // Strip dial code from phone if present
+          var dial = (dialState.s7b && dialState.s7b.dial) || '';
+          var localPart = modalPhone;
+          if (dial && localPart.indexOf(dial) === 0) {
+            localPart = localPart.substring(dial.length).trim();
+          }
+          s7bPhoneInput.value = localPart;
+        }
+        // Update dial picker UI on sub-8e to match modalPhone country
+        if (dialState.s7b && dialState.s7b.code && typeof setDialState === 'function') {
+          // Refresh the visible dial code button text
+          var s7bDialCode = document.getElementById('s7b-dial-code');
+          var s7bDialFlag = document.getElementById('s7b-dial-flag');
+          if (s7bDialCode) s7bDialCode.textContent = dialState.s7b.dial || '+1';
+          if (s7bDialFlag && typeof flagEmoji === 'function') s7bDialFlag.innerHTML = flagEmoji(dialState.s7b.code);
+        }
+        // Trigger validation/button state update if function exists
+        if (typeof checkS8cBtn === 'function') checkS8cBtn();
+      }, 100);
     }
     window.scrollTo({top:0,behavior:'smooth'});
   }
@@ -2183,6 +2332,19 @@
       
       // Sakupi podatke iz forme
       var fullName = (modalFirstName || '') + ' ' + (modalLastName || '');
+      fullName = fullName.trim();
+      
+      // /start-2 fallback: extract name from discount slug if available, since user hasn't filled in details yet
+      if (!fullName && discountActive && discountSlug) {
+        // discountSlug is e.g. "danilozdravkovic" - we don't know first/last split, use as-is
+        fullName = discountSlug;
+      }
+      if (!fullName) fullName = 'Customer';  // Stripe requires non-empty
+      
+      var emailForStripe = modalEmail || '';
+      if (!emailForStripe) emailForStripe = 'pending@formio.biz';  // placeholder - real email captured at Step 8 modal
+      
+      var llcNameForStripe = llcName ? llcName + ' LLC' : 'Pending LLC Name';
       
       // Kreiraj PaymentIntent na backend-u
       var response = await fetch(STRIPE_API_BASE + '/api/create-payment-intent', {
@@ -2193,10 +2355,10 @@
           discount_code: discountActive ? discountCodeInternal : null,
           discount_tier: discountActive ? discountTier : null,
           session_id: getSessionId ? getSessionId() : '',
-          llc_name: llcName ? llcName + ' LLC' : '',
-          email: modalEmail || '',
-          full_name: fullName.trim(),
-          registration_state: selectedState || ''
+          llc_name: llcNameForStripe,
+          email: emailForStripe,
+          full_name: fullName,
+          registration_state: selectedState || 'wyoming'
         })
       });
       
