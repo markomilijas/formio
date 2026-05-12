@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Call – Formio.biz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@400,500,600,700&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter Tight', Inter, sans-serif; color: #071841; background: #fff; margin: 0; }
+    .nav-logo { font-family: 'Clash Grotesk', 'Inter Tight', sans-serif; font-weight: 600; font-size: 1.125rem; letter-spacing: -0.03em; color: #071841; text-decoration: none; }
+    .nav-logo .dot { color: #1D44E7; }
+    .site-footer { background: #030A1F; color: #fff; padding: 48px 0 32px; }
+    .footer-brand { font-family: 'Clash Grotesk', 'Inter Tight', sans-serif; font-weight: 600; font-size: 1.5rem; letter-spacing: -0.03em; color: #fff; text-decoration: none; }
+    .footer-brand .dot { color: #4F7BFF; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); margin-top: 32px; padding-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: space-between; }
+    @media (min-width: 768px) { .footer-bottom { flex-direction: row; } }
+    .footer-bottom p { color: rgba(255,255,255,0.4); font-size: 0.75rem; margin: 0; }
+    .footer-link { color: rgba(255,255,255,0.55); font-size: 0.85rem; text-decoration: none; transition: color 160ms; display: inline-block; padding: 4px 0; }
+    .footer-link:hover { color: #fff; }
+    .footer-col h4 { font-weight: 700; font-size: 0.8rem; color: #fff; margin-bottom: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav style="position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(7,24,65,0.06);padding:16px 0;">
+  <div style="max-width:880px;margin:0 auto;padding:0 24px;text-align:center;">
+    <a href="index.html" class="nav-logo">Formio<span class="dot">.biz</span></a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="text-align:center;padding:72px 24px 48px;">
+  <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(29,68,231,0.08);border:1px solid rgba(29,68,231,0.15);border-radius:999px;padding:8px 16px;margin-bottom:20px;">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 1.5C2.5 1.5 1 1.5 1 3s1 5.5 4.5 9S12 13.5 13.5 13.5 14 12 14 12l-2.5-2.5-1.5 1s-2-1-3.5-2.5S5 5.5 5 5.5l1-1.5L3.5 1.5H2.5Z" stroke="#1D44E7" stroke-width="1.3" stroke-linejoin="round"/></svg>
+    <span style="font-family:'Inter Tight',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#1D44E7;">Talk to an LLC Expert</span>
+  </div>
+  <h1 style="font-family:'Clash Grotesk','Inter Tight',sans-serif;font-weight:600;font-size:clamp(28px,4vw,44px);letter-spacing:-0.025em;line-height:1.1;color:#071841;margin:0 0 16px;">Book Your Free Consultation</h1>
+  <p style="font-size:0.95rem;color:rgba(7,24,65,0.55);max-width:420px;margin:0 auto;line-height:1.7;">Pick a time that works for you and we'll walk you through the entire US LLC formation process.</p>
+  <div style="margin-top:32px;display:flex;align-items:center;justify-content:center;gap:4px;">
+    <svg style="animation:bounce 1.4s ease-in-out infinite;" width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 5v12M11 17l-5-5M11 17l5-5" stroke="#1D44E7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg style="animation:bounce 1.4s ease-in-out infinite;animation-delay:0.15s;" width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 5v12M11 17l-5-5M11 17l5-5" stroke="#1D44E7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg style="animation:bounce 1.4s ease-in-out infinite;animation-delay:0.3s;" width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 5v12M11 17l-5-5M11 17l5-5" stroke="#1D44E7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <style>
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); opacity: 1; }
+      50% { transform: translateY(7px); opacity: 0.4; }
+    }
+  </style>
+</div>
+
+<!-- BOOKING WIDGET -->
+<div style="max-width:900px;margin:0 auto;padding:0 24px 96px;">
+  <iframe
+    src="https://go.formio.biz/widget/booking/nmLBT93akvr9MGaVHkVi"
+    style="width:100%;border:none;overflow:hidden;min-height:700px;"
+    scrolling="no"
+    id="nmLBT93akvr9MGaVHkVi_1778507192275">
+  </iframe>
+  <script src="https://go.formio.biz/js/form_embed.js" type="text/javascript"></script>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div style="max-width:880px;margin:0 auto;padding:0 24px;">
+    <div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start;justify-content:space-between;">
+      <div>
+        <a href="index.html" class="footer-brand">Formio<span class="dot">.biz</span></a>
+        <p style="color:rgba(255,255,255,0.5);font-size:0.85rem;line-height:1.7;margin-top:14px;max-width:280px;">The best platform to start your US business from anywhere in the world.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul style="display:flex;flex-direction:column;gap:4px;list-style:none;padding:0;margin:0;">
+          <li><a href="privacy-policy.html" class="footer-link">Privacy Policy</a></li>
+          <li><a href="terms-of-service.html" class="footer-link">Terms of Service</a></li>
+          <li><a href="refund-policy.html" class="footer-link">Refund Policy</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul style="display:flex;flex-direction:column;gap:4px;list-style:none;padding:0;margin:0;">
+          <li><a href="mailto:support@formio.biz" class="footer-link">support@formio.biz</a></li>
+          <li><a href="tel:+18448196580" class="footer-link">+1 844-819-6580</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Formio.biz. All rights reserved by Otvori LLC company</p>
+      <p>Made with &#9829; for global entrepreneurs</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
