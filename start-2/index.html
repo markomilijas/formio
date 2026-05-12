@@ -3395,7 +3395,7 @@ function generateUniqueId() {
         // Show new price first, struck-out original after (red line), then discount badge
         sp.innerHTML = '<span>' + starterPrice + '</span>' +
           '<span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">€' + starterRaw + '</span>' +
-          '<span style="display:inline-block;background:#DCFCE7;color:#15803D;font-size:0.65em;font-weight:700;padding:3px 9px;border-radius:6px;margin-left:8px;vertical-align:middle;letter-spacing:0.02em;">−' + discountTier + '%</span>';
+          '<span style="color:#15803D;font-size:0.5em;font-weight:700;margin-left:6px;vertical-align:middle;">(' + discountTier + '% OFF)</span>';
       } else {
         sp.textContent = starterPrice;
       }
@@ -3406,7 +3406,7 @@ function generateUniqueId() {
       if (discountActive) {
         gp.innerHTML = '<span>' + growthPrice + '</span>' +
           '<span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">€' + growthRaw + '</span>' +
-          '<span style="display:inline-block;background:#DCFCE7;color:#15803D;font-size:0.65em;font-weight:700;padding:3px 9px;border-radius:6px;margin-left:8px;vertical-align:middle;letter-spacing:0.02em;">−' + discountTier + '%</span>';
+          '<span style="color:#15803D;font-size:0.5em;font-weight:700;margin-left:6px;vertical-align:middle;">(' + discountTier + '% OFF)</span>';
       } else {
         gp.textContent = growthPrice;
       }
