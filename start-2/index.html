@@ -3377,11 +3377,26 @@ function generateUniqueId() {
 
     // Update card names & prices
     var sn = document.getElementById('pkg-starter-name'); if (sn) sn.innerHTML = starterHTML;
-    var sp = document.getElementById('pkg-starter-price'); if (sp) sp.textContent = starterPrice;
+    var sp = document.getElementById('pkg-starter-price');
+    if (sp) {
+      if (discountActive) {
+        // Show struck-out original + new discounted price
+        sp.innerHTML = '<span style="text-decoration:line-through;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-right:8px;vertical-align:middle;">€' + starterRaw + '</span><span>' + starterPrice + '</span>';
+      } else {
+        sp.textContent = starterPrice;
+      }
+    }
     var gn = document.getElementById('pkg-growth-name'); if (gn) gn.innerHTML = growthHTML;
-    var gp = document.getElementById('pkg-growth-price'); if (gp) gp.textContent = growthPrice;
+    var gp = document.getElementById('pkg-growth-price');
+    if (gp) {
+      if (discountActive) {
+        gp.innerHTML = '<span style="text-decoration:line-through;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-right:8px;vertical-align:middle;">€' + growthRaw + '</span><span>' + growthPrice + '</span>';
+      } else {
+        gp.textContent = growthPrice;
+      }
+    }
 
-    // Update compare table headers
+    // Update compare table headers (NO struck-out original here - keep simple per user request)
     var csn = document.getElementById('cmp-starter-name'); if (csn) csn.innerHTML = starterHTML;
     var csp = document.getElementById('cmp-starter-price'); if (csp) csp.textContent = starterPrice;
     var cgn = document.getElementById('cmp-growth-name'); if (cgn) cgn.innerHTML = growthHTML;
