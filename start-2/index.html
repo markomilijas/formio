@@ -1668,15 +1668,23 @@
       // Auto-apply discount immediately (visual)
       applyDiscount(parsed);
       
-      // Fetch user data from backend in parallel
+      // IMMEDIATELY refresh UI with discount (before network call)
+      // This prevents the flicker where user sees full price for 1-3 seconds
+      // while Supabase fetch is in flight.
+      if (typeof refreshPackagePricing === 'function') {
+        refreshPackagePricing();
+      }
+      
+      // Fetch user data from backend (in background, doesn't block UI)
       var result = await fetchUserDataByCode(parsed.internal);
       
       if (result && result.found && result.data) {
         // Pre-fill all form data
         populateFormFromUserData(result.data);
-        
-        // If backend returned a different tier (upgrade scenario - not implemented yet),
-        // we'd update discount tier here. For now, frontend tier from URL is authoritative.
+        // Refresh again to update with state-specific pricing if state changed from default
+        if (typeof refreshPackagePricing === 'function') {
+          refreshPackagePricing();
+        }
       } else {
         // Code not found in Supabase (rare edge case - older link, etc.)
         // Continue with discount applied but without pre-filled data
@@ -1694,7 +1702,7 @@
       pkgLlcName.textContent = 'your LLC';
     }
     
-    // Initialize pricing with discount applied (uses selectedState)
+    // Final pricing refresh (in case anything was missed)
     if (typeof refreshPackagePricing === 'function') {
       refreshPackagePricing();
     }
@@ -1794,10 +1802,14 @@
   // ============================================================
   // RUN ON PAGE LOAD
   // ============================================================
-  window.addEventListener('load', function() {
-    // Give existing code a moment to initialize (refreshPackagePricing etc.)
-    setTimeout(initStart2Page, 100);
-  });
+  // Use DOMContentLoaded (fires before window.load) for faster discount application.
+  // This minimizes the time user sees full price before discount is applied.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStart2Page);
+  } else {
+    // DOM is already loaded, run immediately
+    initStart2Page();
+  }
 
 
   var currentStep = 1;
