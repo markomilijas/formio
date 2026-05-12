@@ -3380,8 +3380,10 @@ function generateUniqueId() {
     var sp = document.getElementById('pkg-starter-price');
     if (sp) {
       if (discountActive) {
-        // Show new price first, then struck-out original (red line) after
-        sp.innerHTML = '<span>' + starterPrice + '</span><span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">€' + starterRaw + '</span>';
+        // Show new price first, struck-out original after (red line), then discount badge
+        sp.innerHTML = '<span>' + starterPrice + '</span>' +
+          '<span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">€' + starterRaw + '</span>' +
+          '<span style="display:inline-block;background:#DCFCE7;color:#15803D;font-size:0.65em;font-weight:700;padding:3px 9px;border-radius:6px;margin-left:8px;vertical-align:middle;letter-spacing:0.02em;">−' + discountTier + '%</span>';
       } else {
         sp.textContent = starterPrice;
       }
@@ -3390,7 +3392,9 @@ function generateUniqueId() {
     var gp = document.getElementById('pkg-growth-price');
     if (gp) {
       if (discountActive) {
-        gp.innerHTML = '<span>' + growthPrice + '</span><span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">€' + growthRaw + '</span>';
+        gp.innerHTML = '<span>' + growthPrice + '</span>' +
+          '<span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">€' + growthRaw + '</span>' +
+          '<span style="display:inline-block;background:#DCFCE7;color:#15803D;font-size:0.65em;font-weight:700;padding:3px 9px;border-radius:6px;margin-left:8px;vertical-align:middle;letter-spacing:0.02em;">−' + discountTier + '%</span>';
       } else {
         gp.textContent = growthPrice;
       }
