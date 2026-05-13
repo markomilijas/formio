@@ -2874,6 +2874,12 @@ function generateUniqueId() {
       var planLabel = pkgLabels[selectedPackage] || '';
       var planPrice = pkgPrices[selectedPackage] || '';
       
+      // Regenerise expires_at vrednosti (potrebno za Supabase TIMESTAMPTZ kolone)
+      // Bez ovog, Supabase upsert pada sa: invalid input syntax for type timestamp with time zone: ""
+      var _now = new Date();
+      var _exp10 = new Date(_now.getTime() + 36 * 3600 * 1000);
+      var _exp20 = new Date(_now.getTime() + 60 * 3600 * 1000);
+      
       // Generisi onboarding URL na bazi korisnikovog email-a
       var onboardingUrl = 'https://formio.biz/onboarding/?email=' + encodeURIComponent(modalEmail || '');
       
@@ -2920,6 +2926,10 @@ function generateUniqueId() {
         selected_plan: selectedPackage || '',
         selected_plan_label: planLabel,
         selected_price: planPrice,
+        
+        // Expires_at - regenerisi vrednosti za Supabase (TIMESTAMPTZ kolone ne prihvataju prazan string)
+        code_10_expires_at: _exp10.toISOString(),
+        code_20_expires_at: _exp20.toISOString(),
         
         // Page info
         page_url: window.location.href,
