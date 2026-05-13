@@ -1622,12 +1622,25 @@
       };
     }
     
-    console.log('[start-2] Pre-filled user data:', {
+    // === Plan info (for onboarding - user already paid for this plan) ===
+    if (data.selected_plan) {
+      selectedPackage = data.selected_plan;
+      // Update pkgLabels and pkgPrices so Final Review shows correct plan
+      if (data.selected_plan_label) {
+        pkgLabels[selectedPackage] = data.selected_plan_label;
+      }
+      if (data.selected_price) {
+        pkgPrices[selectedPackage] = data.selected_price;
+      }
+    }
+    
+    console.log('[onboarding] Pre-filled user data:', {
       llc: llcName,
       industry: selectedIndustry,
       state: selectedState,
       owner: ownerFirstName + ' ' + ownerLastName,
-      email: modalEmail
+      email: modalEmail,
+      plan: selectedPackage
     });
   }
   
