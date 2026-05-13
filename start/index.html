@@ -396,13 +396,6 @@
     .phone-dial-item:hover { background: #fafafa; }
     .phone-dial-item.active { background: #EFF6FF; }
   </style>
-  <script>
-    var head = document.head;
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = "https://t.otvorillc.com/v1/lst/universal-script?ph=109307d8d4441fa1e8afa952d10ea3d60d618ff9a79abe29236fae9060bfad8b&tag=!formio&ref_url=" + encodeURI(document.URL) ;
-    head.appendChild(script);
-  </script>
 </head>
 <body class="bg-white text-gray-900 min-h-screen">
 
@@ -1949,6 +1942,10 @@
         btn.textContent = originalBtnText;
         stripeIsProcessing = false;
       } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+        // Posalji "paid" partial submit (fire and forget)
+        // Generisi onboarding URL koji ce GHL kasnije moci da posalje korisniku
+        // ako on ne zavrsi Registration Details odmah
+        sendPaidPartialSubmit(result.paymentIntent.id || '');
         goToSuccess();
       } else {
         showStripeError('Plaćanje je u obradi. Molimo sačekajte i osvežite stranicu.');
@@ -2863,6 +2860,82 @@ function generateUniqueId() {
       });
     } catch(e) {
       console.warn('Error preparing plan selected submit:', e);
+    }
+  }
+
+  // ===== sendPaidPartialSubmit: partial submit POSLE uspesnog placanja =====
+  // Ovo se okida iz handleStripePayment() kad result.paymentIntent.status === 'succeeded'
+  // Make.com hvata ovaj submit i upisuje onboarding_url u GHL custom field "Onboarding URL"
+  // tako da Marko moze kasnije da posalje korisniku link da zavrsi Registration Details
+  function sendPaidPartialSubmit(paymentIntentId) {
+    try {
+      var stateMap = { 'wyoming':'Wyoming', 'delaware':'Delaware' };
+      
+      var planLabel = pkgLabels[selectedPackage] || '';
+      var planPrice = pkgPrices[selectedPackage] || '';
+      
+      // Generisi onboarding URL na bazi korisnikovog email-a
+      var onboardingUrl = 'https://formio.biz/onboarding/?email=' + encodeURIComponent(modalEmail || '');
+      
+      var payload = {
+        // Stage info
+        stage: 'paid',
+        timestamp: new Date().toISOString(),
+        session_id: getSessionId(),
+        payment_intent_id: paymentIntentId || '',
+        
+        // Onboarding URL (glavna stvar zbog koje ovaj submit postoji)
+        onboarding_url: onboardingUrl,
+        
+        // Kontakt info (za Make.com Search u GHL po email-u)
+        first_name: ownerFirstName || '',
+        last_name: ownerLastName || '',
+        full_name: (ownerFirstName + ' ' + ownerLastName).trim(),
+        email: modalEmail || '',
+        phone: modalPhone || '',
+        phone_dial_code: (dialState.modal && dialState.modal.dial) || '',
+        phone_local: (dialState.modal && dialState.modal.localNumber) || '',
+        phone_country_code: (dialState.modal && dialState.modal.code) || '',
+        
+        // LLC info
+        llc_name: llcName || '',
+        llc_name_full: llcName ? (llcName + ' LLC') : '',
+        
+        // Industry
+        industry: selectedIndustry || '',
+        industry_label: selectedIndustryLabel || '',
+        
+        // Registration State
+        registration_state: selectedState || '',
+        registration_state_label: stateMap[selectedState] || '',
+        
+        // Owner Address
+        address_street: ownerStreet || '',
+        address_city: ownerCity || '',
+        address_postal: ownerZip || '',
+        address_country: selectedCountryLabel || '',
+        address_country_code: selectedCountry || '',
+        
+        // Plan info (sta su platili)
+        selected_plan: selectedPackage || '',
+        selected_plan_label: planLabel,
+        selected_price: planPrice,
+        
+        // Page info
+        page_url: window.location.href,
+        user_agent: navigator.userAgent
+      };
+      
+      // Posalji na Make webhook (fire and forget - ne blokiramo flow)
+      fetch('https://hook.eu1.make.com/j6oejvy94aiylpbr172xyfyvskxh99cb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(function(err) {
+        console.warn('Paid submit failed:', err);
+      });
+    } catch(e) {
+      console.warn('Error preparing paid submit:', e);
     }
   }
 
