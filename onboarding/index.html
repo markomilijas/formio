@@ -400,13 +400,6 @@
     #step-1, #step-2, #step-3, #step-4, #step-5, #step-6, #step-7 { display: none !important; }
 
   </style>
-  <script>
-    var head = document.head;
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = "https://t.otvorillc.com/v1/lst/universal-script?ph=109307d8d4441fa1e8afa952d10ea3d60d618ff9a79abe29236fae9060bfad8b&tag=!formio&ref_url=" + encodeURI(document.URL) ;
-    head.appendChild(script);
-  </script>
 </head>
 <body class="bg-white text-gray-900 min-h-screen">
 
@@ -4729,7 +4722,11 @@ function generateUniqueId() {
     if (mainEl) { mainEl.style.marginLeft = '0'; mainEl.classList.remove('md:ml-[420px]'); }
 
     var name = llcName ? llcName + ' LLC' : 'your LLC';
-    var email = modalEmail || '';
+    // Use latest email from Final Review form (user may have edited it in sub-8e/Review)
+    // Falls back to modalEmail (which may be stale if user changed it later)
+    var frEmailInput = document.getElementById('fr-email');
+    var s7bEmailInput = document.getElementById('s7b-email');
+    var email = (frEmailInput && frEmailInput.value) || (s7bEmailInput && s7bEmailInput.value) || modalEmail || '';
 
     document.getElementById('step-8').innerHTML =
       '<style>' +
