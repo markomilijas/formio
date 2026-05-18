@@ -13,16 +13,16 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 const SUPABASE_TABLE = 'start_partial_submissions';
 
-// Base prices in cents (Wyoming = base, no surcharge)
+// Base prices in cents (Wyoming = base, no surcharge) - in USD
 const BASE_PRICES = {
-  starter: 39900,  // €399.00
-  growth:  49900   // €499.00
+  starter: 46900,  // $469.00
+  growth:  54900   // $549.00
 };
 
-// State surcharges in cents
+// State surcharges in cents - in USD
 const STATE_SURCHARGES = {
   wyoming:  0,      // base
-  delaware: 10000   // +€100
+  delaware: 11500   // +$115
 };
 
 const PLAN_LABELS = {
@@ -43,8 +43,8 @@ function calculateBaseAmount(plan, state) {
 
 // Apply percentage discount using Math.floor (rounds down, matches frontend display)
 function applyPercentDiscount(amountCents, percent) {
-  const discountedEur = Math.floor((amountCents / 100) * (1 - percent / 100));
-  return discountedEur * 100;
+  const discountedDollars = Math.floor((amountCents / 100) * (1 - percent / 100));
+  return discountedDollars * 100;
 }
 
 // Validate discount code format: imeprezime-XXXXXXXX-llcNN
@@ -266,8 +266,8 @@ export default async function handler(req, res) {
       }
     }
     
-    const amountEur = (amount / 100).toFixed(0);
-    const fullPlanLabel = `${planLabel} (${stateLabel}) - €${amountEur}`;
+    const amountUsd = (amount / 100).toFixed(0);
+    const fullPlanLabel = `${planLabel} (${stateLabel}) - $${amountUsd}`;
     
     // Build metadata
     const metadata = {
@@ -279,7 +279,7 @@ export default async function handler(req, res) {
       plan_label: planLabel,
       registration_state: registration_state,
       registration_state_label: stateLabel,
-      amount_eur: amountEur,
+      amount_usd: amountUsd,
       source: 'formio.biz'
     };
     
@@ -288,8 +288,8 @@ export default async function handler(req, res) {
       metadata.discount_applied = 'true';
       metadata.discount_tier = String(appliedDiscount.tier);
       metadata.discount_code = appliedDiscount.code || '';
-      metadata.discount_amount_eur = String(Math.floor(appliedDiscount.discount_amount_cents / 100));
-      metadata.discount_original_eur = String(Math.floor(appliedDiscount.original_amount_cents / 100));
+      metadata.discount_amount_usd = String(Math.floor(appliedDiscount.discount_amount_cents / 100));
+      metadata.discount_original_usd = String(Math.floor(appliedDiscount.original_amount_cents / 100));
       if (appliedDiscount.upgraded) {
         metadata.discount_upgraded_from = String(appliedDiscount.upgraded_from);
       }
@@ -301,7 +301,7 @@ export default async function handler(req, res) {
     // Create PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
-      currency: 'eur',
+      currency: 'usd',
       automatic_payment_methods: { enabled: true },
       receipt_email: email,
       description: `Formio.biz - ${fullPlanLabel} - ${llc_name}`,
