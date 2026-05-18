@@ -551,7 +551,7 @@
           <div id="opt-delaware" class="state-card" onclick="selectState('delaware')">
             <div class="flex items-start justify-between gap-4">
               <div class="flex-1">
-                <span class="inline-block mb-2 text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide" style="background:#FFE4EB;color:#A1193A;border:1px solid #FFC4D4">+€100 vs Wyoming</span>
+                <span class="inline-block mb-2 text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide" style="background:#FFE4EB;color:#A1193A;border:1px solid #FFC4D4">+$115 vs Wyoming</span>
                 <span class="text-base font-black block mb-2.5">Delaware</span>
                 <p class="text-xs text-gray-600 leading-relaxed mb-1.5"><strong>Starting from the second year, the yearly cost for maintaining the company is higher <span class="price-badge price-badge-red">~$349/yr</span></strong></p>
                 <p class="text-xs text-gray-500 leading-relaxed">Best suited if you plan to raise investment or transition into a C/S Corporation. Widely preferred by investors, with no state income tax if operating outside Delaware.</p>
@@ -562,7 +562,7 @@
         </div>
         <div id="delaware-warning" class="hidden mb-4 flex items-center gap-3 rounded-xl px-4 py-3" style="background:#FFE4EB;border:1px solid #FFC4D4">
           <svg class="w-5 h-5 flex-shrink-0" style="color:#A1193A" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-          <p class="text-sm font-semibold" style="color:#071841">Delaware is €100 more expensive than Wyoming for all packages.</p>
+          <p class="text-sm font-semibold" style="color:#071841">Delaware is $115 more expensive than Wyoming for all packages.</p>
         </div>
         <button id="btn-3" class="btn-continue" disabled onclick="goToStep(4)">Continue</button>
       </div>
@@ -864,7 +864,7 @@
             <div class="flex items-center gap-2">
               <span class="text-xs text-gray-500 font-semibold">Registered in:</span>
               <span id="pkg-state-label" class="text-sm font-bold text-gray-900">Wyoming</span>
-              <span id="pkg-state-price-note" class="hidden text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:#FFE4EB;color:#A1193A;border:1px solid #FFC4D4">+€100</span>
+              <span id="pkg-state-price-note" class="hidden text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:#FFE4EB;color:#A1193A;border:1px solid #FFC4D4">+$115</span>
             </div>
             <div class="relative">
               <button onclick="toggleStateSwitcher()" class="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-black border border-gray-200 bg-white hover:border-gray-400 rounded-lg px-3 py-1.5 transition-colors">
@@ -874,11 +874,11 @@
               <div id="state-switcher-dropdown" class="hidden absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 w-48 overflow-hidden">
                 <button onclick="switchPkgState('wyoming')" id="sw-wyoming" class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100">
                   <span class="font-bold text-sm text-gray-900 block">Wyoming</span>
-                  <span class="text-xs text-gray-400" id="sw-wyoming-prices">€399 / €499</span>
+                  <span class="text-xs text-gray-400" id="sw-wyoming-prices">$469 / $549</span>
                 </button>
                 <button onclick="switchPkgState('delaware')" id="sw-delaware" class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors">
-                  <span class="font-bold text-sm text-gray-900 block">Delaware <span class="text-[10px] font-bold" style="color:#A1193A">+€100</span></span>
-                  <span class="text-xs text-gray-400" id="sw-delaware-prices">€499 / €599</span>
+                  <span class="font-bold text-sm text-gray-900 block">Delaware <span class="text-[10px] font-bold" style="color:#A1193A">+$115</span></span>
+                  <span class="text-xs text-gray-400" id="sw-delaware-prices">$584 / $664</span>
                 </button>
               </div>
             </div>
@@ -895,7 +895,7 @@
                 </div>
               </div>
               <p class="text-xs text-gray-500 mb-4 leading-relaxed">Perfect for entrepreneurs who want to open their US LLC quickly and affordably.</p>
-              <p id="pkg-starter-price" class="text-3xl font-black mb-5">€399</p>
+              <p id="pkg-starter-price" class="text-3xl font-black mb-5">$469</p>
               <ul class="space-y-2 mb-4">
                 <li class="flex items-center gap-2 text-xs text-gray-700"><svg class="h-4 w-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>US LLC Formation</li>
                 <li class="flex items-center gap-2 text-xs text-gray-700"><svg class="h-4 w-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>Virtual Address</li>
@@ -926,7 +926,7 @@
                 </div>
               </div>
               <p class="text-xs text-[#071841]/75 mb-4 leading-relaxed">Best value for entrepreneurs who want a fully functional LLC with banking and compliance.</p>
-              <p id="pkg-growth-price" class="text-3xl font-black mb-5 text-[#071841]">€499</p>
+              <p id="pkg-growth-price" class="text-3xl font-black mb-5 text-[#071841]">$549</p>
               <ul class="space-y-2 mb-4">
                 <li class="flex items-center gap-2 text-xs text-[#071841] font-medium"><svg class="h-4 w-4 flex-shrink-0" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>US LLC Formation</li>
                 <li class="flex items-center gap-2 text-xs text-[#071841] font-medium"><svg class="h-4 w-4 flex-shrink-0" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>Virtual Address</li>
@@ -965,11 +965,11 @@
                 <div class="px-4 border-b border-gray-100" style="min-height:70px;"></div>
                 <div class="px-3 text-center border-b border-gray-100 border-l border-l-gray-100 flex flex-col items-center justify-end pb-3" style="min-height:70px;">
                   <p id="cmp-starter-name" class="text-xs font-bold text-gray-800">Get Started <span style="color:#1D44E7;letter-spacing:0.08em">WYO</span> LLC</p>
-                  <p id="cmp-starter-price" class="text-xs text-gray-400 mt-1">€399</p>
+                  <p id="cmp-starter-price" class="text-xs text-gray-400 mt-1">$469</p>
                 </div>
                 <div class="px-3 text-center flex flex-col items-center justify-end pb-3" style="min-height:70px;background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;border-top:3px solid #FFC4D4;border-bottom:1px solid #FFC4D4;">
                   <p id="cmp-growth-name" class="text-xs font-bold text-[#071841]">Growth-Ready <span style="color:#071841;letter-spacing:0.08em;opacity:.6">WYO</span> LLC</p>
-                  <p id="cmp-growth-price" class="text-xs text-[#071841] font-semibold mt-1">€499</p>
+                  <p id="cmp-growth-price" class="text-xs text-[#071841] font-semibold mt-1">$549</p>
                 </div>
               </div>
               <!-- FORMATION group -->
@@ -999,11 +999,6 @@
               <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">EIN Application<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">IRS tax ID application. Required for banking, Stripe, and taxes.</span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
-                <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
-              </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
-                <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">Expedited EIN Processing<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Get your EIN in days instead of 4-8 weeks.</span></span></div>
-                <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
               <!-- BANKING group -->
@@ -1388,7 +1383,7 @@
   }
   
   function formatPrice(eur) {
-    return '€' + eur;
+    return '$' + dollars;
   }
   
   function getDiscountedPriceLabel(originalEur) {
@@ -1489,15 +1484,15 @@
   function updateCheckoutWithDiscount() {
     // IMPORTANT: This function is called when backend returns an UPDATED discount tier
     // (e.g., upgraded from 10% to 20% because 10% was expired).
-    // We must recalculate prices from BASE (€399/€499/€599) NOT from current pkgPrices
+    // We must recalculate prices from BASE ($469/$549/$664) NOT from current pkgPrices
     // (which may already be discounted at 10% if user opened URL with -llc10 code).
     
     if (!selectedPackage) return;
     
     var isDelaware = selectedState === 'delaware';
     var rawPrice = 0;
-    if (selectedPackage === 'starter') rawPrice = isDelaware ? 499 : 399;
-    if (selectedPackage === 'growth')  rawPrice = isDelaware ? 599 : 499;
+    if (selectedPackage === 'starter') rawPrice = isDelaware ? 584 : 469;
+    if (selectedPackage === 'growth')  rawPrice = isDelaware ? 664 : 549;
     
     // Use current discountTier (which backend may have upgraded) to recalculate
     var discounted = discountActive ? Math.floor(rawPrice * (1 - discountTier / 100)) : rawPrice;
@@ -1505,24 +1500,24 @@
     
     // Update pkgPrices to reflect new tier (so refreshPackagePricing doesn't undo this)
     // Note: pkgPrices is keyed by 'starter'/'growth' regardless of state - state surcharge baked in
-    pkgPrices[selectedPackage] = '€' + discounted;
+    pkgPrices[selectedPackage] = '$' + discounted;
     // Also update label
     var stateAbbr = isDelaware ? 'DE' : 'WYO';
     var labels = {
       starter: 'Get Started ' + stateAbbr + ' LLC',
       growth:  'Growth-Ready ' + stateAbbr + ' LLC'
     };
-    pkgLabels[selectedPackage] = labels[selectedPackage] + ' (€' + discounted + ')';
+    pkgLabels[selectedPackage] = labels[selectedPackage] + ' ($' + discounted + ')';
     
     // Update Order Summary
     var coPrice = document.getElementById('co-price');
-    if (coPrice) coPrice.textContent = '€' + discounted;
+    if (coPrice) coPrice.textContent = '$' + discounted;
     
     var coPlan = document.getElementById('co-plan');
     if (coPlan) coPlan.textContent = pkgLabels[selectedPackage];
     
     var payBtn = document.getElementById('pay-btn');
-    if (payBtn) payBtn.textContent = 'Pay €' + discounted + ' - Register My LLC';
+    if (payBtn) payBtn.textContent = 'Pay $' + discounted + ' - Register My LLC';
     
     // Update discount row in order summary
     var discRow = document.getElementById('co-discount-row');
@@ -1530,7 +1525,7 @@
     var discAmount = document.getElementById('co-discount-amount');
     if (discountActive && discRow && discPct && discAmount) {
       discPct.textContent = '(' + discountTier + '% off)';
-      discAmount.textContent = '-€' + savings;
+      discAmount.textContent = '-$' + savings;
       discRow.classList.remove('hidden');
     }
   }
@@ -1829,8 +1824,8 @@
   var industryLabels = { tech:'Tech & Software', ecommerce:'E-commerce & Retail', consulting:'Consulting & Services', creative:'Creative & Media', health:'Health & Wellness', finance:'Finance & Investing', education:'Education & Coaching', other:'Other' };
   var stateLabels = { delaware:'Delaware', wyoming:'Wyoming' };
   var stepNames = ['Choose Plan','Payment','Owners','Owner Addresses','Passport','Contact','Company Details','Review & Submit'];
-  var pkgLabels = { starter:'Get Started LLC (€399)', growth:'Growth-Ready LLC (€499)' };
-  var pkgPrices = { starter:'€399', growth:'€499' };
+  var pkgLabels = { starter:'Get Started LLC ($469)', growth:'Growth-Ready LLC ($549)' };
+  var pkgPrices = { starter:'$469', growth:'$549' };
 
   var countries = [
     {code:'AD',name:'Andorra'},{code:'AE',name:'United Arab Emirates'},{code:'AF',name:'Afghanistan'},{code:'AL',name:'Albania'},{code:'AM',name:'Armenia'},{code:'AO',name:'Angola'},{code:'AR',name:'Argentina'},{code:'AT',name:'Austria'},{code:'AU',name:'Australia'},{code:'AZ',name:'Azerbaijan'},
@@ -2328,11 +2323,11 @@
       // Calculate savings
       var isDelaware = selectedState === 'delaware';
       var rawPrice = 0;
-      if (selectedPackage === 'starter') rawPrice = isDelaware ? 499 : 399;
-      if (selectedPackage === 'growth')  rawPrice = isDelaware ? 599 : 499;
+      if (selectedPackage === 'starter') rawPrice = isDelaware ? 584 : 469;
+      if (selectedPackage === 'growth')  rawPrice = isDelaware ? 664 : 549;
       var savings = rawPrice - getDiscountedPriceNumber(rawPrice);
       discPct.textContent = '(' + discountTier + '% off)';
-      discAmount.textContent = '-€' + savings;
+      discAmount.textContent = '-$' + savings;
       discRow.classList.remove('hidden');
     } else if (discRow) {
       discRow.classList.add('hidden');
@@ -3466,13 +3461,13 @@ function generateUniqueId() {
     var isDelaware = selectedState === 'delaware';
     var stateAbbr = isDelaware ? 'DE' : 'WYO';
     var stateName = isDelaware ? 'Delaware' : 'Wyoming';
-    var starterRaw = isDelaware ? 499 : 399;
-    var growthRaw  = isDelaware ? 599 : 499;
+    var starterRaw = isDelaware ? 584 : 469;
+    var growthRaw  = isDelaware ? 664 : 549;
     // Apply discount if active
     var starterFinal = getDiscountedPriceNumber(starterRaw);
     var growthFinal  = getDiscountedPriceNumber(growthRaw);
-    var starterPrice = '€' + starterFinal;
-    var growthPrice  = '€' + growthFinal;
+    var starterPrice = '$' + starterFinal;
+    var growthPrice  = '$' + growthFinal;
     // State abbreviation - just a color change, no background
     var abbrSpan = '<span style="color:#1D44E7;font-size:11px;letter-spacing:0.08em;font-weight:800;opacity:.75">' + stateAbbr + '</span>';
     var starterHTML = 'Get Started ' + abbrSpan + ' LLC';
@@ -3488,7 +3483,7 @@ function generateUniqueId() {
       if (discountActive) {
         // Show new price first, struck-out original after (red line), then discount badge
         sp.innerHTML = '<span>' + starterPrice + '</span>' +
-          '<span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">€' + starterRaw + '</span>' +
+          '<span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">$' + starterRaw + '</span>' +
           '<span style="color:#15803D;font-size:0.5em;font-weight:700;margin-left:6px;vertical-align:middle;">(' + discountTier + '% OFF)</span>';
       } else {
         sp.textContent = starterPrice;
@@ -3499,7 +3494,7 @@ function generateUniqueId() {
     if (gp) {
       if (discountActive) {
         gp.innerHTML = '<span>' + growthPrice + '</span>' +
-          '<span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">€' + growthRaw + '</span>' +
+          '<span style="text-decoration:line-through;text-decoration-color:#DC2626;text-decoration-thickness:2px;color:rgba(7,24,65,0.4);font-size:0.55em;font-weight:600;margin-left:8px;vertical-align:middle;">$' + growthRaw + '</span>' +
           '<span style="color:#15803D;font-size:0.5em;font-weight:700;margin-left:6px;vertical-align:middle;">(' + discountTier + '% OFF)</span>';
       } else {
         gp.textContent = growthPrice;
@@ -3531,11 +3526,11 @@ function generateUniqueId() {
     // Update dropdown prices with discount
     var swWyoPrices = document.getElementById('sw-wyoming-prices');
     if (swWyoPrices) {
-      swWyoPrices.textContent = '€' + getDiscountedPriceNumber(399) + ' / €' + getDiscountedPriceNumber(499);
+      swWyoPrices.textContent = '$' + getDiscountedPriceNumber(469) + ' / $' + getDiscountedPriceNumber(549);
     }
     var swDePrices = document.getElementById('sw-delaware-prices');
     if (swDePrices) {
-      swDePrices.textContent = '€' + getDiscountedPriceNumber(499) + ' / €' + getDiscountedPriceNumber(599);
+      swDePrices.textContent = '$' + getDiscountedPriceNumber(584) + ' / $' + getDiscountedPriceNumber(664);
     }
   }
 
@@ -4610,8 +4605,8 @@ function generateUniqueId() {
     try {
       var stateMap = { 'wyoming':'Wyoming', 'delaware':'Delaware' };
       var pkgLabels = {
-        'starter': selectedState === 'delaware' ? 'Get Started DE LLC (€499)' : 'Get Started WYO LLC (€399)',
-        'growth':  selectedState === 'delaware' ? 'Growth-Ready DE LLC (€599)' : 'Growth-Ready WYO LLC (€499)'
+        'starter': selectedState === 'delaware' ? 'Get Started DE LLC ($584)' : 'Get Started WYO LLC ($469)',
+        'growth':  selectedState === 'delaware' ? 'Growth-Ready DE LLC ($664)' : 'Growth-Ready WYO LLC ($549)'
       };
       
       // Sakupi izmenjene podatke iz Final Review polja (jer korisnik moze da menja)
