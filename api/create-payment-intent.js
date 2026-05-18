@@ -5,7 +5,7 @@
 //   - Checks expires_at and used_at
 //   - Auto-upgrades to next tier if code expired
 //   - Applies server-side discount calculation (Stripe Payment Intents API doesn't support Coupons directly)
-
+ 
 import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
