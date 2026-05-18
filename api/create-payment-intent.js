@@ -297,7 +297,7 @@ export default async function handler(req, res) {
     } else {
       metadata.discount_applied = 'false';
     }
-    
+     
     // Create PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
