@@ -1331,6 +1331,23 @@
   var ownerStreet = '', ownerCity = '', ownerZip = '';
   var modalPhone = '', modalEmail = '';
   var modalFirstName = '', modalLastName = '';
+  
+  // Saved discount codes - generated once in sendPartialSubmit() and re-used by
+  // sendPlanSelectedSubmit() and sendPaidPartialSubmit() so Supabase doesn't get
+  // overwritten with empty strings.
+  var savedDiscountSlug = '';
+  var savedDiscountUniqueId = '';
+  var savedDiscountCode10Display = '';
+  var savedDiscountCode20Display = '';
+  var savedDiscountCode30Display = '';
+  var savedDiscountCode10Internal = '';
+  var savedDiscountCode20Internal = '';
+  var savedDiscountCode30Internal = '';
+  var savedDiscountUrl10 = '';
+  var savedDiscountUrl20 = '';
+  var savedDiscountUrl30 = '';
+  var savedCode10ExpiresAt = '';
+  var savedCode20ExpiresAt = '';
 
   var industryLabels = { tech:'Tech & Software', ecommerce:'E-commerce & Retail', consulting:'Consulting & Services', creative:'Creative & Media', health:'Health & Wellness', finance:'Finance & Investing', education:'Education & Coaching', other:'Other' };
   var stateLabels = { delaware:'Delaware', wyoming:'Wyoming' };
@@ -2738,31 +2755,49 @@ function generateUniqueId() {
       var _slug = slugifyName(ownerFirstName, ownerLastName);
       var _uid = generateUniqueId();
       
-      payload.discount_slug = _slug;
-      payload.discount_unique_id = _uid;
-      
-      // Display kodovi (bez ID-a) — za prikaz u email tekstu
-      payload.discount_code_10_display = _slug + '-llc10';
-      payload.discount_code_20_display = _slug + '-llc20';
-      payload.discount_code_30_display = _slug + '-llc30';
-      
-      // Internal kodovi (sa ID-em) — za Stripe Promotion Codes
-      payload.discount_code_10_internal = _slug + '-' + _uid + '-llc10';
-      payload.discount_code_20_internal = _slug + '-' + _uid + '-llc20';
-      payload.discount_code_30_internal = _slug + '-' + _uid + '-llc30';
-      
-      // URL-ovi za email link-ove
-      payload.discount_url_10 = 'https://formio.biz/start-2?discount=' + _slug + '-' + _uid + '-llc10';
-      payload.discount_url_20 = 'https://formio.biz/start-2?discount=' + _slug + '-' + _uid + '-llc20';
-      payload.discount_url_30 = 'https://formio.biz/start-2?discount=' + _slug + '-' + _uid + '-llc30';
-      
       // Expires_at timestamps (ISO 8601)
-      // 10% kod istice za 36h, 20% za 60h, 30% nikad ne istice (ne saljemo polje)
       var _now = new Date();
       var _exp10 = new Date(_now.getTime() + 36 * 3600 * 1000);
       var _exp20 = new Date(_now.getTime() + 60 * 3600 * 1000);
-      payload.code_10_expires_at = _exp10.toISOString();
-      payload.code_20_expires_at = _exp20.toISOString();
+      
+      // SAVE in global variables so subsequent partial submits (plan_selected, paid)
+      // can re-use the SAME codes (instead of generating new ones or sending empty).
+      // This prevents Supabase upsert from overwriting discount columns with empty strings.
+      savedDiscountSlug = _slug;
+      savedDiscountUniqueId = _uid;
+      savedDiscountCode10Display = _slug + '-llc10';
+      savedDiscountCode20Display = _slug + '-llc20';
+      savedDiscountCode30Display = _slug + '-llc30';
+      savedDiscountCode10Internal = _slug + '-' + _uid + '-llc10';
+      savedDiscountCode20Internal = _slug + '-' + _uid + '-llc20';
+      savedDiscountCode30Internal = _slug + '-' + _uid + '-llc30';
+      savedDiscountUrl10 = 'https://formio.biz/start-2?discount=' + _slug + '-' + _uid + '-llc10';
+      savedDiscountUrl20 = 'https://formio.biz/start-2?discount=' + _slug + '-' + _uid + '-llc20';
+      savedDiscountUrl30 = 'https://formio.biz/start-2?discount=' + _slug + '-' + _uid + '-llc30';
+      savedCode10ExpiresAt = _exp10.toISOString();
+      savedCode20ExpiresAt = _exp20.toISOString();
+      
+      payload.discount_slug = savedDiscountSlug;
+      payload.discount_unique_id = savedDiscountUniqueId;
+      
+      // Display kodovi (bez ID-a) — za prikaz u email tekstu
+      payload.discount_code_10_display = savedDiscountCode10Display;
+      payload.discount_code_20_display = savedDiscountCode20Display;
+      payload.discount_code_30_display = savedDiscountCode30Display;
+      
+      // Internal kodovi (sa ID-em) — za Stripe Promotion Codes
+      payload.discount_code_10_internal = savedDiscountCode10Internal;
+      payload.discount_code_20_internal = savedDiscountCode20Internal;
+      payload.discount_code_30_internal = savedDiscountCode30Internal;
+      
+      // URL-ovi za email link-ove
+      payload.discount_url_10 = savedDiscountUrl10;
+      payload.discount_url_20 = savedDiscountUrl20;
+      payload.discount_url_30 = savedDiscountUrl30;
+      
+      // Expires_at
+      payload.code_10_expires_at = savedCode10ExpiresAt;
+      payload.code_20_expires_at = savedCode20ExpiresAt;
       // code_30_expires_at se NE salje - Supabase ce ga ostaviti NULL (nikad ne istice)
       
       // Posalji na Make webhook (fire and forget - ne blokiramo flow)
@@ -2786,13 +2821,6 @@ function generateUniqueId() {
       // Plan info
       var planLabel = pkgLabels[selectedPackage] || '';
       var planPrice = pkgPrices[selectedPackage] || '';
-      
-      // Regenerise expires_at vrednosti (ista logika kao u sendPartialSubmit)
-      // Ovo je potrebno jer Supabase upsert ce prepisati stari red sa NULL vrednostima
-      // ako ne posaljemo ova polja. Razlika u vremenu (par minuta) je beznacajna.
-      var _now = new Date();
-      var _exp10 = new Date(_now.getTime() + 36 * 3600 * 1000);
-      var _exp20 = new Date(_now.getTime() + 60 * 3600 * 1000);
       
       var payload = {
         // Stage info
@@ -2836,9 +2864,23 @@ function generateUniqueId() {
         selected_plan_label: planLabel,
         selected_price: planPrice,
         
-        // Expires_at - regenerisi vrednosti (preselekcija plana se desava odmah posle contact_captured)
-        code_10_expires_at: _exp10.toISOString(),
-        code_20_expires_at: _exp20.toISOString(),
+        // Discount codes - VUCEMO iz saved varijabli (generisanih u sendPartialSubmit)
+        // Tako Supabase upsert ne prepisuje postojece kodove sa praznim stringom
+        discount_slug: savedDiscountSlug,
+        discount_unique_id: savedDiscountUniqueId,
+        discount_code_10_display: savedDiscountCode10Display,
+        discount_code_20_display: savedDiscountCode20Display,
+        discount_code_30_display: savedDiscountCode30Display,
+        discount_code_10_internal: savedDiscountCode10Internal,
+        discount_code_20_internal: savedDiscountCode20Internal,
+        discount_code_30_internal: savedDiscountCode30Internal,
+        discount_url_10: savedDiscountUrl10,
+        discount_url_20: savedDiscountUrl20,
+        discount_url_30: savedDiscountUrl30,
+        
+        // Expires_at - VUCEMO iz saved (ne regenerisu)
+        code_10_expires_at: savedCode10ExpiresAt,
+        code_20_expires_at: savedCode20ExpiresAt,
         
         // Page info
         page_url: window.location.href,
@@ -2868,12 +2910,6 @@ function generateUniqueId() {
       
       var planLabel = pkgLabels[selectedPackage] || '';
       var planPrice = pkgPrices[selectedPackage] || '';
-      
-      // Regenerise expires_at vrednosti (potrebno za Supabase TIMESTAMPTZ kolone)
-      // Bez ovog, Supabase upsert pada sa: invalid input syntax for type timestamp with time zone: ""
-      var _now = new Date();
-      var _exp10 = new Date(_now.getTime() + 36 * 3600 * 1000);
-      var _exp20 = new Date(_now.getTime() + 60 * 3600 * 1000);
       
       // Generisi onboarding URL na bazi korisnikovog email-a
       var onboardingUrl = 'https://formio.biz/onboarding/?email=' + encodeURIComponent(modalEmail || '');
@@ -2922,9 +2958,22 @@ function generateUniqueId() {
         selected_plan_label: planLabel,
         selected_price: planPrice,
         
-        // Expires_at - regenerisi vrednosti za Supabase (TIMESTAMPTZ kolone ne prihvataju prazan string)
-        code_10_expires_at: _exp10.toISOString(),
-        code_20_expires_at: _exp20.toISOString(),
+        // Discount codes - VUCEMO iz saved varijabli (generisanih u sendPartialSubmit)
+        discount_slug: savedDiscountSlug,
+        discount_unique_id: savedDiscountUniqueId,
+        discount_code_10_display: savedDiscountCode10Display,
+        discount_code_20_display: savedDiscountCode20Display,
+        discount_code_30_display: savedDiscountCode30Display,
+        discount_code_10_internal: savedDiscountCode10Internal,
+        discount_code_20_internal: savedDiscountCode20Internal,
+        discount_code_30_internal: savedDiscountCode30Internal,
+        discount_url_10: savedDiscountUrl10,
+        discount_url_20: savedDiscountUrl20,
+        discount_url_30: savedDiscountUrl30,
+        
+        // Expires_at - VUCEMO iz saved
+        code_10_expires_at: savedCode10ExpiresAt,
+        code_20_expires_at: savedCode20ExpiresAt,
         
         // Page info
         page_url: window.location.href,
