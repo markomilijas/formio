@@ -1346,7 +1346,7 @@
   var savedDiscountUrl10 = '';
   var savedDiscountUrl20 = '';
   var savedDiscountUrl30 = '';
-  var savedResumeUrl = '';
+  var savedResumeCode = '';
   var savedCode10ExpiresAt = '';
   var savedCode20ExpiresAt = '';
 
@@ -2775,7 +2775,7 @@ function generateUniqueId() {
       savedDiscountUrl10 = 'https://formio.biz/start-2?discount=' + _slug + '-' + _uid + '-llc10';
       savedDiscountUrl20 = 'https://formio.biz/start-2?discount=' + _slug + '-' + _uid + '-llc20';
       savedDiscountUrl30 = 'https://formio.biz/start-2?discount=' + _slug + '-' + _uid + '-llc30';
-      savedResumeUrl = 'https://formio.biz/start-2a?uid=' + _slug + '-' + _uid;
+      savedResumeCode = _slug + '-' + _uid;
       savedCode10ExpiresAt = _exp10.toISOString();
       savedCode20ExpiresAt = _exp20.toISOString();
       
@@ -2796,7 +2796,7 @@ function generateUniqueId() {
       payload.discount_url_10 = savedDiscountUrl10;
       payload.discount_url_20 = savedDiscountUrl20;
       payload.discount_url_30 = savedDiscountUrl30;
-      payload.resume_url = savedResumeUrl;
+      payload.resume_code = savedResumeCode;
       
       // Expires_at
       payload.code_10_expires_at = savedCode10ExpiresAt;
@@ -2880,7 +2880,7 @@ function generateUniqueId() {
         discount_url_10: savedDiscountUrl10,
         discount_url_20: savedDiscountUrl20,
         discount_url_30: savedDiscountUrl30,
-        resume_url: savedResumeUrl,
+        resume_code: savedResumeCode,
         
         // Expires_at - VUCEMO iz saved (ne regenerisu)
         code_10_expires_at: savedCode10ExpiresAt,
@@ -2974,7 +2974,7 @@ function generateUniqueId() {
         discount_url_10: savedDiscountUrl10,
         discount_url_20: savedDiscountUrl20,
         discount_url_30: savedDiscountUrl30,
-        resume_url: savedResumeUrl,
+        resume_code: savedResumeCode,
         
         // Expires_at - VUCEMO iz saved
         code_10_expires_at: savedCode10ExpiresAt,
