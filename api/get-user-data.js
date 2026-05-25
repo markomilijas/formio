@@ -1,26 +1,30 @@
 // ============================================================
 // /api/get-user-data.js
-// Vercel serverless function for /start-2 and /onboarding pages
-// Looks up user data in Supabase by discount code OR email
+// Vercel serverless function for /start-2, /start-2a and /onboarding pages
+// Looks up user data in Supabase by discount code, email, OR uid
 // ============================================================
 //
-// Usage 1 (discount code lookup):
+// Usage 1 (discount code lookup, for /start-2):
 //   GET /api/get-user-data?code=danilozdravkovic-umpmo167-llc10
 //
 // Usage 2 (email lookup, for /onboarding page):
 //   GET /api/get-user-data?email=danilo@floumate.com
 //
+// Usage 3 (uid lookup, for /start-2a resume page — NO discount):
+//   GET /api/get-user-data?uid=danilozdravkovic-umpmo167
+//
 // Response (200):
 //   {
 //     found: true,
+//     lookup_type: "code" | "email" | "uid",
 //     data: { email, phone, llc_name, industry, state, owner_first, ... }
 //   }
 //
 // Response (404):
-//   { found: false, error: "code_not_found" | "email_not_found" }
+//   { found: false, error: "code_not_found" | "email_not_found" | "uid_not_found" }
 //
 // Response (400):
-//   { found: false, error: "invalid_code_format" | "invalid_email_format" | "missing_param" }
+//   { found: false, error: "invalid_code_format" | "invalid_email_format" | "invalid_uid_format" | "missing_param" }
 //
 // Response (500):
 //   { found: false, error: "server_error", details: "..." }
@@ -55,55 +59,60 @@ function isValidCodeFormat(code) {
 }
 
 function isValidEmailFormat(email) {
-  // Basic email regex - good enough for filtering
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function formatResponseData(row, matchedTier) {
-  // Returns clean payload for frontend (omits internal columns we don't need to expose)
+function isValidUidFormat(uid) {
+  // Expected format: imeprezime-XXXXXXXX (slug + unique_id, no llcNN suffix)
+  return /^[a-z0-9]+-[a-z0-9]{6,12}$/i.test(uid);
+}
+
+function parseUid(uid) {
+  // Split on LAST hyphen — slug can contain hyphens technically, but generator uses
+  // slugifyName which strips them. Still, last-hyphen split is safest.
+  const idx = uid.lastIndexOf('-');
+  if (idx === -1) return null;
   return {
-    // Discount info (only relevant if matched by code)
+    slug: uid.substring(0, idx),
+    unique_id: uid.substring(idx + 1)
+  };
+}
+
+function formatResponseData(row, matchedTier) {
+  return {
     discount_tier: matchedTier,
     discount_slug: row.discount_slug || '',
     discount_unique_id: row.discount_unique_id || '',
     
-    // Contact
     email: row.email || '',
     phone: row.phone || '',
     phone_dial_code: row.phone_dial_code || '',
     phone_local: row.phone_local || '',
     phone_country_code: row.phone_country_code || '',
     
-    // Owner name
     first_name: row.first_name || '',
     last_name: row.last_name || '',
     full_name: row.full_name || '',
     
-    // LLC
     llc_name: row.llc_name || '',
     llc_name_full: row.llc_name_full || '',
     
-    // Industry
     industry: row.industry || '',
     industry_label: row.industry_label || '',
     
-    // Registration State
     registration_state: row.registration_state || '',
     registration_state_label: row.registration_state_label || '',
     
-    // Address
     address_street: row.address_street || '',
     address_city: row.address_city || '',
     address_postal: row.address_postal || '',
     address_country: row.address_country || '',
     address_country_code: row.address_country_code || '',
     
-    // Plan (if user selected one)
     selected_plan: row.selected_plan || '',
     selected_plan_label: row.selected_plan_label || '',
     selected_price: row.selected_price || '',
     
-    // Session
     session_id: row.session_id || ''
   };
 }
@@ -111,41 +120,34 @@ function formatResponseData(row, matchedTier) {
 export default async function handler(req, res) {
   setCorsHeaders(req, res);
   
-  // Handle preflight OPTIONS
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
   
-  // Only GET allowed
   if (req.method !== 'GET') {
     return res.status(405).json({ found: false, error: 'method_not_allowed' });
   }
   
-  // Validate env vars
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
     console.error('Missing SUPABASE_URL or SUPABASE_SECRET_KEY env vars');
     return res.status(500).json({ found: false, error: 'server_misconfigured' });
   }
   
-  // Get parameters
   const rawCode = (req.query.code || '').trim().toLowerCase();
   const rawEmail = (req.query.email || '').trim().toLowerCase();
+  const rawUid = (req.query.uid || '').trim().toLowerCase();
   
-  // Need at least one identifier
-  if (!rawCode && !rawEmail) {
-    return res.status(400).json({ found: false, error: 'missing_param', details: 'Provide ?code= or ?email=' });
+  if (!rawCode && !rawEmail && !rawUid) {
+    return res.status(400).json({ found: false, error: 'missing_param', details: 'Provide ?code=, ?email= or ?uid=' });
   }
   
   let queryUrl;
   let lookupType;
   
   if (rawCode) {
-    // === LOOKUP BY DISCOUNT CODE ===
+    // === LOOKUP BY DISCOUNT CODE (used by /start-2) ===
     if (!isValidCodeFormat(rawCode)) {
       return res.status(400).json({ found: false, error: 'invalid_code_format' });
     }
     
-    // Search across all 3 discount code columns
     const orFilter = [
       `discount_code_10_internal.eq.${rawCode}`,
       `discount_code_20_internal.eq.${rawCode}`,
@@ -154,8 +156,25 @@ export default async function handler(req, res) {
     
     queryUrl = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?or=(${orFilter})&limit=1`;
     lookupType = 'code';
+  } else if (rawUid) {
+    // === LOOKUP BY UID (used by /start-2a resume page) ===
+    if (!isValidUidFormat(rawUid)) {
+      return res.status(400).json({ found: false, error: 'invalid_uid_format' });
+    }
+    
+    const parsed = parseUid(rawUid);
+    if (!parsed) {
+      return res.status(400).json({ found: false, error: 'invalid_uid_format' });
+    }
+    
+    // Match on both discount_slug AND discount_unique_id (defense against guessing)
+    queryUrl = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}`
+      + `?discount_slug=eq.${encodeURIComponent(parsed.slug)}`
+      + `&discount_unique_id=eq.${encodeURIComponent(parsed.unique_id)}`
+      + `&limit=1`;
+    lookupType = 'uid';
   } else {
-    // === LOOKUP BY EMAIL ===
+    // === LOOKUP BY EMAIL (used by /onboarding) ===
     if (!isValidEmailFormat(rawEmail)) {
       return res.status(400).json({ found: false, error: 'invalid_email_format' });
     }
@@ -187,10 +206,11 @@ export default async function handler(req, res) {
     const rows = await supabaseResponse.json();
     
     if (!Array.isArray(rows) || rows.length === 0) {
-      return res.status(404).json({
-        found: false,
-        error: lookupType === 'code' ? 'code_not_found' : 'email_not_found'
-      });
+      let errKey;
+      if (lookupType === 'code') errKey = 'code_not_found';
+      else if (lookupType === 'uid') errKey = 'uid_not_found';
+      else errKey = 'email_not_found';
+      return res.status(404).json({ found: false, error: errKey });
     }
     
     const row = rows[0];
