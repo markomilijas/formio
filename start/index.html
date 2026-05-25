@@ -1282,7 +1282,7 @@
             <span id="modal-dial-code" style="font-size:12px;font-weight:700;color:#374151;min-width:28px">+1</span>
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="text-gray-400"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <input type="tel" id="modal-phone" class="phone-num-input modal-size" placeholder="555 000 000" oninput="autoDetectDial('modal', this.value); checkModalBtn(); validateModalField('phone');" onblur="markModalTouched('phone')" autocomplete="tel"/>
+          <input type="tel" id="modal-phone" class="phone-num-input modal-size" placeholder="555 000 000" oninput="autoDetectDial('modal', this.value); checkModalBtn(); validateModalField('phone');" onblur="markModalTouched('phone'); checkBgSubmit();" autocomplete="tel"/>
         </div>
         <div id="modal-dial-dropdown" class="phone-dial-dropdown hidden">
           <input type="text" class="phone-dial-search" placeholder="Search country or code..." oninput="filterDialList('modal',this.value)" autocomplete="off"/>
@@ -1296,7 +1296,7 @@
     </div>
     <div class="mb-5">
       <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Email Address</label>
-      <input type="email" id="modal-email" class="modal-input" placeholder="e.g. john@company.com" oninput="checkModalBtn(); validateModalField('email');" onblur="markModalTouched('email')" autocomplete="email"/>
+      <input type="email" id="modal-email" class="modal-input" placeholder="e.g. john@company.com" oninput="checkModalBtn(); validateModalField('email');" onblur="markModalTouched('email'); checkBgSubmit();" autocomplete="email"/>
       <div class="modal-error-msg" id="modal-email-error">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
         <span class="err-text"></span>
@@ -1349,6 +1349,16 @@
   var savedResumeCode = '';
   var savedCode10ExpiresAt = '';
   var savedCode20ExpiresAt = '';
+  
+  // ===== Background partial submit (email+phone validated, before Submit click) =====
+  // Triggered onblur of email/phone fields when both are valid. Sends minimal payload
+  // to a separate Make.com webhook with stage 'email_phone_validated'.
+  // Discount codes are NOT generated here — they remain handled by sendPartialSubmit on Submit click.
+  var bgSubmitLastKey = '';
+  var bgSubmitInFlight = false;
+  
+  // BG webhook URL — REPLACE with the new Make.com scenario webhook
+  var BG_PARTIAL_WEBHOOK_URL = 'https://hook.eu1.make.com/cugq5bv0pyzr97sviouur5ori35r05x8';
 
   var industryLabels = { tech:'Tech & Software', ecommerce:'E-commerce & Retail', consulting:'Consulting & Services', creative:'Creative & Media', health:'Health & Wellness', finance:'Finance & Investing', education:'Education & Coaching', other:'Other' };
   var stateLabels = { delaware:'Delaware', wyoming:'Wyoming' };
@@ -2706,6 +2716,139 @@ function generateUniqueId() {
 }
   
   // Partial submit - salje sve trenutne podatke na Make webhook
+  // ============================================================
+  // BACKGROUND PARTIAL SUBMIT (email+phone validated, before Submit click)
+  // ============================================================
+  // Triggered onblur of email/phone fields. Fires only when:
+  //   - Both email and phone are valid (libphonenumber + isValidEmail)
+  //   - Combination (email|dial+local) differs from last sent (dedup)
+  //   - No prior request in flight (race guard)
+  //
+  // Payload mirrors sendPartialSubmit() EXCEPT:
+  //   - stage = 'email_phone_validated'
+  //   - NO discount codes / URLs / expires_at (those are generated only on Submit click)
+  //   - Goes to BG_PARTIAL_WEBHOOK_URL (separate Make scenario)
+  function checkBgSubmit() {
+    try {
+      var phEl = document.getElementById('modal-phone');
+      var emEl = document.getElementById('modal-email');
+      if (!phEl || !emEl) return;
+      
+      var ph = phEl.value.trim();
+      var em = emEl.value.trim();
+      var dial = (dialState.modal && dialState.modal.dial) || '';
+      var countryCode = (dialState.modal && dialState.modal.code) || '';
+      
+      // Strip dial prefix if user typed it inside the local field
+      var phClean = ph;
+      if (dial && phClean.indexOf(dial) === 0) {
+        phClean = phClean.substring(dial.length).trim();
+      }
+      
+      // Phone validation via libphonenumber-js
+      var phValid = false;
+      if (countryCode && phClean) {
+        try {
+          phValid = libphonenumber.isValidPhoneNumber(phClean, countryCode);
+        } catch (e) {
+          phValid = false;
+        }
+      }
+      
+      // Email validation
+      var emValid = isValidEmail(em);
+      
+      if (!phValid || !emValid) return;
+      
+      // Dedup: skip if same email+phone as last send
+      var key = em.toLowerCase() + '|' + dial + phClean;
+      if (key === bgSubmitLastKey) return;
+      
+      // Race guard
+      if (bgSubmitInFlight) return;
+      
+      bgSubmitLastKey = key;
+      bgSubmitInFlight = true;
+      
+      // Update modal globals (user hasn't clicked Submit yet, but we have valid values now)
+      modalPhone = dial + ' ' + phClean;
+      modalEmail = em;
+      if (dialState.modal) dialState.modal.localNumber = phClean;
+      
+      sendBgPartialSubmit(dial, phClean);
+    } catch (e) {
+      console.warn('checkBgSubmit error:', e);
+      bgSubmitInFlight = false;
+    }
+  }
+  
+  function sendBgPartialSubmit(dialCode, localNumber) {
+    try {
+      var stateMap = { 'wyoming':'Wyoming', 'delaware':'Delaware' };
+      
+      var payload = {
+        // Stage info — different from sendPartialSubmit so Marko can route in Make/GHL
+        stage: 'email_phone_validated',
+        terms_accepted: false,  // Terms checkbox is at Submit click, not at this stage
+        timestamp: new Date().toISOString(),
+        session_id: getSessionId(),
+        
+        // Contact info
+        first_name: ownerFirstName || '',
+        last_name: ownerLastName || '',
+        full_name: (ownerFirstName + ' ' + ownerLastName).trim(),
+        email: modalEmail || '',
+        phone: modalPhone || '',
+        phone_dial_code: dialCode || '',
+        phone_local: localNumber || '',
+        phone_country_code: (dialState.modal && dialState.modal.code) || '',
+        
+        // LLC info (collected before modal in Step 1)
+        llc_name: llcName || '',
+        llc_name_full: llcName ? (llcName + ' LLC') : '',
+        
+        // Industry (Step 2)
+        industry: selectedIndustry || '',
+        industry_label: selectedIndustryLabel || '',
+        
+        // Registration State (Step 1 sidebar)
+        registration_state: selectedState || '',
+        registration_state_label: stateMap[selectedState] || '',
+        
+        // Owner Address (Step 4b)
+        address_street: ownerStreet || '',
+        address_city: ownerCity || '',
+        address_postal: ownerZip || '',
+        address_country: selectedCountryLabel || '',
+        address_country_code: selectedCountry || '',
+        
+        // Page info
+        page_url: window.location.href,
+        user_agent: navigator.userAgent
+        
+        // NOTE: NO discount codes, URLs, expires_at, resume_code here.
+        // Those are generated only on Submit click (sendPartialSubmit).
+      };
+      
+      // Fire and forget
+      fetch(BG_PARTIAL_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function() {
+        bgSubmitInFlight = false;
+      }).catch(function(err) {
+        console.warn('Background partial submit failed:', err);
+        bgSubmitInFlight = false;
+        // Reset key on failure so next blur can retry
+        bgSubmitLastKey = '';
+      });
+    } catch(e) {
+      console.warn('Error preparing BG partial submit:', e);
+      bgSubmitInFlight = false;
+    }
+  }
+  
   function sendPartialSubmit(dialCode, localNumber) {
     try {
       var stateMap = { 'wyoming':'Wyoming', 'delaware':'Delaware' };
