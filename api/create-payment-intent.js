@@ -5,6 +5,12 @@
 //   - Checks expires_at and used_at
 //   - Auto-upgrades to next tier if code expired
 //   - Applies server-side discount calculation (Stripe Payment Intents API doesn't support Coupons directly)
+//
+// CHANGE (May 2026): receipt_email REMOVED.
+//   Stripe now uses billing_details.email from Payment Element (what user enters
+//   on checkout) for receipts. This means if user changes email at checkout,
+//   receipt + billing communications go to new email.
+//   metadata.email + metadata.full_name remain as "form-submitted" audit values.
  
 import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -270,11 +276,15 @@ export default async function handler(req, res) {
     const fullPlanLabel = `${planLabel} (${stateLabel}) - $${amountUsd}`;
     
     // Build metadata
+    // NOTE: email/full_name here are "form-submitted" values (from Step 5 modal or
+    // populateFormFromUserData). These are kept for audit. The actual billing email/phone
+    // that the user enters in the Stripe Payment Element will be in
+    // charges.data[0].billing_details.* on the webhook event.
     const metadata = {
       session_id: session_id || '',
       llc_name: llc_name || '',
-      email: email || '',
-      full_name: full_name || '',
+      email: email || '',                  // form email (audit)
+      full_name: full_name || '',          // form name (audit)
       plan: plan,
       plan_label: planLabel,
       registration_state: registration_state,
@@ -299,11 +309,14 @@ export default async function handler(req, res) {
     }
      
     // Create PaymentIntent
+    // IMPORTANT: receipt_email is NOT set here.
+    // Stripe will automatically use billing_details.email from the Payment Element
+    // (what user enters/edits on checkout) to send the receipt. This is the desired
+    // behavior — if user changes email on checkout, receipt goes to new address.
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
       currency: 'usd',
       automatic_payment_methods: { enabled: true },
-      receipt_email: email,
       description: `Formio.biz - ${fullPlanLabel} - ${llc_name}`,
       metadata: metadata
     });
