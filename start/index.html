@@ -1084,6 +1084,57 @@
               <!-- Error poruke iz Stripe-a -->
               <div id="payment-message" class="hidden text-sm text-red-600 mb-3 px-3 py-2 rounded-lg bg-red-50"></div>
               
+              <!-- ============ BILLING DETAILS (Cardholder name, Email, Phone) ============ -->
+              <div class="border-t border-gray-100 pt-5 mt-5">
+                <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-4 text-center">Billing Details</p>
+                
+                <div class="flex flex-col gap-4">
+                  <!-- Cardholder Name -->
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">Cardholder Name</label>
+                    <input type="text" id="checkout-cardholder" class="modal-input" placeholder="John Doe" oninput="checkPayBtn(); validateCheckoutField('cardholder');" onblur="markCheckoutTouched('cardholder')" autocomplete="cc-name"/>
+                    <div class="modal-error-msg" id="checkout-cardholder-error">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+                      <span class="err-text"></span>
+                    </div>
+                  </div>
+                  
+                  <!-- Email -->
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">Email</label>
+                    <input type="email" id="checkout-email" class="modal-input" placeholder="john@company.com" oninput="checkPayBtn(); validateCheckoutField('email');" onblur="markCheckoutTouched('email')" autocomplete="email"/>
+                    <div class="modal-error-msg" id="checkout-email-error">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+                      <span class="err-text"></span>
+                    </div>
+                  </div>
+                  
+                  <!-- Phone -->
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">Phone</label>
+                    <div class="phone-wrap">
+                      <div class="phone-inner">
+                        <button type="button" id="checkout-dial-btn" class="phone-dial-btn" onclick="toggleDialPicker('checkout')">
+                          <span id="checkout-dial-flag" style="line-height:1;width:22px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0"></span>
+                          <span id="checkout-dial-code" style="font-size:12px;font-weight:700;color:#374151;min-width:28px">+1</span>
+                          <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="text-gray-400"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <input type="tel" id="checkout-phone" class="phone-num-input" placeholder="555 000 000" oninput="autoDetectDial('checkout', this.value); checkPayBtn(); validateCheckoutField('phone');" onblur="markCheckoutTouched('phone')" autocomplete="tel"/>
+                      </div>
+                      <div id="checkout-dial-dropdown" class="phone-dial-dropdown hidden">
+                        <input type="text" class="phone-dial-search" placeholder="Search country or code..." oninput="filterDialList('checkout',this.value)" autocomplete="off"/>
+                        <div id="checkout-dial-list" class="phone-dial-list"></div>
+                      </div>
+                    </div>
+                    <div class="modal-error-msg" id="checkout-phone-error">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+                      <span class="err-text"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- ============ /BILLING DETAILS ============ -->
+              
               <button class="btn-continue mt-6" id="pay-btn" onclick="handleStripePayment()">Pay - Register My LLC</button>
               
               <div class="flex items-center justify-center gap-4 mt-4">
@@ -1463,7 +1514,8 @@
 
   var dialState = {
     modal: { code: 'US', dial: '+1', localNumber: '' },
-    s7b:   { code: 'US', dial: '+1', localNumber: '' }
+    s7b:   { code: 'US', dial: '+1', localNumber: '' },
+    checkout: { code: 'US', dial: '+1', localNumber: '' }
   };
 
   function flagEmoji(code) {
@@ -1510,6 +1562,9 @@
     if (ns === 'modal') {
       dialState.modal.localNumber = document.getElementById('modal-phone') ? document.getElementById('modal-phone').value.trim() : '';
     }
+    if (ns === 'checkout') {
+      dialState.checkout.localNumber = document.getElementById('checkout-phone') ? document.getElementById('checkout-phone').value.trim() : '';
+    }
   }
 
   function toggleDialPicker(ns) {
@@ -1528,11 +1583,13 @@
   function initDialPickers() {
     renderDialList('modal', phoneCodes);
     renderDialList('s7b', phoneCodes);
+    renderDialList('checkout', phoneCodes);
     // Inicijalno postavi US zastavu na trigger dugmićima
     var defaultUS = phoneCodes.find(function(p){ return p.code === 'US'; });
     if (defaultUS) {
       setDialCode('modal', defaultUS);
       setDialCode('s7b', defaultUS);
+      setDialCode('checkout', defaultUS);
     }
     detectCountryByIP();
   }
@@ -1563,8 +1620,10 @@
             if (found) {
               setDialCode('modal', found);
               setDialCode('s7b', found);
+              setDialCode('checkout', found);
               renderDialList('modal', phoneCodes);
               renderDialList('s7b', phoneCodes);
+              renderDialList('checkout', phoneCodes);
               console.log('Country detected:', code, 'via', p.url);
             } else {
               console.warn('Country code', code, 'nije u phoneCodes listi');
@@ -1828,6 +1887,11 @@
     
     // Inicijalizuj Stripe Payment Element
     initStripePayment();
+    
+    // Pre-fill billing details from previous steps (modal + Step 3 name)
+    if (typeof prefillCheckoutFields === 'function') {
+      setTimeout(prefillCheckoutFields, 50);
+    }
   }
   
   // ===== STRIPE PAYMENT INTEGRATION =====
@@ -1927,22 +1991,7 @@
       });
       
       stripePaymentElement = stripeElements.create('payment', {
-        layout: 'tabs',
-        fields: {
-          billingDetails: {
-            name: 'auto',
-            email: 'auto',
-            phone: 'auto',
-            address: 'never'
-          }
-        },
-        defaultValues: {
-          billingDetails: {
-            name: ((ownerFirstName || '') + ' ' + (ownerLastName || '')).trim(),
-            email: modalEmail || '',
-            phone: modalPhone || ''
-          }
-        }
+        layout: 'tabs'
       });
       
       stripePaymentElement.mount('#payment-element');
@@ -1953,12 +2002,173 @@
     }
   }
   
+  // ============================================================
+  // CHECKOUT BILLING DETAILS - validation & touched tracking
+  // ============================================================
+  var checkoutTouched = { cardholder: false, email: false, phone: false };
+  
+  function markCheckoutTouched(field) {
+    checkoutTouched[field] = true;
+    validateCheckoutField(field);
+  }
+  
+  function validateCheckoutField(field) {
+    if (!checkoutTouched[field]) return;
+    
+    if (field === 'cardholder') {
+      var val = (document.getElementById('checkout-cardholder').value || '').trim();
+      var errEl = document.getElementById('checkout-cardholder-error');
+      if (!val || val.length < 2) {
+        if (errEl) {
+          errEl.querySelector('.err-text').textContent = 'Please enter cardholder name.';
+          errEl.classList.add('visible');
+        }
+      } else {
+        if (errEl) errEl.classList.remove('visible');
+      }
+    }
+    
+    if (field === 'email') {
+      var em = (document.getElementById('checkout-email').value || '').trim();
+      var errEl = document.getElementById('checkout-email-error');
+      if (!em) {
+        if (errEl) {
+          errEl.querySelector('.err-text').textContent = 'Please enter email.';
+          errEl.classList.add('visible');
+        }
+      } else if (!isValidEmail(em)) {
+        if (errEl) {
+          errEl.querySelector('.err-text').textContent = 'Please enter valid email.';
+          errEl.classList.add('visible');
+        }
+      } else {
+        if (errEl) errEl.classList.remove('visible');
+      }
+    }
+    
+    if (field === 'phone') {
+      var ph = (document.getElementById('checkout-phone').value || '').trim();
+      var dial = (dialState.checkout && dialState.checkout.dial) || '';
+      var countryCode = (dialState.checkout && dialState.checkout.code) || '';
+      var phClean = ph;
+      if (dial && phClean.indexOf(dial) === 0) phClean = phClean.substring(dial.length).trim();
+      var errEl = document.getElementById('checkout-phone-error');
+      var valid = false;
+      if (countryCode && phClean) {
+        try { valid = libphonenumber.isValidPhoneNumber(phClean, countryCode); } catch(e) {}
+      }
+      if (!phClean) {
+        if (errEl) {
+          errEl.querySelector('.err-text').textContent = 'Please enter phone number.';
+          errEl.classList.add('visible');
+        }
+      } else if (!valid) {
+        if (errEl) {
+          errEl.querySelector('.err-text').textContent = 'Invalid phone number for selected country.';
+          errEl.classList.add('visible');
+        }
+      } else {
+        if (errEl) errEl.classList.remove('visible');
+      }
+    }
+  }
+  
+  function isCheckoutValid() {
+    var cardholderEl = document.getElementById('checkout-cardholder');
+    var emailEl = document.getElementById('checkout-email');
+    var phoneEl = document.getElementById('checkout-phone');
+    if (!cardholderEl || !emailEl || !phoneEl) return false;
+    
+    var cardholder = (cardholderEl.value || '').trim();
+    var em = (emailEl.value || '').trim();
+    var ph = (phoneEl.value || '').trim();
+    var dial = (dialState.checkout && dialState.checkout.dial) || '';
+    var countryCode = (dialState.checkout && dialState.checkout.code) || '';
+    var phClean = ph;
+    if (dial && phClean.indexOf(dial) === 0) phClean = phClean.substring(dial.length).trim();
+    
+    if (!cardholder || cardholder.length < 2) return false;
+    if (!em || !isValidEmail(em)) return false;
+    if (!countryCode || !phClean) return false;
+    try {
+      if (!libphonenumber.isValidPhoneNumber(phClean, countryCode)) return false;
+    } catch(e) { return false; }
+    
+    return true;
+  }
+  
+  function checkPayBtn() {
+    var payBtn = document.getElementById('pay-btn');
+    if (!payBtn) return;
+    payBtn.disabled = !isCheckoutValid();
+  }
+  
+  function prefillCheckoutFields() {
+    var nameEl = document.getElementById('checkout-cardholder');
+    if (nameEl) {
+      var fullName = ((ownerFirstName || '') + ' ' + (ownerLastName || '')).trim();
+      if (fullName && !nameEl.value) nameEl.value = fullName;
+    }
+    
+    var emailEl = document.getElementById('checkout-email');
+    if (emailEl && !emailEl.value) emailEl.value = modalEmail || '';
+    
+    var phoneEl = document.getElementById('checkout-phone');
+    if (phoneEl && modalPhone) {
+      var phoneParts = modalPhone.trim().split(/\s+/);
+      if (phoneParts.length >= 2 && phoneParts[0].indexOf('+') === 0) {
+        var phoneDial = phoneParts[0];
+        var phoneLocal = phoneParts.slice(1).join(' ');
+        if (!phoneEl.value) phoneEl.value = phoneLocal;
+        var matched = phoneCodes.find(function(c){ return c.dial === phoneDial; });
+        if (!matched && dialState.modal) {
+          matched = phoneCodes.find(function(c){ return c.code === dialState.modal.code; });
+        }
+        if (matched) {
+          setDialCode('checkout', matched);
+          renderDialList('checkout', phoneCodes);
+        }
+      } else if (!phoneEl.value) {
+        phoneEl.value = modalPhone;
+      }
+    }
+    
+    if (dialState.checkout && phoneEl) {
+      dialState.checkout.localNumber = phoneEl.value.trim();
+    }
+    
+    // Reset touched state when user lands on checkout
+    checkoutTouched = { cardholder: false, email: false, phone: false };
+    
+    checkPayBtn();
+  }
+  
   async function handleStripePayment() {
     if (stripeIsProcessing) return;
     if (!stripeInstance || !stripeElements) {
       showStripeError('Forma nije spremna. Osvežite stranicu.');
       return;
     }
+    
+    // Validate billing details before submitting
+    if (!isCheckoutValid()) {
+      markCheckoutTouched('cardholder');
+      markCheckoutTouched('email');
+      markCheckoutTouched('phone');
+      showStripeError('Please fill in all billing details correctly.');
+      return;
+    }
+    
+    // Read billing details from form
+    var cardholderName = document.getElementById('checkout-cardholder').value.trim();
+    var checkoutEmail  = document.getElementById('checkout-email').value.trim();
+    var phoneRaw       = document.getElementById('checkout-phone').value.trim();
+    var checkoutDial   = (dialState.checkout && dialState.checkout.dial) || '';
+    var phoneClean     = phoneRaw;
+    if (checkoutDial && phoneClean.indexOf(checkoutDial) === 0) {
+      phoneClean = phoneClean.substring(checkoutDial.length).trim();
+    }
+    var checkoutPhone  = checkoutDial + phoneClean.replace(/\s+/g, '');
     
     stripeIsProcessing = true;
     var btn = document.getElementById('pay-btn');
@@ -1970,6 +2180,15 @@
     try {
       var result = await stripeInstance.confirmPayment({
         elements: stripeElements,
+        confirmParams: {
+          payment_method_data: {
+            billing_details: {
+              name: cardholderName,
+              email: checkoutEmail,
+              phone: checkoutPhone
+            }
+          }
+        },
         redirect: 'if_required'
       });
       
