@@ -1765,6 +1765,9 @@
         _origGoToCheckout();
         updateMobileProgressStart2(2);
         updateSidebarStart2(2);
+        // Show Back button so user can return to plan selection
+        var backBtn = document.getElementById('back-btn');
+        if (backBtn) backBtn.style.display = 'inline-flex';
       };
     }
     // Override goBackToPackages to fix progress
@@ -1774,6 +1777,9 @@
         _origGoBackToPackages();
         updateMobileProgressStart2(1);
         updateSidebarStart2(1);
+        // Hide Back button — back on Step 1 (Plan) which is the first step
+        var backBtn = document.getElementById('back-btn');
+        if (backBtn) backBtn.style.display = 'none';
       };
     }
     // Override goToS8 to fix progress per sub-step
