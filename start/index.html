@@ -1358,7 +1358,7 @@
   var bgSubmitInFlight = false;
   
   // BG webhook URL — REPLACE with the new Make.com scenario webhook
-  var BG_PARTIAL_WEBHOOK_URL = 'https://hook.eu1.make.com/cugq5bv0pyzr97sviouur5ori35r05x8';
+  var BG_PARTIAL_WEBHOOK_URL = 'https://hook.eu1.make.com/REPLACE_WITH_NEW_BG_WEBHOOK_URL';
 
   var industryLabels = { tech:'Tech & Software', ecommerce:'E-commerce & Retail', consulting:'Consulting & Services', creative:'Creative & Media', health:'Health & Wellness', finance:'Finance & Investing', education:'Education & Coaching', other:'Other' };
   var stateLabels = { delaware:'Delaware', wyoming:'Wyoming' };
@@ -1927,7 +1927,29 @@
       });
       
       stripePaymentElement = stripeElements.create('payment', {
-        layout: 'tabs'
+        layout: 'tabs',
+        fields: {
+          billingDetails: {
+            name: 'always',
+            email: 'always',
+            phone: 'always',
+            address: {
+              country: 'auto',
+              line1: 'never',
+              line2: 'never',
+              city: 'never',
+              state: 'never',
+              postalCode: 'never'
+            }
+          }
+        },
+        defaultValues: {
+          billingDetails: {
+            name: ((ownerFirstName || '') + ' ' + (ownerLastName || '')).trim(),
+            email: modalEmail || '',
+            phone: modalPhone || ''
+          }
+        }
       });
       
       stripePaymentElement.mount('#payment-element');
