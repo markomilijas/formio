@@ -2484,7 +2484,29 @@
       });
       
       stripePaymentElement = stripeElements.create('payment', {
-        layout: 'tabs'
+        layout: 'tabs',
+        fields: {
+          billingDetails: {
+            name: 'always',
+            email: 'always',
+            phone: 'always',
+            address: {
+              country: 'auto',
+              line1: 'never',
+              line2: 'never',
+              city: 'never',
+              state: 'never',
+              postalCode: 'never'
+            }
+          }
+        },
+        defaultValues: {
+          billingDetails: {
+            name: ((ownerFirstName || '') + ' ' + (ownerLastName || '')).trim(),
+            email: modalEmail || '',
+            phone: modalPhone || ''
+          }
+        }
       });
       
       stripePaymentElement.mount('#payment-element');
