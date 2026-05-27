@@ -3016,6 +3016,16 @@ function generateUniqueId() {
     }
   }
   
+  // ============================================================
+  // PHONE NORMALIZATION HELPER
+  // Converts "+381 63777222" -> "+38163777222" (E.164 format).
+  // Used for all webhook payloads to match GHL's stored phone format.
+  // ============================================================
+  function getPhoneE164(phoneStr) {
+    if (!phoneStr) return '';
+    return String(phoneStr).replace(/\s+/g, '');
+  }
+  
   function sendBgPartialSubmit(dialCode, localNumber) {
     try {
       var stateMap = { 'wyoming':'Wyoming', 'delaware':'Delaware' };
@@ -3032,7 +3042,7 @@ function generateUniqueId() {
         last_name: ownerLastName || '',
         full_name: (ownerFirstName + ' ' + ownerLastName).trim(),
         email: modalEmail || '',
-        phone: modalPhone || '',
+        phone: getPhoneE164(modalPhone),
         phone_dial_code: dialCode || '',
         phone_local: localNumber || '',
         phone_country_code: (dialState.modal && dialState.modal.code) || '',
@@ -3100,7 +3110,7 @@ function generateUniqueId() {
         last_name: ownerLastName || '',
         full_name: (ownerFirstName + ' ' + ownerLastName).trim(),
         email: modalEmail || '',
-        phone: modalPhone || '',
+        phone: getPhoneE164(modalPhone),
         phone_dial_code: dialCode || '',
         phone_local: localNumber || '',
         phone_country_code: (dialState.modal && dialState.modal.code) || '',
@@ -3215,7 +3225,7 @@ function generateUniqueId() {
         last_name: ownerLastName || '',
         full_name: (ownerFirstName + ' ' + ownerLastName).trim(),
         email: modalEmail || '',
-        phone: modalPhone || '',
+        phone: getPhoneE164(modalPhone),
         phone_dial_code: (dialState.modal && dialState.modal.dial) || '',
         phone_local: (dialState.modal && dialState.modal.localNumber) || '',
         phone_country_code: (dialState.modal && dialState.modal.code) || '',
@@ -3310,7 +3320,7 @@ function generateUniqueId() {
         last_name: ownerLastName || '',
         full_name: (ownerFirstName + ' ' + ownerLastName).trim(),
         email: modalEmail || '',
-        phone: modalPhone || '',
+        phone: getPhoneE164(modalPhone),
         phone_dial_code: (dialState.modal && dialState.modal.dial) || '',
         phone_local: (dialState.modal && dialState.modal.localNumber) || '',
         phone_country_code: (dialState.modal && dialState.modal.code) || '',
