@@ -31,6 +31,9 @@
     }
   </script>
   <style>
+    /* Mobile horizontal scroll prevention - global safety */
+    html, body { max-width: 100%; overflow-x: hidden; }
+    
     :root {
       --brand:     #1D44E7;
       --brand-700: #1E40AF;
@@ -1137,7 +1140,7 @@
               
               <button class="btn-continue mt-6" id="pay-btn" onclick="handleStripePayment()">Pay - Register My LLC</button>
               
-              <div class="flex items-center justify-center gap-4 mt-4">
+              <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-4">
                 <div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg><span class="text-[11px] text-gray-400">SSL Encrypted</span></div>
                 <div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-[11px] text-gray-400">7-day money-back</span></div>
                 <div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg><span class="text-[11px] text-gray-400">Powered by Stripe</span></div>
