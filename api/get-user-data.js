@@ -221,6 +221,20 @@ export default async function handler(req, res) {
       if (row.discount_code_10_internal === rawCode) matchedTier = 10;
       else if (row.discount_code_20_internal === rawCode) matchedTier = 20;
       else if (row.discount_code_30_internal === rawCode) matchedTier = 30;
+      
+      // Check if this specific tier has been used already
+      // (One-and-done: when any tier is used, all tiers' used_at are set)
+      if (matchedTier) {
+        const usedAtField = `code_${matchedTier}_used_at`;
+        if (row[usedAtField]) {
+          // Code has been used — return 410 Gone, no user data leaked
+          return res.status(410).json({
+            found: false,
+            error: 'code_used',
+            tier: matchedTier
+          });
+        }
+      }
     }
     
     return res.status(200).json({
