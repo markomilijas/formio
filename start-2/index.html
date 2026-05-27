@@ -31,14 +31,7 @@
     }
   </script>
   <style>
-    /* Mobile horizontal scroll prevention - global safety */
     html, body { max-width: 100%; overflow-x: hidden; }
-    /* Force containers to respect viewport width on mobile */
-    main, .step-panel, .sub-view { max-width: 100%; }
-    main *, .step-panel *, .sub-view * { min-width: 0; }
-    /* Compare table can be wider than viewport - allow internal scroll */
-    #compare-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    #compare-table-wrap > div { min-width: max-content; }
     
     :root {
       --brand:     #1D44E7;
@@ -1453,6 +1446,36 @@
   // ============================================================
   // DISCOUNT POPUP (fallback when URL param fails)
   // ============================================================
+  // ============================================================
+  // CODE USED POPUP - non-dismissible
+  // Shown when user clicks a discount link whose tier has already been used.
+  // Since "one-and-done" marks all 3 tiers when any is used, this means
+  // the user already completed payment with this code series.
+  // ============================================================
+  function showCodeUsedPopup() {
+    var overlay = document.createElement('div');
+    overlay.id = 'code-used-popup-overlay';
+    overlay.className = 'modal-overlay';
+    overlay.style.zIndex = '10003'; // Higher than discount popup
+    // Block backdrop click — popup must be acknowledged via button only
+    overlay.style.pointerEvents = 'auto';
+    overlay.innerHTML = '<div class="modal-card" style="max-width:440px;">' +
+      '<div class="flex items-start gap-3 mb-5">' +
+        '<div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#FFF7ED;">' +
+          '<svg width="20" height="20" fill="none" stroke="#EA580C" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>' +
+        '</div>' +
+        '<div class="flex-1">' +
+          '<h3 style="font-family:\'Clash Grotesk\',sans-serif;font-weight:600;font-size:20px;color:#071841;line-height:1.2;margin-bottom:4px;">This discount code has been used</h3>' +
+          '<p class="text-sm text-gray-500" style="line-height:1.5;">You\'ve already used this code in a previous purchase. To continue, you can register a new LLC at the full price.</p>' +
+        '</div>' +
+      '</div>' +
+      '<button class="btn-continue" onclick="window.location.href=\'/start/\'">Continue at full price →</button>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    // Prevent body scroll while popup is open
+    document.body.style.overflow = 'hidden';
+  }
+  
   function showDiscountPopup() {
     var overlay = document.createElement('div');
     overlay.id = 'discount-popup-overlay';
@@ -1732,6 +1755,15 @@
       
       // Fetch user data from backend (in background, doesn't block UI)
       var result = await fetchUserDataByCode(parsed.internal);
+      
+      // === CODE USED CHECK ===
+      // Backend returns 410 Gone with error: 'code_used' if matched tier has used_at set.
+      // Since we mark all 3 tiers as used (one-and-done), this means user already paid.
+      // Show non-dismissible popup forcing user to choose: full price or leave.
+      if (result && result.error === 'code_used') {
+        showCodeUsedPopup();
+        return; // Stop further processing - don't pre-fill or apply discount
+      }
       
       if (result && result.found && result.data) {
         // Pre-fill all form data
