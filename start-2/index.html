@@ -3523,6 +3523,16 @@ function slugifyName(first, last) {
 function generateUniqueId() {
   return Math.random().toString(36).substring(2, 10);
 }
+
+  // ============================================================
+  // PHONE NORMALIZATION HELPER
+  // Converts "+381 63777222" -> "+38163777222" (E.164 format).
+  // Used for all webhook payloads to match GHL's stored phone format.
+  // ============================================================
+  function getPhoneE164(phoneStr) {
+    if (!phoneStr) return '';
+    return String(phoneStr).replace(/\s+/g, '');
+  }
   
   // Partial submit - salje sve trenutne podatke na Make webhook
   function sendPartialSubmit(dialCode, localNumber) {
