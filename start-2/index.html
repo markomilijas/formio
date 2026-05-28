@@ -1388,6 +1388,19 @@
   var discountCodeInternal = '';  // e.g. "danilozdravkovic-io0zczmk-llc10" (full code with ID)
   var discountCodeDisplay = '';   // e.g. "danilozdravkovic-llc10" (clean code without ID, for user display)
   
+  // All 3 tier codes/URLs from Supabase - cached on page load via fetchUserDataByCode.
+  // Re-sent in sendPaidPartialSubmit payload so Make Onboarding scenario doesn't
+  // blank these Supabase columns (the scenario upserts the whole row).
+  var savedDiscountCode10Internal = '';
+  var savedDiscountCode20Internal = '';
+  var savedDiscountCode30Internal = '';
+  var savedDiscountCode10Display = '';
+  var savedDiscountCode20Display = '';
+  var savedDiscountCode30Display = '';
+  var savedDiscountUrl10 = '';
+  var savedDiscountUrl20 = '';
+  var savedDiscountUrl30 = '';
+  
   function parseDiscountCode(rawCode) {
     if (!rawCode || typeof rawCode !== 'string') return null;
     // Expected formats:
@@ -1641,6 +1654,21 @@
   // ============================================================
   function populateFormFromUserData(data) {
     if (!data) return;
+    
+    // Cache all 3 tier codes/URLs for later re-send in paid payload
+    // (prevents Make Onboarding scenario from blanking these in Supabase)
+    savedDiscountCode10Internal = data.discount_code_10_internal || '';
+    savedDiscountCode20Internal = data.discount_code_20_internal || '';
+    savedDiscountCode30Internal = data.discount_code_30_internal || '';
+    savedDiscountCode10Display  = data.discount_code_10_display  || '';
+    savedDiscountCode20Display  = data.discount_code_20_display  || '';
+    savedDiscountCode30Display  = data.discount_code_30_display  || '';
+    savedDiscountUrl10 = data.discount_url_10 || '';
+    savedDiscountUrl20 = data.discount_url_20 || '';
+    savedDiscountUrl30 = data.discount_url_30 || '';
+    // Also cache slug + unique_id (also blanked by Onboarding scenario)
+    if (data.discount_slug) discountSlug = data.discount_slug;
+    if (data.discount_unique_id) discountId = data.discount_unique_id;
     
     // === LLC ===
     if (data.llc_name) {
@@ -3728,6 +3756,20 @@ function generateUniqueId() {
         discount_tier: discountActive ? String(discountTier) : '',
         discount_code_internal: discountActive ? discountCodeInternal : '',
         discount_code_display: discountActive ? discountCodeDisplay : '',
+        
+        // All 3 tier codes/URLs - re-sent so Make Onboarding scenario
+        // doesn't blank these Supabase columns when it upserts the row
+        discount_slug: discountSlug || '',
+        discount_unique_id: discountId || '',
+        discount_code_10_internal: savedDiscountCode10Internal,
+        discount_code_20_internal: savedDiscountCode20Internal,
+        discount_code_30_internal: savedDiscountCode30Internal,
+        discount_code_10_display: savedDiscountCode10Display,
+        discount_code_20_display: savedDiscountCode20Display,
+        discount_code_30_display: savedDiscountCode30Display,
+        discount_url_10: savedDiscountUrl10,
+        discount_url_20: savedDiscountUrl20,
+        discount_url_30: savedDiscountUrl30,
         
         // Page info
         page_url: window.location.href,
