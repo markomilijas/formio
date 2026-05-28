@@ -84,6 +84,18 @@ function formatResponseData(row, matchedTier) {
     discount_slug: row.discount_slug || '',
     discount_unique_id: row.discount_unique_id || '',
     
+    // All 3 tiers - needed by /start-2/ to re-send on paid submit
+    // so that Make Onboarding scenario doesn't blank these fields in Supabase
+    discount_code_10_internal: row.discount_code_10_internal || '',
+    discount_code_20_internal: row.discount_code_20_internal || '',
+    discount_code_30_internal: row.discount_code_30_internal || '',
+    discount_code_10_display: row.discount_code_10_display || '',
+    discount_code_20_display: row.discount_code_20_display || '',
+    discount_code_30_display: row.discount_code_30_display || '',
+    discount_url_10: row.discount_url_10 || '',
+    discount_url_20: row.discount_url_20 || '',
+    discount_url_30: row.discount_url_30 || '',
+    
     email: row.email || '',
     phone: row.phone || '',
     phone_dial_code: row.phone_dial_code || '',
