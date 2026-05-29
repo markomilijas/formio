@@ -31,7 +31,14 @@
     }
   </script>
   <style>
+    /* Mobile horizontal scroll prevention - global safety */
     html, body { max-width: 100%; overflow-x: hidden; }
+    /* Force containers to respect viewport width on mobile */
+    main, .step-panel, .sub-view { max-width: 100%; }
+    main *, .step-panel *, .sub-view * { min-width: 0; }
+    /* Compare table can be wider than viewport - allow internal scroll */
+    #compare-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    #compare-table-wrap > div { min-width: max-content; }
     
     :root {
       --brand:     #1D44E7;
