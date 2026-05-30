@@ -1827,7 +1827,7 @@
       // Backend returns 410 Gone with error: 'code_expired' if:
       //   - 10% expired AND 20% also expired (no upgrade path), OR
       //   - 20% expired (no auto-upgrade to 30%, sales-team only)
-      // (10% expired + 20% still valid → backend auto-upgrades at payment time, no popup)
+      // (10% expired + 20% still valid → backend returns upgrade_hint, see below)
       if (result && result.error === 'code_expired') {
         showCodeExpiredPopup();
         return;
@@ -1836,6 +1836,26 @@
       if (result && result.found && result.data) {
         // Pre-fill all form data
         populateFormFromUserData(result.data);
+        
+        // === AUTO-UPGRADE PREVIEW ===
+        // If backend signals that requested tier is expired but next tier is valid,
+        // upgrade frontend UI immediately so user sees correct (higher) discount.
+        // This avoids the "user sees 10% on plan screen, then 20% on checkout" surprise.
+        // Backend create-payment-intent will re-validate and apply 20% at payment time.
+        if (result.upgrade_hint && result.upgrade_hint.to_tier) {
+          var newTier = result.upgrade_hint.to_tier;
+          var newCode = result.data['discount_code_' + newTier + '_internal'];
+          var newDisplay = result.data['discount_code_' + newTier + '_display'];
+          console.log('[start-2] Backend signals auto-upgrade:', result.upgrade_hint.from_tier, '→', newTier);
+          discountTier = newTier;
+          discountPercent = newTier / 100;
+          if (newCode) discountCodeInternal = newCode;
+          if (newDisplay) discountCodeDisplay = newDisplay;
+          if (typeof refreshDiscountedUI === 'function') {
+            refreshDiscountedUI();
+          }
+        }
+        
         // Refresh again to update with state-specific pricing if state changed from default
         if (typeof refreshPackagePricing === 'function') {
           refreshPackagePricing();
