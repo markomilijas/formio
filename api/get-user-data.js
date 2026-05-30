@@ -246,6 +246,40 @@ export default async function handler(req, res) {
             tier: matchedTier
           });
         }
+        
+        // Check if this tier (and the only allowed upgrade path) is expired
+        // Allowed upgrade: 10 -> 20 (only)
+        // Forbidden: 10 -> 30 (skip), 20 -> 30 (sales-team-only)
+        // 30 never expires (code_30_expires_at is always NULL)
+        const now = new Date();
+        const isExpired = (tier) => {
+          const exp = row[`code_${tier}_expires_at`];
+          if (!exp) return false; // NULL = never expires
+          return new Date(exp) < now;
+        };
+        
+        if (matchedTier === 10) {
+          // 10 expired AND 20 also expired → no valid upgrade path → expired popup
+          // 10 expired AND 20 valid → frontend will auto-upgrade via create-payment-intent (existing flow)
+          // 10 valid → proceed normally
+          if (isExpired(10) && isExpired(20)) {
+            return res.status(410).json({
+              found: false,
+              error: 'code_expired',
+              tier: matchedTier
+            });
+          }
+        } else if (matchedTier === 20) {
+          // 20 expired → no upgrade allowed (30 is sales-only)
+          if (isExpired(20)) {
+            return res.status(410).json({
+              found: false,
+              error: 'code_expired',
+              tier: matchedTier
+            });
+          }
+        }
+        // matchedTier === 30 → never expires, always valid (if not used)
       }
     }
     
