@@ -260,13 +260,27 @@ export default async function handler(req, res) {
         
         if (matchedTier === 10) {
           // 10 expired AND 20 also expired → no valid upgrade path → expired popup
-          // 10 expired AND 20 valid → frontend will auto-upgrade via create-payment-intent (existing flow)
+          // 10 expired AND 20 valid → return upgrade hint so frontend can update UI immediately
           // 10 valid → proceed normally
           if (isExpired(10) && isExpired(20)) {
             return res.status(410).json({
               found: false,
               error: 'code_expired',
               tier: matchedTier
+            });
+          }
+          if (isExpired(10) && !isExpired(20)) {
+            // Frontend should display 20% off immediately (auto-upgrade preview)
+            // Backend create-payment-intent will still re-validate and apply 20% at payment time
+            return res.status(200).json({
+              found: true,
+              lookup_type: lookupType,
+              data: formatResponseData(row, matchedTier),
+              upgrade_hint: {
+                from_tier: 10,
+                to_tier: 20,
+                reason: 'tier_10_expired'
+              }
             });
           }
         } else if (matchedTier === 20) {
