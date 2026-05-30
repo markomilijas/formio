@@ -149,7 +149,9 @@ async function validateDiscountCode(code) {
   }
   
   // If requested tier is expired/used, try to upgrade
-  // 10 -> 20 -> 30
+  // ALLOWED: 10 -> 20 only
+  // NOT ALLOWED: 10 -> 30 (skip), 20 -> 30 (skip)
+  // 30% tier is sales-team-only, never auto-upgrade
   if (requestedTier === 10) {
     const check20 = tierIsValid(20);
     if (check20.ok) {
@@ -162,32 +164,11 @@ async function validateDiscountCode(code) {
         code: row.discount_code_20_internal
       };
     }
-    const check30 = tierIsValid(30);
-    if (check30.ok) {
-      return {
-        valid: true,
-        tier: 30,
-        upgraded: true,
-        upgraded_from: 10,
-        row: row,
-        code: row.discount_code_30_internal
-      };
-    }
+    // If 20 is also expired/used, fall through to "no valid tier" — NO upgrade to 30
   }
   
-  if (requestedTier === 20) {
-    const check30 = tierIsValid(30);
-    if (check30.ok) {
-      return {
-        valid: true,
-        tier: 30,
-        upgraded: true,
-        upgraded_from: 20,
-        row: row,
-        code: row.discount_code_30_internal
-      };
-    }
-  }
+  // requestedTier === 20: NO auto-upgrade to 30
+  // requestedTier === 30: handled above (30 never expires, so requestedCheck.ok was true)
   
   // No valid tier found
   return {
