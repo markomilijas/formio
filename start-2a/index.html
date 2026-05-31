@@ -36,7 +36,9 @@
     /* Force containers to respect viewport width on mobile */
     main, .step-panel, .sub-view { max-width: 100%; }
     main *, .step-panel *, .sub-view * { min-width: 0; }
-    
+    /* Compare table can be wider than viewport - allow internal scroll */
+    #compare-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    #compare-table-wrap > div { min-width: max-content; }
     
     :root {
       --brand:     #1D44E7;
@@ -3063,6 +3065,11 @@
   function checkStep5Btn() {
     var termsCheckbox = document.getElementById('step5-terms-checkbox');
     var termsAccepted = termsCheckbox ? termsCheckbox.checked : false;
+    if (termsAccepted && !agreeReviewAcceptedAt) {
+      agreeReviewAcceptedAt = new Date().toISOString();
+    } else if (!termsAccepted) {
+      agreeReviewAcceptedAt = '';
+    }
     document.getElementById('btn-5').disabled = !termsAccepted;
   }
 
@@ -4564,6 +4571,9 @@ function generateUniqueId() {
   // Globalna varijabla za pamcenje timestamp-a kad je korisnik prihvatio finalni consent
   var legalConsentAcceptedAt = null;
   
+  // Globalna varijabla za pamcenje timestamp-a kad je korisnik prihvatio Step 5 Review consent
+  var agreeReviewAcceptedAt = '';
+  
   function toggleFinalConfirm(event) {
     // Ignoriši ako je klik bio na linku unutar checkbox box-a (npr. Refund Policy)
     if (event && event.target && event.target.tagName === 'A') return;
@@ -4890,6 +4900,10 @@ function generateUniqueId() {
       fd.append('legal_consent_text', legalConsentText);
       fd.append('legal_consent_accepted_at', legalConsentAcceptedAt || new Date().toISOString());
       fd.append('legal_consent_signature_type', 'electronic_checkbox');
+      
+      // Agree #3 - Final submit (alias za legal_consent_* za konzistentno imenovanje u Make/GHL/Supabase)
+      fd.append('agree_final_accepted', 'true');
+      fd.append('agree_final_accepted_at', legalConsentAcceptedAt || new Date().toISOString());
       
       // Kontakt
       fd.append('email', frEmail);
