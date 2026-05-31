@@ -4608,6 +4608,9 @@ function generateUniqueId() {
       fd.append('legal_consent_text', legalConsentText);
       fd.append('legal_consent_accepted_at', legalConsentAcceptedAt || new Date().toISOString());
       fd.append('legal_consent_signature_type', 'electronic_checkbox');
+      // Agree #3 - Final submit (alias za legal_consent_* za konzistentno imenovanje u Make/GHL/Supabase)
+      fd.append('agree_final_accepted', 'true');
+      fd.append('agree_final_accepted_at', legalConsentAcceptedAt || new Date().toISOString());
       
       // Kontakt
       fd.append('email', frEmail);
