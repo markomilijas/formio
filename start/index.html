@@ -2779,7 +2779,69 @@
   });
 
   // ===== Contact Modal =====
+  // ============================================================
+  // COMMIT ALL OPEN STEP 5 EDITS — Update 2 Fix
+  // Auto-saves any open inline edit on Review screen BEFORE proceeding,
+  // so global variables (llcName, ownerStreet, etc.) reflect latest user input.
+  // Without this, if user types in edit field and clicks Continue without
+  // clicking Save first, all downstream webhooks send stale values.
+  // ============================================================
+  function commitAllStep5Edits() {
+    // LLC Name — if name-edit is visible, "click Save" by calling toggle
+    var nameEdit = document.getElementById('name-edit');
+    if (nameEdit && !nameEdit.classList.contains('hidden')) {
+      toggleEditName();
+    }
+    // Industry
+    var indEdit = document.getElementById('industry-edit');
+    if (indEdit && !indEdit.classList.contains('hidden')) {
+      // Commit current select value before closing
+      var sel = document.getElementById('edit-industry-select');
+      if (sel && sel.value && sel.value !== 'other') {
+        selectedIndustry = sel.value;
+        selectedIndustryLabel = industryLabels[sel.value] || '';
+        var rev = document.getElementById('review-industry');
+        if (rev) rev.textContent = selectedIndustryLabel || '-';
+      } else if (sel && sel.value === 'other') {
+        var other = document.getElementById('edit-industry-other');
+        var otherVal = (other && other.value || '').trim();
+        if (otherVal) {
+          selectedIndustry = 'other';
+          selectedIndustryLabel = otherVal;
+          var rev2 = document.getElementById('review-industry');
+          if (rev2) rev2.textContent = otherVal;
+        }
+      }
+      toggleEditIndustry();
+    }
+    // State
+    var stateEdit = document.getElementById('state-edit');
+    if (stateEdit && !stateEdit.classList.contains('hidden')) {
+      var stateSel = document.getElementById('edit-state-select');
+      if (stateSel && stateSel.value) {
+        selectedState = stateSel.value;
+        var revState = document.getElementById('review-state');
+        if (revState) revState.textContent = stateLabels[stateSel.value] || '-';
+      }
+      toggleEditState();
+    }
+    // Owner Name
+    var oNameEdit = document.getElementById('owner-name-edit');
+    if (oNameEdit && !oNameEdit.classList.contains('hidden')) {
+      toggleEditOwnerName();
+    }
+    // Owner Address
+    var oAddrEdit = document.getElementById('owner-address-edit');
+    if (oAddrEdit && !oAddrEdit.classList.contains('hidden')) {
+      toggleEditOwnerAddress();
+    }
+  }
+  
   function openContactModal() {
+    // === Update 2 fix: commit all open Step 5 edits before opening modal ===
+    // Without this, user edits on Review screen don't propagate to webhooks/Stripe
+    commitAllStep5Edits();
+    
     document.getElementById('contact-modal').classList.remove('hidden');
     document.body.style.overflow='hidden';
     // Reset error state - korisnik tek otvorio modal, polja nisu još "touched"
