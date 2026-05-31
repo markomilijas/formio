@@ -4719,7 +4719,10 @@ function generateUniqueId() {
     if (sidebar) sidebar.style.display = 'none';
     if (mainEl) { mainEl.style.marginLeft = '0'; mainEl.classList.remove('md:ml-[420px]'); }
 
-    var name = llcName ? llcName + ' LLC' : 'your LLC';
+    // Use latest LLC name from Final Review form (user may have edited it in sub-8g)
+    var frLlcInput = document.getElementById('fr-llc-name');
+    var latestLlcName = frLlcInput && frLlcInput.value ? frLlcInput.value.replace(/\s*LLC\s*$/i, '').trim() : llcName;
+    var name = latestLlcName ? latestLlcName + ' LLC' : 'your LLC';
     // Use latest email from Final Review form (user may have edited it in sub-8e/Review)
     // Falls back to modalEmail (which may be stale if user changed it later)
     var frEmailInput = document.getElementById('fr-email');
