@@ -3198,6 +3198,11 @@
   function checkStep5Btn() {
     var termsCheckbox = document.getElementById('step5-terms-checkbox');
     var termsAccepted = termsCheckbox ? termsCheckbox.checked : false;
+    if (termsAccepted && !agreeReviewAcceptedAt) {
+      agreeReviewAcceptedAt = new Date().toISOString();
+    } else if (!termsAccepted) {
+      agreeReviewAcceptedAt = '';
+    }
     document.getElementById('btn-5').disabled = !termsAccepted;
   }
 
@@ -3671,6 +3676,9 @@ function generateUniqueId() {
         stage: 'contact_captured',
         terms_accepted: true,
         terms_accepted_at: new Date().toISOString(),
+        // Agree #1 - Review your details (Step 5)
+        agree_review_accepted: !!agreeReviewAcceptedAt,
+        agree_review_accepted_at: agreeReviewAcceptedAt || '',
         timestamp: new Date().toISOString(),
         session_id: getSessionId(),
         
@@ -3769,6 +3777,10 @@ function generateUniqueId() {
         timestamp: new Date().toISOString(),
         session_id: (typeof getSessionId === 'function' ? getSessionId() : ''),
         payment_intent_id: paymentIntentId || '',
+        
+        // Agree #1 - Review your details (Step 5) - true at this stage
+        agree_review_accepted: !!agreeReviewAcceptedAt,
+        agree_review_accepted_at: agreeReviewAcceptedAt || '',
         
         // Onboarding URL (glavna stvar zbog koje ovaj submit postoji)
         onboarding_url: onboardingUrl,
@@ -4711,7 +4723,11 @@ function generateUniqueId() {
   }
 
   // Globalna varijabla za pamcenje timestamp-a kad je korisnik prihvatio finalni consent
+  // Globalna varijabla za pamcenje timestamp-a kad je korisnik prihvatio finalni consent
   var legalConsentAcceptedAt = null;
+  
+  // Globalna varijabla za pamcenje timestamp-a kad je korisnik prihvatio Step 5 Review consent
+  var agreeReviewAcceptedAt = '';
   
   function toggleFinalConfirm(event) {
     // Ignoriši ako je klik bio na linku unutar checkbox box-a (npr. Refund Policy)
@@ -5033,12 +5049,20 @@ function generateUniqueId() {
       fd.append('session_id', getSessionId());
       fd.append('terms_accepted', 'true');
       
+      // Agree #1 - Review your details (Step 5)
+      fd.append('agree_review_accepted', agreeReviewAcceptedAt ? 'true' : 'false');
+      fd.append('agree_review_accepted_at', agreeReviewAcceptedAt || '');
+      
       // Legal consent (electronic signature) - klijentov tekst
       var legalConsentText = 'I confirm that the information provided is true, correct, and complete to the best of my knowledge, as required for IRS submissions under penalty of perjury. I authorize Formio.biz (operated by Otvori LLC) to act as my Organizer for state filings, as my Third Party Designee on IRS Form SS-4 to apply for my EIN, and to share my information with registered agents and service providers as needed to complete the registration. I understand that once filing begins, certain fees are non-refundable per the Refund Policy. This checkbox is my electronic signature.';
       fd.append('legal_consent_accepted', 'true');
       fd.append('legal_consent_text', legalConsentText);
       fd.append('legal_consent_accepted_at', legalConsentAcceptedAt || new Date().toISOString());
       fd.append('legal_consent_signature_type', 'electronic_checkbox');
+      
+      // Agree #3 - Final submit (alias za legal_consent_* za konzistentno imenovanje u Make/GHL/Supabase)
+      fd.append('agree_final_accepted', 'true');
+      fd.append('agree_final_accepted_at', legalConsentAcceptedAt || new Date().toISOString());
       
       // Kontakt
       fd.append('email', frEmail);
