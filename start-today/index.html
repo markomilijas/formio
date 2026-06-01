@@ -662,10 +662,22 @@
     transform-origin: top center;
     will-change: transform;
   }
+  
+  /* MODERNI BROWSERI: CSS scroll-driven animation - radi na compositor thread-u, BEZ JANK-A */
+  @supports (animation-timeline: view()) {
     @keyframes tl-fill-grow {
       from { transform: translateX(-50%) scaleY(0); }
       to   { transform: translateX(-50%) scaleY(1); }
     }
+    .tl-fill-line {
+      animation: tl-fill-grow linear both;
+      /* view() prati visibility ovog elementa kroz viewport - radi smooth jer je fill-line dugacka linija */
+      animation-timeline: view();
+      /* contain 0% = pocetak kad je element potpuno vidljiv,
+         contain 100% = kraj kad pocinje da izlazi sa vrha */
+      animation-range: cover 45vh cover calc(100% - 45vh);
+    }
+  }
 
   .tl-step {
     position: relative; max-width: 890px; margin: 0 auto;
