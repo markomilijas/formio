@@ -533,7 +533,7 @@
         <!-- ===== WIDGET: Stripe - on the globe, upper-right ===== -->
         <div style="position:absolute; top:106px; right:18px; background:white; border:1px solid rgba(0,0,0,0.07); border-radius:14px; box-shadow:0 6px 20px rgba(0,0,0,0.10); padding:10px 15px; display:flex; align-items:center; gap:10px; z-index:20; white-space:nowrap;">
           <div style="width:34px; height:34px; background:#ede9fe; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden;">
-            <img src="logos/stripe.svg" alt="Stripe" style="width:20px; height:auto;">
+            <img src="/logos/stripe.svg" alt="Stripe" style="width:20px; height:auto;">
           </div>
           <div>
             <p style="font-size:13px; font-weight:700; color:#111; margin:0; line-height:1.3;">Stripe</p>
@@ -544,7 +544,7 @@
         <!-- ===== WIDGET: Mercury - on the globe, lower-right ===== -->
         <div style="position:absolute; bottom:106px; right:18px; background:white; border:1px solid rgba(0,0,0,0.07); border-radius:14px; box-shadow:0 6px 20px rgba(0,0,0,0.10); padding:10px 15px; display:flex; align-items:center; gap:10px; z-index:20; white-space:nowrap;">
           <div style="width:34px; height:34px; background:#dcfce7; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden;">
-            <img src="logos/mercury.svg" alt="Mercury" style="width:20px; height:auto;">
+            <img src="/logos/mercury.svg" alt="Mercury" style="width:20px; height:auto;">
           </div>
           <div>
             <p style="font-size:13px; font-weight:700; color:#111; margin:0; line-height:1.3;">Mercury</p>
@@ -582,34 +582,34 @@
     <!-- Slider track - items duplicated for seamless loop -->
     <div class="logo-slider-track">
       <!-- SET 1 -->
-      <div class="logo-slide-item"><img src="logos/stripe.svg"   alt="Stripe"   /></div>
+      <div class="logo-slide-item"><img src="/logos/stripe.svg"   alt="Stripe"   /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/paypal.png"   alt="PayPal"   /></div>
+      <div class="logo-slide-item"><img src="/logos/paypal.png"   alt="PayPal"   /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/wise.svg"     alt="Wise"     /></div>
+      <div class="logo-slide-item"><img src="/logos/wise.svg"     alt="Wise"     /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/payoneer.svg" alt="Payoneer" /></div>
+      <div class="logo-slide-item"><img src="/logos/payoneer.svg" alt="Payoneer" /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/mercury.svg"  alt="Mercury"  /></div>
+      <div class="logo-slide-item"><img src="/logos/mercury.svg"  alt="Mercury"  /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/relay.svg"    alt="Relay"    /></div>
+      <div class="logo-slide-item"><img src="/logos/relay.svg"    alt="Relay"    /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/fanbasis.avif" alt="Fanbasis" /></div>
+      <div class="logo-slide-item"><img src="/logos/fanbasis.avif" alt="Fanbasis" /></div>
       <div class="logo-divider"></div>
       <!-- SET 2 (duplicate for seamless loop) -->
-      <div class="logo-slide-item"><img src="logos/stripe.svg"   alt="Stripe"   /></div>
+      <div class="logo-slide-item"><img src="/logos/stripe.svg"   alt="Stripe"   /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/paypal.png"   alt="PayPal"   /></div>
+      <div class="logo-slide-item"><img src="/logos/paypal.png"   alt="PayPal"   /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/wise.svg"     alt="Wise"     /></div>
+      <div class="logo-slide-item"><img src="/logos/wise.svg"     alt="Wise"     /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/payoneer.svg" alt="Payoneer" /></div>
+      <div class="logo-slide-item"><img src="/logos/payoneer.svg" alt="Payoneer" /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/mercury.svg"  alt="Mercury"  /></div>
+      <div class="logo-slide-item"><img src="/logos/mercury.svg"  alt="Mercury"  /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/relay.svg"    alt="Relay"    /></div>
+      <div class="logo-slide-item"><img src="/logos/relay.svg"    alt="Relay"    /></div>
       <div class="logo-divider"></div>
-      <div class="logo-slide-item"><img src="logos/fanbasis.avif" alt="Fanbasis" /></div>
+      <div class="logo-slide-item"><img src="/logos/fanbasis.avif" alt="Fanbasis" /></div>
       <div class="logo-divider"></div>
     </div>
   </div>
@@ -1076,28 +1076,6 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script>
 (function() {
-  if (!window.__visFlag) {
-    /* Returns {v:bool} updated by IntersectionObserver. Resumes one viewport early
-       (rootMargin 100%) so loops are already running before they're visible.
-       Fail-safe: keeps running if IO unsupported. */
-    window.__visFlag = function(el, margin){
-      var f = { v: true };
-      if (!('IntersectionObserver' in window) || !el) return f;
-      try {
-        var io = new IntersectionObserver(function(en){ f.v = en[0].isIntersecting; }, { rootMargin: (margin || '100%') + ' 0px' });
-        io.observe(el);
-      } catch(e){}
-      return f;
-    };
-  }
-  /* PERF quality profile for the heavy dim background canvases. They sit behind a
-     0.58-opacity wrapper + darkening overlay, so a lower render resolution and lower
-     frame rate are visually identical while cutting CPU sharply. Coarse-pointer
-     (touch/mobile) gets the lightest profile. */
-  if (!window.__cshQ) {
-    var __coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
-    window.__cshQ = __coarse ? { dpr: 1.25, frameMs: 1000/24 } : { dpr: 1.5, frameMs: 1000/30 };
-  }
   var globes = document.querySelectorAll('.csh-globe');
   var coins  = document.querySelectorAll('.csh-coin');
   var warns  = document.querySelectorAll('.csh-warn');
@@ -1116,7 +1094,7 @@
   function initGlobe(canvas, offset) {
     var vmin = Math.min(window.innerWidth, window.innerHeight);
     var size = Math.round(Math.min(vmin * 0.92, 740));
-    var dpr = Math.min(window.devicePixelRatio || 1, (window.__cshQ ? window.__cshQ.dpr : 1.5));
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = size * dpr;
     canvas.height = size * dpr;
 
@@ -1180,12 +1158,7 @@
       ctx.stroke();
     }
 
-    var __gv = window.__visFlag(canvas);
-    var __gLast = -1e9, __gMs = window.__cshQ ? window.__cshQ.frameMs : 33;
     d3.timer(function(elapsed) {
-      if (!__gv.v) return;
-      if (elapsed - __gLast < __gMs) return;
-      __gLast = elapsed;
       rotation[0] = startLon + elapsed * 0.018;
       projection.rotate(rotation);
       drawFrame();
@@ -1219,7 +1192,7 @@
   function initCoin(canvas, dollarPts) {
     var vmin = Math.min(window.innerWidth, window.innerHeight);
     var size = Math.round(Math.min(vmin * 0.92, 740));
-    var dpr = Math.min(window.devicePixelRatio || 1, (window.__cshQ ? window.__cshQ.dpr : 1.5));
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = size * dpr;
     canvas.height = size * dpr;
 
@@ -1323,9 +1296,7 @@
       ctx.stroke();
     }
 
-    var __cv = window.__visFlag(canvas);
-    var __cLast = -1e9, __cMs = window.__cshQ ? window.__cshQ.frameMs : 33;
-    d3.timer(function(__t){ if (!__cv.v) return; if (__t - __cLast < __cMs) return; __cLast = __t; drawCoin(__t); });
+    d3.timer(drawCoin);
   }
 
   /* ===== Warning symbol: rounded triangle outline + exclamation ===== */
@@ -1439,7 +1410,7 @@
   function initWarn(canvas, triPts, excPts) {
     var vmin = Math.min(window.innerWidth, window.innerHeight);
     var size = Math.round(Math.min(vmin * 0.92, 740));
-    var dpr = Math.min(window.devicePixelRatio || 1, (window.__cshQ ? window.__cshQ.dpr : 1.5));
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = size * dpr;
     canvas.height = size * dpr;
 
@@ -1570,9 +1541,7 @@
       }
     }
 
-    var __wv = window.__visFlag(canvas);
-    var __wLast = -1e9, __wMs = window.__cshQ ? window.__cshQ.frameMs : 33;
-    d3.timer(function(__t){ if (!__wv.v) return; if (__t - __wLast < __wMs) return; __wLast = __t; drawWarn(__t); });
+    d3.timer(drawWarn);
   }
 
   globes.forEach(function(c, i) { initGlobe(c, i); });
@@ -3869,12 +3838,12 @@
 
     <div class="legacy-handoff">
       <div class="handoff-avatars" aria-hidden="true">
-        <img src="testemonial_pictures/Sandra.png" alt="" />
-        <img src="testemonial_pictures/Milos.png" alt="" />
-        <img src="testemonial_pictures/Marko.png" alt="" />
-        <img src="testemonial_pictures/Mai.png" alt="" />
-        <img src="testemonial_pictures/Stefan.png" alt="" />
-        <img src="testemonial_pictures/Luka.png" alt="" />
+        <img src="/testemonial_pictures/Sandra.png" alt="" />
+        <img src="/testemonial_pictures/Milos.png" alt="" />
+        <img src="/testemonial_pictures/Marko.png" alt="" />
+        <img src="/testemonial_pictures/Mai.png" alt="" />
+        <img src="/testemonial_pictures/Stefan.png" alt="" />
+        <img src="/testemonial_pictures/Luka.png" alt="" />
         <span class="handoff-avatars-more">+294</span>
       </div>
       <h3 class="handoff-title">These Are Just Some of the <em>1300+ Entrepreneurs We've Helped</em> Go Global With a US LLC</h3>
@@ -3898,7 +3867,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"Communication and ease of the process is the biggest benefit with you guys - you handled 99.9% of everything and it was all done in less than a month."</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Sandra.png" alt="Miriam" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Sandra.png" alt="Miriam" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Miriam</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Digital Products</p>
@@ -3908,7 +3877,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"Everything went smooth as silk - I got all answers very quickly in the Telegram group and you never bothered me with unnecessary information."</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Milos.png" alt="David" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Milos.png" alt="David" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">David</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Video Production</p>
@@ -3918,7 +3887,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"Your team's overall support was excellent - I always had the feeling that I was in safe hands!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Mai.png" alt="Mai" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Mai.png" alt="Mai" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Mai</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">SaaS</p>
@@ -3929,7 +3898,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"Communication and ease of the process is the biggest benefit with you guys - you handled 99.9% of everything and it was all done in less than a month."</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Sandra.png" alt="Miriam" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Sandra.png" alt="Miriam" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Miriam</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Digital Products</p>
@@ -3939,7 +3908,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"Everything went smooth as silk - I got all answers very quickly in the Telegram group and you never bothered me with unnecessary information."</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Milos.png" alt="David" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Milos.png" alt="David" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">David</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Video Production</p>
@@ -3949,7 +3918,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"Your team's overall support was excellent - I always had the feeling that I was in safe hands!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Mai.png" alt="Mai" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Mai.png" alt="Mai" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Mai</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">SaaS</p>
@@ -3966,7 +3935,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"The team quickly answered every question I had and provided support even after the LLC was opened!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Luka.png" alt="James" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Luka.png" alt="James" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">James</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Marketing Agency</p>
@@ -3976,7 +3945,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"You saved me a lot of time - you handled everything from start to finish, which gave me more space to focus on developing my app."</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Zvazdan.png" alt="Thomas" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Zvazdan.png" alt="Thomas" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Thomas</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">IT Development</p>
@@ -3986,7 +3955,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"The whole process was very fast and easy - I just had to submit my information and that was it!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Jovan.png" alt="Jovan" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Jovan.png" alt="Jovan" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Jovan</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Sports Consulting</p>
@@ -3997,7 +3966,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"The team quickly answered every question I had and provided support even after the LLC was opened!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Luka.png" alt="James" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Luka.png" alt="James" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">James</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Marketing Agency</p>
@@ -4007,7 +3976,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"You saved me a lot of time - you handled everything from start to finish, which gave me more space to focus on developing my app."</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Zvazdan.png" alt="Thomas" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Zvazdan.png" alt="Thomas" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Thomas</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">IT Development</p>
@@ -4017,7 +3986,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"The whole process was very fast and easy - I just had to submit my information and that was it!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Jovan.png" alt="Jovan" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Jovan.png" alt="Jovan" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Jovan</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Sports Consulting</p>
@@ -4034,7 +4003,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"The entire procedure was very simple - it really means a lot that I went through it all with you. Everything was done with a single signature!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Marko.png" alt="Alexander" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Marko.png" alt="Alexander" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Alexander</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Photo & Video Production</p>
@@ -4044,7 +4013,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"You took care of everything - I didn't have to think about a single thing, and it was all done very quickly!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Zaklina.png" alt="Layla" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Zaklina.png" alt="Layla" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Layla</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Psychologist</p>
@@ -4054,7 +4023,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"Your team's overall support was excellent - I always had the feeling that I was in safe hands!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Stefan.png" alt="Stefan" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Stefan.png" alt="Stefan" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Stefan</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">E-commerce</p>
@@ -4065,7 +4034,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"The entire procedure was very simple - it really means a lot that I went through it all with you. Everything was done with a single signature!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Marko.png" alt="Alexander" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Marko.png" alt="Alexander" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Alexander</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Photo & Video Production</p>
@@ -4075,7 +4044,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"You took care of everything - I didn't have to think about a single thing, and it was all done very quickly!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Zaklina.png" alt="Layla" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Zaklina.png" alt="Layla" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Layla</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">Psychologist</p>
@@ -4085,7 +4054,7 @@
           <div class="p-8 rounded-3xl border border-gray-100 shadow-lg shadow-black/5 w-72 bg-white">
             <p class="text-sm leading-relaxed text-gray-700">"Your team's overall support was excellent - I always had the feeling that I was in safe hands!"</p>
             <div class="flex items-center gap-3 mt-5">
-              <img src="testemonial_pictures/Stefan.png" alt="Stefan" class="w-14 h-14 rounded-full object-cover">
+              <img src="/testemonial_pictures/Stefan.png" alt="Stefan" class="w-14 h-14 rounded-full object-cover">
               <div>
                 <p class="font-semibold text-sm tracking-tight leading-5">Stefan</p>
                 <p class="text-xs text-gray-500 tracking-tight leading-5">E-commerce</p>
@@ -4185,34 +4154,34 @@
       <div class="logo-slider-inner">
         <div class="logo-slider-track">
         <!-- SET 1 -->
-        <div class="logo-slide-item"><img src="logos/stripe.svg"   alt="Stripe"   /></div>
+        <div class="logo-slide-item"><img src="/logos/stripe.svg"   alt="Stripe"   /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/paypal.png"   alt="PayPal"   /></div>
+        <div class="logo-slide-item"><img src="/logos/paypal.png"   alt="PayPal"   /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/wise.svg"     alt="Wise"     /></div>
+        <div class="logo-slide-item"><img src="/logos/wise.svg"     alt="Wise"     /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/payoneer.svg" alt="Payoneer" /></div>
+        <div class="logo-slide-item"><img src="/logos/payoneer.svg" alt="Payoneer" /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/mercury.svg"  alt="Mercury"  /></div>
+        <div class="logo-slide-item"><img src="/logos/mercury.svg"  alt="Mercury"  /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/relay.svg"    alt="Relay"    /></div>
+        <div class="logo-slide-item"><img src="/logos/relay.svg"    alt="Relay"    /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/fanbasis.avif" alt="Fanbasis" /></div>
+        <div class="logo-slide-item"><img src="/logos/fanbasis.avif" alt="Fanbasis" /></div>
         <div class="logo-divider"></div>
         <!-- SET 2 (duplicate for seamless loop) -->
-        <div class="logo-slide-item"><img src="logos/stripe.svg"   alt="Stripe"   /></div>
+        <div class="logo-slide-item"><img src="/logos/stripe.svg"   alt="Stripe"   /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/paypal.png"   alt="PayPal"   /></div>
+        <div class="logo-slide-item"><img src="/logos/paypal.png"   alt="PayPal"   /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/wise.svg"     alt="Wise"     /></div>
+        <div class="logo-slide-item"><img src="/logos/wise.svg"     alt="Wise"     /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/payoneer.svg" alt="Payoneer" /></div>
+        <div class="logo-slide-item"><img src="/logos/payoneer.svg" alt="Payoneer" /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/mercury.svg"  alt="Mercury"  /></div>
+        <div class="logo-slide-item"><img src="/logos/mercury.svg"  alt="Mercury"  /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/relay.svg"    alt="Relay"    /></div>
+        <div class="logo-slide-item"><img src="/logos/relay.svg"    alt="Relay"    /></div>
         <div class="logo-divider"></div>
-        <div class="logo-slide-item"><img src="logos/fanbasis.avif" alt="Fanbasis" /></div>
+        <div class="logo-slide-item"><img src="/logos/fanbasis.avif" alt="Fanbasis" /></div>
         <div class="logo-divider"></div>
         </div>
       </div>
@@ -4895,9 +4864,7 @@
     if (!card) return;
     var hovered = false;
     var px = 5, py = -8, vx = 0.09, vy = 0.14, raf;
-    var __ccv = window.__visFlag(card);
     function autoRotate() {
-      if (!__ccv.v) { raf = requestAnimationFrame(autoRotate); return; }
       if (hovered) return;
       px += vx; py += vy;
       if (Math.abs(px) > 12) vx *= -1;
@@ -5008,22 +4975,6 @@
       ro.observe(canvas);
     }
   }
-</script>
-<script>
-/* PERF: pause off-screen CSS infinite animations. Resumes one viewport early.
-   Sets inline 'paused' when off-screen; clears inline when on-screen so the
-   existing :hover { animation-play-state: paused } rules still work. */
-(function(){
-  if (!('IntersectionObserver' in window)) return;
-  var els = document.querySelectorAll('.tc-track, .logo-slider-track, .cn-nebula1, .cn-nebula2, .cn-stars-drift, .cn-holo');
-  if (!els.length) return;
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(en){
-      en.target.style.animationPlayState = en.isIntersecting ? '' : 'paused';
-    });
-  }, { rootMargin: '100% 0px' });
-  els.forEach(function(el){ io.observe(el); });
-})();
 </script>
 </body>
 </html>
