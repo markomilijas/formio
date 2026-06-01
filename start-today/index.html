@@ -1090,6 +1090,14 @@
       return f;
     };
   }
+  /* PERF quality profile for the heavy dim background canvases. They sit behind a
+     0.58-opacity wrapper + darkening overlay, so a lower render resolution and lower
+     frame rate are visually identical while cutting CPU sharply. Coarse-pointer
+     (touch/mobile) gets the lightest profile. */
+  if (!window.__cshQ) {
+    var __coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    window.__cshQ = __coarse ? { dpr: 1.25, frameMs: 1000/24 } : { dpr: 1.5, frameMs: 1000/30 };
+  }
   var globes = document.querySelectorAll('.csh-globe');
   var coins  = document.querySelectorAll('.csh-coin');
   var warns  = document.querySelectorAll('.csh-warn');
@@ -1108,7 +1116,7 @@
   function initGlobe(canvas, offset) {
     var vmin = Math.min(window.innerWidth, window.innerHeight);
     var size = Math.round(Math.min(vmin * 0.92, 740));
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dpr = Math.min(window.devicePixelRatio || 1, (window.__cshQ ? window.__cshQ.dpr : 1.5));
     canvas.width = size * dpr;
     canvas.height = size * dpr;
 
@@ -1173,8 +1181,11 @@
     }
 
     var __gv = window.__visFlag(canvas);
+    var __gLast = -1e9, __gMs = window.__cshQ ? window.__cshQ.frameMs : 33;
     d3.timer(function(elapsed) {
       if (!__gv.v) return;
+      if (elapsed - __gLast < __gMs) return;
+      __gLast = elapsed;
       rotation[0] = startLon + elapsed * 0.018;
       projection.rotate(rotation);
       drawFrame();
@@ -1208,7 +1219,7 @@
   function initCoin(canvas, dollarPts) {
     var vmin = Math.min(window.innerWidth, window.innerHeight);
     var size = Math.round(Math.min(vmin * 0.92, 740));
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dpr = Math.min(window.devicePixelRatio || 1, (window.__cshQ ? window.__cshQ.dpr : 1.5));
     canvas.width = size * dpr;
     canvas.height = size * dpr;
 
@@ -1313,7 +1324,8 @@
     }
 
     var __cv = window.__visFlag(canvas);
-    d3.timer(function(__t){ if (__cv.v) drawCoin(__t); });
+    var __cLast = -1e9, __cMs = window.__cshQ ? window.__cshQ.frameMs : 33;
+    d3.timer(function(__t){ if (!__cv.v) return; if (__t - __cLast < __cMs) return; __cLast = __t; drawCoin(__t); });
   }
 
   /* ===== Warning symbol: rounded triangle outline + exclamation ===== */
@@ -1427,7 +1439,7 @@
   function initWarn(canvas, triPts, excPts) {
     var vmin = Math.min(window.innerWidth, window.innerHeight);
     var size = Math.round(Math.min(vmin * 0.92, 740));
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dpr = Math.min(window.devicePixelRatio || 1, (window.__cshQ ? window.__cshQ.dpr : 1.5));
     canvas.width = size * dpr;
     canvas.height = size * dpr;
 
@@ -1559,7 +1571,8 @@
     }
 
     var __wv = window.__visFlag(canvas);
-    d3.timer(function(__t){ if (__wv.v) drawWarn(__t); });
+    var __wLast = -1e9, __wMs = window.__cshQ ? window.__cshQ.frameMs : 33;
+    d3.timer(function(__t){ if (!__wv.v) return; if (__t - __wLast < __wMs) return; __wLast = __t; drawWarn(__t); });
   }
 
   globes.forEach(function(c, i) { initGlobe(c, i); });
