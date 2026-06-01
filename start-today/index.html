@@ -1076,6 +1076,20 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script>
 (function() {
+  if (!window.__visFlag) {
+    /* Returns {v:bool} updated by IntersectionObserver. Resumes one viewport early
+       (rootMargin 100%) so loops are already running before they're visible.
+       Fail-safe: keeps running if IO unsupported. */
+    window.__visFlag = function(el, margin){
+      var f = { v: true };
+      if (!('IntersectionObserver' in window) || !el) return f;
+      try {
+        var io = new IntersectionObserver(function(en){ f.v = en[0].isIntersecting; }, { rootMargin: (margin || '100%') + ' 0px' });
+        io.observe(el);
+      } catch(e){}
+      return f;
+    };
+  }
   var globes = document.querySelectorAll('.csh-globe');
   var coins  = document.querySelectorAll('.csh-coin');
   var warns  = document.querySelectorAll('.csh-warn');
@@ -1158,7 +1172,9 @@
       ctx.stroke();
     }
 
+    var __gv = window.__visFlag(canvas);
     d3.timer(function(elapsed) {
+      if (!__gv.v) return;
       rotation[0] = startLon + elapsed * 0.018;
       projection.rotate(rotation);
       drawFrame();
@@ -1296,7 +1312,8 @@
       ctx.stroke();
     }
 
-    d3.timer(drawCoin);
+    var __cv = window.__visFlag(canvas);
+    d3.timer(function(__t){ if (__cv.v) drawCoin(__t); });
   }
 
   /* ===== Warning symbol: rounded triangle outline + exclamation ===== */
@@ -1541,7 +1558,8 @@
       }
     }
 
-    d3.timer(drawWarn);
+    var __wv = window.__visFlag(canvas);
+    d3.timer(function(__t){ if (__wv.v) drawWarn(__t); });
   }
 
   globes.forEach(function(c, i) { initGlobe(c, i); });
@@ -4864,7 +4882,9 @@
     if (!card) return;
     var hovered = false;
     var px = 5, py = -8, vx = 0.09, vy = 0.14, raf;
+    var __ccv = window.__visFlag(card);
     function autoRotate() {
+      if (!__ccv.v) { raf = requestAnimationFrame(autoRotate); return; }
       if (hovered) return;
       px += vx; py += vy;
       if (Math.abs(px) > 12) vx *= -1;
@@ -4975,6 +4995,22 @@
       ro.observe(canvas);
     }
   }
+</script>
+<script>
+/* PERF: pause off-screen CSS infinite animations. Resumes one viewport early.
+   Sets inline 'paused' when off-screen; clears inline when on-screen so the
+   existing :hover { animation-play-state: paused } rules still work. */
+(function(){
+  if (!('IntersectionObserver' in window)) return;
+  var els = document.querySelectorAll('.tc-track, .logo-slider-track, .cn-nebula1, .cn-nebula2, .cn-stars-drift, .cn-holo');
+  if (!els.length) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      en.target.style.animationPlayState = en.isIntersecting ? '' : 'paused';
+    });
+  }, { rootMargin: '100% 0px' });
+  els.forEach(function(el){ io.observe(el); });
+})();
 </script>
 </body>
 </html>
