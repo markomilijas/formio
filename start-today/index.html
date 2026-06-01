@@ -68,7 +68,7 @@
     /* ===== LOGO SLIDER ===== */
     @keyframes logo-scroll {
       0%   { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
+      100% { transform: translateX(-25%); }
     }
     .logo-slider-track {
       display: flex;
@@ -611,6 +611,37 @@
       <div class="logo-divider"></div>
       <div class="logo-slide-item"><img src="/logos/fanbasis.avif" alt="Fanbasis" /></div>
       <div class="logo-divider"></div>
+    
+      <!-- SET 1 -->
+      <div class="logo-slide-item"><img src="/logos/stripe.svg"   alt="Stripe"   /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/paypal.png"   alt="PayPal"   /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/wise.svg"     alt="Wise"     /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/payoneer.svg" alt="Payoneer" /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/mercury.svg"  alt="Mercury"  /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/relay.svg"    alt="Relay"    /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/fanbasis.avif" alt="Fanbasis" /></div>
+      <div class="logo-divider"></div>
+      <!-- SET 2 (duplicate for seamless loop) -->
+      <div class="logo-slide-item"><img src="/logos/stripe.svg"   alt="Stripe"   /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/paypal.png"   alt="PayPal"   /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/wise.svg"     alt="Wise"     /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/payoneer.svg" alt="Payoneer" /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/mercury.svg"  alt="Mercury"  /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/relay.svg"    alt="Relay"    /></div>
+      <div class="logo-divider"></div>
+      <div class="logo-slide-item"><img src="/logos/fanbasis.avif" alt="Fanbasis" /></div>
+      <div class="logo-divider"></div>
     </div>
   </div>
 </section>
@@ -622,12 +653,19 @@
 
   /* Fill line - gradient, pill-shaped */
   .tl-fill-line {
-    position: absolute; left: 50%; transform: translateX(-50%);
-    top: 0; width: 5px; height: 0;
+    position: absolute; left: 50%;
+    top: 0; width: 5px; height: 100%;
     background: linear-gradient(to bottom, #1D44E7, #1D44E7);
-    z-index: 2; transition: height 0.08s linear;
+    z-index: 2;
     pointer-events: none; border-radius: 10px;
+    transform: translateX(-50%) scaleY(0);
+    transform-origin: top center;
+    will-change: transform;
   }
+    @keyframes tl-fill-grow {
+      from { transform: translateX(-50%) scaleY(0); }
+      to   { transform: translateX(-50%) scaleY(1); }
+    }
 
   .tl-step {
     position: relative; max-width: 890px; margin: 0 auto;
@@ -2968,21 +3006,81 @@
   const fillLine = document.getElementById('tl-fill');
   const wrap = document.querySelector('.tl-steps-wrap');
 
-  function updateTimeline() {
-    if (!wrap || !fillLine || steps.length === 0) return;
-    const wrapTop  = wrap.getBoundingClientRect().top + window.scrollY;
-    const viewH    = window.innerHeight;
-    const trigger  = viewH * 0.55;
-    const fillHeight = Math.max(0, Math.min(wrap.offsetHeight, window.scrollY + trigger - wrapTop));
-    fillLine.style.height = fillHeight + 'px';
-    steps.forEach(function(step) {
-      step.classList.toggle('tl-active', step.getBoundingClientRect().top < viewH * 0.60);
+  // Detektuj da li browser podrzava CSS scroll-driven animations
+  const supportsScrollTimeline = CSS.supports('animation-timeline: view()');
+  
+  // Cache pozicija
+  let cachedWrapTop = 0;
+  let cachedWrapHeight = 0;
+  let cachedViewH = 0;
+  let cachedStepOffsets = []; // pozicije kruzica unutar wrap-a (top each step)
+  
+  function recalcTimelineBounds() {
+    if (!wrap) return;
+    cachedWrapTop = wrap.getBoundingClientRect().top + window.scrollY;
+    cachedWrapHeight = wrap.offsetHeight;
+    cachedViewH = window.innerHeight;
+    
+    // Izmeri offset svakog .tl-step relativno na wrap (gde se kruzic nalazi)
+    cachedStepOffsets = steps.map(function(step) {
+      return step.offsetTop; // offsetTop je u odnosu na wrap (parent)
     });
   }
+  
+  // Glavna funkcija - radi i fill liniju i kruzice u sinhronizaciji
+  function updateTimeline() {
+    if (!wrap || !fillLine || cachedWrapHeight === 0) return;
+    
+    // Izracunaj fill height (koliko je linija "puna" u px-ima)
+    const trigger = cachedViewH * 0.55;
+    const fillHeight = Math.max(0, Math.min(cachedWrapHeight, window.scrollY + trigger - cachedWrapTop));
+    
+    // Postavi transformu linije (samo ako CSS scroll-timeline NIJE podrzan)
+    if (!supportsScrollTimeline) {
+      const scale = fillHeight / cachedWrapHeight;
+      fillLine.style.transform = 'translateX(-50%) scaleY(' + scale + ')';
+    }
+    
+    // Sinhronizuj kruzice sa fill linijom
+    // Svaki kruzic je aktivan AKO je fillHeight stigao do njegove pozicije
+    steps.forEach(function(step, i) {
+      const stepOffset = cachedStepOffsets[i];
+      // Margin od ~5px da kruzic ne treperi tacno na granici
+      if (fillHeight >= stepOffset + 5) {
+        step.classList.add('tl-active');
+      } else {
+        step.classList.remove('tl-active');
+      }
+    });
+  }
+  
+  // Throttle preko requestAnimationFrame
+  let tlScrollTicking = false;
+  function tlOnScroll() {
+    if (!tlScrollTicking) {
+      window.requestAnimationFrame(function() {
+        updateTimeline();
+        tlScrollTicking = false;
+      });
+      tlScrollTicking = true;
+    }
+  }
 
-  window.addEventListener('scroll', updateTimeline, { passive: true });
-  window.addEventListener('resize', updateTimeline, { passive: true });
+  window.addEventListener('scroll', tlOnScroll, { passive: true });
+  window.addEventListener('resize', function() {
+    recalcTimelineBounds();
+    tlOnScroll();
+  }, { passive: true });
+  
+  // Inicijalno
+  recalcTimelineBounds();
   updateTimeline();
+  
+  // Recompute kad page završi load (slike, fontovi)
+  window.addEventListener('load', function() {
+    recalcTimelineBounds();
+    updateTimeline();
+  });
 })();
 </script>
 
@@ -4153,6 +4251,37 @@
     <div class="logo-slider mb-14 pricing-logos" style="--logo-fade:#0A0A0A;">
       <div class="logo-slider-inner">
         <div class="logo-slider-track">
+        <!-- SET 1 -->
+        <div class="logo-slide-item"><img src="/logos/stripe.svg"   alt="Stripe"   /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/paypal.png"   alt="PayPal"   /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/wise.svg"     alt="Wise"     /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/payoneer.svg" alt="Payoneer" /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/mercury.svg"  alt="Mercury"  /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/relay.svg"    alt="Relay"    /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/fanbasis.avif" alt="Fanbasis" /></div>
+        <div class="logo-divider"></div>
+        <!-- SET 2 (duplicate for seamless loop) -->
+        <div class="logo-slide-item"><img src="/logos/stripe.svg"   alt="Stripe"   /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/paypal.png"   alt="PayPal"   /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/wise.svg"     alt="Wise"     /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/payoneer.svg" alt="Payoneer" /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/mercury.svg"  alt="Mercury"  /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/relay.svg"    alt="Relay"    /></div>
+        <div class="logo-divider"></div>
+        <div class="logo-slide-item"><img src="/logos/fanbasis.avif" alt="Fanbasis" /></div>
+        <div class="logo-divider"></div>
+        
         <!-- SET 1 -->
         <div class="logo-slide-item"><img src="/logos/stripe.svg"   alt="Stripe"   /></div>
         <div class="logo-divider"></div>
