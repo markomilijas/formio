@@ -1595,6 +1595,7 @@
     drawWarn(0);
   }
 
+  function __cshBuild() {
   globes.forEach(function(c, i) { initGlobe(c, i); });
 
   if (coins.length) {
@@ -1614,6 +1615,8 @@
       .then(function(geojson) { landData = geojson; (window.__cshGlobeDraws || []).forEach(function(fn) { fn(); }); })
       .catch(function() { /* globe still spins without land dots */ });
   }
+  }
+  if (window.requestIdleCallback) { requestIdleCallback(__cshBuild, { timeout: 1000 }); } else { setTimeout(__cshBuild, 150); }
 })();
 </script>
 
@@ -4388,7 +4391,7 @@
     <!-- Compare table (always visible) -->
     <style>
       /* Divider heading */
-      .cmp-divider { display:flex; align-items:center; gap:20px; max-width:1280px; margin:56px auto 0; padding:0 24px; }
+      .cmp-divider { display:flex; align-items:center; gap:20px; max-width:896px; margin:56px auto 0; padding:0; }
       .cmp-divider-line { flex:1; height:1px; background:rgba(255,255,255,0.12); flex-shrink:0; }
       .cmp-divider-text {
         font-family:'Inter Tight','Inter',sans-serif;
@@ -4403,7 +4406,7 @@
       }
 
       /* Dark table */
-      .cmp-dark-wrap { max-width:1280px; margin:0 auto; padding:0 24px; }
+      .cmp-dark-wrap { max-width:896px; margin:0 auto; padding:0; }
       .cmp-dtable-shell {
         border:1px solid rgba(255,255,255,0.1);
         border-radius:20px;
@@ -5073,7 +5076,7 @@
       setTimeout(() => { taxCanvas.style.opacity = '1'; });
     }
     if (taxCanvas.offsetWidth > 0) {
-      initTaxGlobe();
+      (window.requestIdleCallback ? requestIdleCallback(function(){ initTaxGlobe(); }, { timeout: 1200 }) : setTimeout(initTaxGlobe, 200));
     } else {
       const ro = new ResizeObserver(entries => {
         if (entries[0]?.contentRect.width > 0) { ro.disconnect(); initTaxGlobe(); }
@@ -5117,7 +5120,7 @@
     }
 
     if (canvas.offsetWidth > 0) {
-      init();
+      (window.requestIdleCallback ? requestIdleCallback(function(){ init(); }, { timeout: 1200 }) : setTimeout(init, 200));
     } else {
       const ro = new ResizeObserver(entries => {
         if (entries[0]?.contentRect.width > 0) { ro.disconnect(); init(); }
