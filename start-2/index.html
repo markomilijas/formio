@@ -1633,7 +1633,7 @@
       starter: 'Get Started ' + stateAbbr + ' LLC',
       growth:  'Growth-Ready ' + stateAbbr + ' LLC'
     };
-    pkgLabels[selectedPackage] = labels[selectedPackage] + ' ($' + discounted + ')';
+    pkgLabels[selectedPackage] = labels[selectedPackage] + ' ($' + rawPrice + ')';
     
     // Update Order Summary
     var coPrice = document.getElementById('co-price');
@@ -3905,7 +3905,7 @@ function generateUniqueId() {
     var cgp = document.getElementById('cmp-growth-price'); if (cgp) cgp.textContent = growthPrice;
 
     // Update global pkg labels/prices used in checkout & review
-    pkgLabels = { starter: starterLabel + ' (' + starterPrice + ')', growth: growthLabel + ' (' + growthPrice + ')' };
+    pkgLabels = { starter: starterLabel + ' ($' + starterRaw + ')', growth: growthLabel + ' ($' + growthRaw + ')' };
     pkgPrices = { starter: starterPrice, growth: growthPrice };
 
     // Update persistent state switcher UI
