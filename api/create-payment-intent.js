@@ -23,7 +23,7 @@ const SUPABASE_TABLE = 'start_partial_submissions';
 // ⚠️ TEST MODE $1 — original LIVE values commented below. RESTORE before live launch!
 const BASE_PRICES = {
   starter: 100,  // TEST $1.00  (LIVE: 46900 = $469.00)
-  growth:  100   // TEST $1.00  (LIVE: 54900 = $549.00)
+  growth:  200   // TEST $2.00  (LIVE: 54900 = $549.00)
 };
 
 // State surcharges in cents - in USD
