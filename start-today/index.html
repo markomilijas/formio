@@ -1208,11 +1208,10 @@
       ctx.stroke();
     }
 
-    d3.timer(function(elapsed) {
-      rotation[0] = startLon + elapsed * 0.018;
-      projection.rotate(rotation);
-      drawFrame();
-    });
+    projection.rotate(rotation);
+    drawFrame();
+    window.__cshGlobeDraws = window.__cshGlobeDraws || [];
+    window.__cshGlobeDraws.push(function() { projection.rotate(rotation); drawFrame(); });
   }
 
   /* ===== Dotted dollar sign (sampled from rendered glyph) ===== */
@@ -1346,7 +1345,7 @@
       ctx.stroke();
     }
 
-    d3.timer(drawCoin);
+    drawCoin(0);
   }
 
   /* ===== Warning symbol: rounded triangle outline + exclamation ===== */
@@ -1591,7 +1590,7 @@
       }
     }
 
-    d3.timer(drawWarn);
+    drawWarn(0);
   }
 
   globes.forEach(function(c, i) { initGlobe(c, i); });
@@ -1610,7 +1609,7 @@
   if (globes.length) {
     fetch('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json')
       .then(function(r) { return r.json(); })
-      .then(function(geojson) { landData = geojson; })
+      .then(function(geojson) { landData = geojson; (window.__cshGlobeDraws || []).forEach(function(fn) { fn(); }); })
       .catch(function() { /* globe still spins without land dots */ });
   }
 })();
