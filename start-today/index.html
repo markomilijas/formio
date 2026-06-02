@@ -146,6 +146,8 @@
         width: 100%;
         height: 230px;
         overflow: hidden;
+        -webkit-mask-image: linear-gradient(to bottom, #000 86%, transparent 100%);
+        mask-image: linear-gradient(to bottom, #000 86%, transparent 100%);
         align-items: flex-start;
         margin-top: -8px;
       }
@@ -450,7 +452,7 @@
         <!-- ===== GLOBE - behind the card ===== -->
         <!-- Centered at right-center of container so it peeks right/top/bottom of card -->
         <div style="position:absolute; left:170px; top:50%; transform:translateY(-50%); width:380px; height:380px; z-index:3; pointer-events:none;">
-          <canvas id="card-globe" style="width:100%; height:100%; border-radius:50%; opacity:0; transition:opacity 1.4s ease;"></canvas>
+          <canvas id="card-globe" style="width:100%; height:100%; border-radius:50%; opacity:0; transition:opacity 0.4s ease;"></canvas>
         </div>
 
         <!-- ===== MAIN CREDIT CARD - Formio blue + lime ===== -->
@@ -4386,7 +4388,7 @@
     <!-- Compare table (always visible) -->
     <style>
       /* Divider heading */
-      .cmp-divider { display:flex; align-items:center; gap:20px; max-width:880px; margin:56px auto 0; padding:0 24px; }
+      .cmp-divider { display:flex; align-items:center; gap:20px; max-width:1280px; margin:56px auto 0; padding:0 24px; }
       .cmp-divider-line { flex:1; height:1px; background:rgba(255,255,255,0.12); flex-shrink:0; }
       .cmp-divider-text {
         font-family:'Inter Tight','Inter',sans-serif;
@@ -4401,7 +4403,7 @@
       }
 
       /* Dark table */
-      .cmp-dark-wrap { max-width:880px; margin:0 auto; padding:0 24px; }
+      .cmp-dark-wrap { max-width:1280px; margin:0 auto; padding:0 24px; }
       .cmp-dtable-shell {
         border:1px solid rgba(255,255,255,0.1);
         border-radius:20px;
@@ -4639,13 +4641,22 @@
         hide();
         if (!same) show(wrap);
       };
-      document.querySelectorAll('.cmp-tip-wrap').forEach(function(wrap) {
-        wrap.addEventListener('mouseenter', function() { show(wrap); });
-        wrap.addEventListener('mouseleave', function() { hide(); });
-      });
+      // Hover listeners samo za desktop (non-touch device)
+      var supportsHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+      if (supportsHover) {
+        document.querySelectorAll('.cmp-tip-wrap').forEach(function(wrap) {
+          wrap.addEventListener('mouseenter', function() { show(wrap); });
+          wrap.addEventListener('mouseleave', function() { hide(); });
+        });
+      }
       document.addEventListener('click', function(e) {
         if (!e.target.closest('.cmp-tip-btn') && e.target !== gt) hide();
       });
+
+      // Sakrij tooltip kad korisnik scroll-uje (sprečava 'lebdeci' tooltip)
+      window.addEventListener('scroll', function() {
+        if (gt._wrap) hide();
+      }, { passive: true });
     })();
   </script>
 </section>
@@ -4951,19 +4962,10 @@
 </style>
 <footer class="site-footer">
   <div class="max-w-7xl mx-auto px-6">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-10">
       <div>
         <a href="#" class="footer-brand">Formio<span class="dot">.biz</span></a>
         <p style="color:rgba(255,255,255,0.5); font-size:0.85rem; line-height:1.7; margin-top:18px; max-width:320px;">The best platform to start your US business from anywhere in the world.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Navigate</h4>
-        <ul style="display:flex;flex-direction:column;gap:4px;">
-          <li><a href="#why-llc">Why LLC?</a></li>
-          <li><a href="#timeline-section">How it works</a></li>
-          <li><a href="#tax-section">Tax</a></li>
-          <li><a href="#pricing">Pricing</a></li>
-        </ul>
       </div>
       <div class="footer-col">
         <h4>Legal</h4>
