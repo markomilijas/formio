@@ -1137,8 +1137,8 @@
   var dotGrid = [];
 
   /* Build a grid of candidate dots spaced ~2.8° apart */
-  for (var lat = -90; lat <= 90; lat += 2.8) {
-    for (var lon = -180; lon <= 180; lon += 2.8) {
+  for (var lat = -90; lat <= 90; lat += 4) {
+    for (var lon = -180; lon <= 180; lon += 4) {
       dotGrid.push([lon, lat]);
     }
   }
@@ -1229,7 +1229,7 @@
     cx.fillText('$', s / 2, s / 2);
     var img = cx.getImageData(0, 0, s, s);
     var pts = [];
-    var step = 4;
+    var step = 6;
     for (var y = 0; y < s; y += step) {
       for (var x = 0; x < s; x += step) {
         if (img.data[(y * s + x) * 4 + 3] > 128) {
@@ -1271,8 +1271,8 @@
     }
 
     /* Rim parameters */
-    var rimBands = 7;
-    var rimSteps = 240;
+    var rimBands = 5;
+    var rimSteps = 140;
 
     function drawCoin(elapsed) {
       ctx.clearRect(0, 0, size, size);
@@ -1363,7 +1363,7 @@
     cx.fillText('!', s / 2, s / 2);
     var img = cx.getImageData(0, 0, s, s);
     var pts = [];
-    var step = 4;
+    var step = 6;
     for (var y = 0; y < s; y += step) {
       for (var x = 0; x < s; x += step) {
         if (img.data[(y * s + x) * 4 + 3] > 128) {
@@ -1477,7 +1477,7 @@
 
     /* Pre-compute background sphere halftone points (denser, no land mask) */
     var spherePts = [];
-    for (var lat = -85; lat <= 85; lat += 5) {
+    for (var lat = -85; lat <= 85; lat += 7) {
       var latRad = lat * Math.PI / 180;
       var ring = Math.cos(latRad);
       var nLon = Math.max(10, Math.floor(64 * ring));
@@ -1595,26 +1595,23 @@
     drawWarn(0);
   }
 
+  function __cshStep(fn) { if (window.requestIdleCallback) { requestIdleCallback(fn, { timeout: 700 }); } else { setTimeout(fn, 60); } }
   function __cshBuild() {
-  globes.forEach(function(c, i) { initGlobe(c, i); });
-
-  if (coins.length) {
-    var dollarPts = buildDollarDots();
-    coins.forEach(function(c) { initCoin(c, dollarPts); });
-  }
-
-  if (warns.length) {
-    var triPts = buildTriangleDots();
-    var excPts = buildExclamationDots();
-    warns.forEach(function(c) { initWarn(c, triPts, excPts); });
-  }
-
-  if (globes.length) {
-    fetch('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json')
-      .then(function(r) { return r.json(); })
-      .then(function(geojson) { landData = geojson; (window.__cshGlobeDraws || []).forEach(function(fn) { fn(); }); })
-      .catch(function() { /* globe still spins without land dots */ });
-  }
+    __cshStep(function() { globes.forEach(function(c, i) { initGlobe(c, i); }); });
+    __cshStep(function() {
+      if (coins.length) { var dollarPts = buildDollarDots(); coins.forEach(function(c) { initCoin(c, dollarPts); }); }
+    });
+    __cshStep(function() {
+      if (warns.length) { var triPts = buildTriangleDots(); var excPts = buildExclamationDots(); warns.forEach(function(c) { initWarn(c, triPts, excPts); }); }
+    });
+    __cshStep(function() {
+      if (globes.length) {
+        fetch('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json')
+          .then(function(r) { return r.json(); })
+          .then(function(geojson) { landData = geojson; (window.__cshGlobeDraws || []).forEach(function(fn) { fn(); }); })
+          .catch(function() { /* globe still spins without land dots */ });
+      }
+    });
   }
   if (window.requestIdleCallback) { requestIdleCallback(__cshBuild, { timeout: 1000 }); } else { setTimeout(__cshBuild, 150); }
 })();
