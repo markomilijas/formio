@@ -1137,8 +1137,8 @@
   var dotGrid = [];
 
   /* Build a grid of candidate dots spaced ~2.8° apart */
-  for (var lat = -90; lat <= 90; lat += 4) {
-    for (var lon = -180; lon <= 180; lon += 4) {
+  for (var lat = -90; lat <= 90; lat += 2.8) {
+    for (var lon = -180; lon <= 180; lon += 2.8) {
       dotGrid.push([lon, lat]);
     }
   }
@@ -1229,7 +1229,7 @@
     cx.fillText('$', s / 2, s / 2);
     var img = cx.getImageData(0, 0, s, s);
     var pts = [];
-    var step = 6;
+    var step = 4;
     for (var y = 0; y < s; y += step) {
       for (var x = 0; x < s; x += step) {
         if (img.data[(y * s + x) * 4 + 3] > 128) {
@@ -1271,8 +1271,8 @@
     }
 
     /* Rim parameters */
-    var rimBands = 5;
-    var rimSteps = 140;
+    var rimBands = 7;
+    var rimSteps = 240;
 
     function drawCoin(elapsed) {
       ctx.clearRect(0, 0, size, size);
@@ -1363,7 +1363,7 @@
     cx.fillText('!', s / 2, s / 2);
     var img = cx.getImageData(0, 0, s, s);
     var pts = [];
-    var step = 6;
+    var step = 4;
     for (var y = 0; y < s; y += step) {
       for (var x = 0; x < s; x += step) {
         if (img.data[(y * s + x) * 4 + 3] > 128) {
@@ -1477,7 +1477,7 @@
 
     /* Pre-compute background sphere halftone points (denser, no land mask) */
     var spherePts = [];
-    for (var lat = -85; lat <= 85; lat += 7) {
+    for (var lat = -85; lat <= 85; lat += 5) {
       var latRad = lat * Math.PI / 180;
       var ring = Math.cos(latRad);
       var nLon = Math.max(10, Math.floor(64 * ring));
