@@ -22,15 +22,15 @@ const SUPABASE_TABLE = 'start_partial_submissions';
 // Base prices in cents (Wyoming = base, no surcharge) - in USD
 // ⚠️ TEST MODE $1 — original LIVE values commented below. RESTORE before live launch!
 const BASE_PRICES = {
-  starter: 100,  // TEST $1.00  (LIVE: 46900 = $469.00)
-  growth:  200   // TEST $2.00  (LIVE: 54900 = $549.00)
+  starter: 46900,  // $469.00
+  growth:  54900   // $549.00
 };
 
 // State surcharges in cents - in USD
 // ⚠️ TEST MODE — Delaware surcharge disabled. RESTORE before live launch!
 const STATE_SURCHARGES = {
   wyoming:  0,      // base
-  delaware: 0       // TEST $0  (LIVE: 11500 = +$115)
+  delaware: 11500   // +$115
 };
 
 const PLAN_LABELS = {
@@ -50,14 +50,9 @@ function calculateBaseAmount(plan, state) {
 }
 
 // Apply percentage discount
-// ⚠️ TEST MODE: cent-precision so $1 discounts work ($1→90¢/80¢/70¢, all above Stripe $0.50 min).
-//    LIVE version (dollar-precision, matches frontend display) is commented below. RESTORE before live!
 function applyPercentDiscount(amountCents, percent) {
-  // TEST (cent-precision):
-  return Math.floor(amountCents * (1 - percent / 100));
-  // LIVE (dollar-precision — UNCOMMENT and remove line above before launch):
-  // const discountedDollars = Math.floor((amountCents / 100) * (1 - percent / 100));
-  // return discountedDollars * 100;
+  const discountedDollars = Math.floor((amountCents / 100) * (1 - percent / 100));
+  return discountedDollars * 100;
 }
 
 // Validate discount code format: imeprezime-XXXXXXXX-llcNN
