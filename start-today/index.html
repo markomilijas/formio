@@ -1137,8 +1137,9 @@
   var dotGrid = [];
 
   /* Build a grid of candidate dots spaced ~2.8° apart */
-  for (var lat = -90; lat <= 90; lat += 2.8) {
-    for (var lon = -180; lon <= 180; lon += 2.8) {
+  var __gridStep = (window.innerWidth <= 768) ? 3.4 : 2.8;
+  for (var lat = -90; lat <= 90; lat += __gridStep) {
+    for (var lon = -180; lon <= 180; lon += __gridStep) {
       dotGrid.push([lon, lat]);
     }
   }
