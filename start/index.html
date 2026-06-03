@@ -37,8 +37,8 @@
     main, .step-panel, .sub-view { max-width: 100%; }
     main *, .step-panel *, .sub-view * { min-width: 0; }
     /* Compare table can be wider than viewport - allow internal scroll */
-    #compare-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    #compare-table-wrap > div { min-width: max-content; }
+    #compare-table-wrap { overflow-x: visible; }
+    #compare-table-wrap > div { min-width: 0; }
     
     :root {
       --brand:     #1D44E7;
@@ -992,7 +992,7 @@
             <div class="rounded-2xl">
             <div class="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm">
               <!-- Column headers -->
-              <div class="grid grid-cols-[1fr_100px_112px]">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr]">
                 <div class="px-4 border-b border-gray-100" style="min-height:70px;"></div>
                 <div class="px-3 text-center border-b border-gray-100 border-l border-l-gray-100 flex flex-col items-center justify-end pb-3" style="min-height:70px;">
                   <p id="cmp-starter-name" class="text-xs font-bold text-gray-800">Get Started <span style="color:#1D44E7;letter-spacing:0.08em">WYO</span> LLC</p>
@@ -1004,74 +1004,74 @@
                 </div>
               </div>
               <!-- FORMATION group -->
-              <div class="grid grid-cols-[1fr_100px_112px] bg-gray-50 border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] bg-gray-50 border-t border-gray-100">
                 <div class="px-4 py-2 col-span-3"><span class="text-xs font-bold uppercase tracking-widest text-gray-400">Formation</span></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">US LLC Formation<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Full registration of your US LLC, handled remotely with no travel needed.<br><br><strong style="color:#C2EF47;">&#10003; 7-day money-back guarantee - full refund if you cancel before filing begins.</strong></span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">Virtual Address<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Real US business address for mail and official registrations.</span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">Registered Agent (1 yr)<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Legally required US representative who receives official documents for your LLC. <strong style="color:#C2EF47;">First year included.</strong></span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">All LLC Documentation<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">All official company documents in one place: <strong style="color:#C2EF47;">Articles of Organization, Operating Agreement, EIN letter, and more.</strong></span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">EIN Application<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">IRS tax ID application. Required for banking, Stripe, and taxes.</span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
               <!-- BANKING group -->
-              <div class="grid grid-cols-[1fr_100px_112px] bg-gray-50 border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] bg-gray-50 border-t border-gray-100">
                 <div class="px-4 py-2 col-span-3"><span class="text-xs font-bold uppercase tracking-widest text-gray-400">Banking</span></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">US Business Bank Account Opening Guidance<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Step-by-step guidance to open a US bank account as a non-resident.</span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">Business Debit Card<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Business debit card linked to your US bank account.</span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">Stripe Opening Guidance<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Step-by-step guidance to open a Stripe account and accept card payments worldwide.</span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
               <!-- COMPLIANCE group -->
-              <div class="grid grid-cols-[1fr_100px_112px] bg-gray-50 border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] bg-gray-50 border-t border-gray-100">
                 <div class="px-4 py-2 col-span-3"><span class="text-xs font-bold uppercase tracking-widest text-gray-400">Compliance</span></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">Guidance for Tax Filing<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Step-by-step guidance for your annual LLC tax return, including Form 5472 for foreign owners.</span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">Annual Report Filing Guidance<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Step-by-step guidance to file the state's annual report and keep your LLC active.</span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-100">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-100">
                 <div class="px-4 py-3 text-xs text-gray-700"><span class="s7-tip-wrap">Accounting Setup Guidance (Minimize Costs)<button class="s7-tip-btn" onclick="s7Tip(this)">?</button><span class="s7-tip-box">Step-by-step guidance to set up affordable accounting without expensive US accountants.</span></span></div>
                 <div class="px-3 py-3 flex items-center justify-center border-l border-gray-100"><svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></div>
                 <div class="px-3 py-3 flex items-center justify-center" style="background:#FFC4D4;border-left:2px solid #FFC4D4;border-right:2px solid #FFC4D4;"><svg class="w-4 h-4" style="color:#071841" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
               </div>
               <!-- CTA row -->
-              <div class="grid grid-cols-[1fr_100px_112px] border-t border-gray-200 bg-gray-50">
+              <div class="grid grid-cols-[1.5fr_1fr_1fr] border-t border-gray-200 bg-gray-50">
                 <div class="px-4 py-4 flex items-center"><span class="text-xs text-gray-500 font-semibold">Choose your plan</span></div>
                 <div class="px-3 py-4 flex items-center justify-center border-l border-gray-100">
                   <button onclick="selectPackage('starter', document.getElementById('pkg-starter')); toggleCompare();" class="text-[11px] font-bold bg-gray-900 text-white px-2 py-2 rounded-lg hover:bg-black transition-colors w-full whitespace-nowrap">Select →</button>
