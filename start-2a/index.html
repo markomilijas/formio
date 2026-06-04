@@ -1795,10 +1795,8 @@
       }
     } else {
       // === NO UID IN URL ===
-      // Redirect to /start/ since this page only works with valid resume link
-      console.warn('[start-2a] No uid in URL — redirecting to /start/');
-      window.location.href = '/start/';
-      return;
+      // Allow direct access without uid (DM payment link) — no pre-fill, no redirect
+      console.log('[start-2a] No uid in URL — continuing without pre-fill');
     }
     
     // Set fallback LLC name in UI if not set
