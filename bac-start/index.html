@@ -132,6 +132,15 @@
     }
     .welcome-h1 { position: relative; }
     .welcome-h1 .lime-accent { color: #1D44E7; }
+    /* Mobile: no forced break — title wraps naturally, underline follows last line.
+       Desktop: force "Book Your" onto its own line and keep the accent phrase
+       on a single line so the lime bar spans the whole "Free US LLC Consultation". */
+    .welcome-h1 .h1-break { display: none; }
+    @media (min-width: 768px) {
+      .welcome-inner { max-width: 860px; }
+      .welcome-h1 .h1-break { display: inline; }
+      .welcome-h1 .lime-accent { white-space: nowrap; }
+    }
     /* Each accent word gets wrapped in .lw by JS; words sit above the bar */
     .welcome-h1 .lime-accent .lw { position: relative; z-index: 1; }
     .welcome-h1 .h1-dot { color: #071841; position: relative; z-index: 1; }
@@ -824,7 +833,7 @@
       </span>
       Trusted by 1300+ founders
     </span>
-    <h1 class="welcome-h1">Book Your <span class="lime-accent" id="welcome-accent">Free US LLC Consultation</span><span class="h1-dot">.</span></h1>
+    <h1 class="welcome-h1">Book Your <br class="h1-break"/><span class="lime-accent" id="welcome-accent">Free US LLC Consultation</span><span class="h1-dot">.</span></h1>
 
     <ul class="welcome-bullets" role="list">
       <li class="welcome-bullet">
