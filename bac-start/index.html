@@ -268,6 +268,79 @@
       .welcome-screen { padding: 60px 20px; }
     }
 
+    /* ===== Fit welcome screen into viewport height (no scrolling) =====
+       Compact spacing kicks in progressively on shorter phones so the whole
+       welcome step always fits within one screen. */
+    @media (max-width: 767px) {
+      .welcome-screen { min-height: 100dvh; }
+    }
+    @media (max-width: 767px) and (max-height: 800px) {
+      .welcome-screen { padding: 76px 20px 16px !important; }
+      .welcome-trust-pill { margin-bottom: 16px; }
+      .welcome-h1 { font-size: clamp(27px, 7.2vw, 36px); margin-bottom: 12px; }
+      .welcome-bullets { gap: 8px; margin: 4px auto 20px; }
+      .welcome-bullet { padding: 11px 14px; gap: 10px; }
+      .welcome-bullet-check { width: 24px; height: 24px; min-width: 24px; }
+      .welcome-bullet-text { font-size: 13px; }
+      .welcome-cta { padding: 14px 20px; }
+      .welcome-trust-line { margin-top: 12px; font-size: 11px; }
+    }
+    @media (max-width: 767px) and (max-height: 640px) {
+      .welcome-screen { padding-top: 72px !important; }
+      .welcome-trust-pill { margin-bottom: 10px; padding: 4px 12px 4px 6px; font-size: 11px; }
+      .welcome-h1 { font-size: clamp(23px, 6.4vw, 30px); margin-bottom: 10px; }
+      .welcome-bullets { gap: 6px; margin-bottom: 14px; }
+      .welcome-bullet { padding: 8px 12px; }
+      .welcome-bullet-text { font-size: 12.5px; }
+      .welcome-cta { padding: 12px 18px; font-size: 14px; }
+      .welcome-trust-line { margin-top: 10px; }
+    }
+
+    /* ===== Compact funnel steps on mobile (minimize need for scrolling) ===== */
+    @media (max-width: 767px) {
+      #form-container main { padding-top: 18px; padding-bottom: 24px; }
+      #form-container main > div:first-child { margin-bottom: 12px; }
+      .back-btn { margin-bottom: 14px; }
+      .step-panel .mb-9 { margin-bottom: 18px !important; }
+      .step-panel h2 { font-size: 24px !important; }
+      .cat-card p.text-xs { font-size: 11px; }
+      .step-panel .uppercase.mb-3 { margin-bottom: 8px !important; }
+      .about-card { padding: 16px 18px; }
+      .rev-option { padding: 10px 12px; }
+      .cat-card { padding: 10px 12px; }
+      .goal-card { padding: 10px 12px; }
+      /* Tighter gaps between options so long steps fit on most phones */
+      #step-2 .grid-cols-2 { gap: 8px; }
+      #step-3 .flex-col.gap-2\.5 { gap: 8px; }
+      #step-5 .flex-col.gap-2\.5 { gap: 8px; }
+      #step-6 .flex-col.gap-2\.5 { gap: 8px; }
+      /* Step 7 contact form: tighter vertical rhythm */
+      #step-7 .grid-cols-2.gap-3 { gap: 10px; }
+      #step-7 .flex-col.gap-4 { gap: 12px; }
+      #step-7 .sms-consent { padding: 10px 12px; }
+      #step-7 .sms-text { font-size: 11px; }
+      #step-7 .sms-consent.mb-7 { margin-bottom: 16px; }
+      #step-7 .grid.mb-4 { margin-bottom: 12px; }
+      #step-7 .flex-col.mb-6 { margin-bottom: 16px; }
+    }
+
+    /* ===== Touch devices: neutralize hover styles =====
+       Prevents the "stuck gray hover" on the next step's card after
+       auto-advance (mobile browsers re-apply :hover to whatever element
+       lands under the last touch point when the DOM changes). */
+    @media (hover: none) {
+      .about-card:not(.selected):hover { border-color: rgba(7,24,65,0.1); background: #fff; }
+      .cat-card:not(.selected):hover { border-color: rgba(7,24,65,0.1); background: #fff; }
+      .goal-card:not(.selected):hover { border-color: rgba(7,24,65,0.1); background: #fff; }
+      .rev-option:not(:has(input:checked)):hover { border-color: rgba(7,24,65,0.1); background: #fff; }
+      .state-card:not(.selected):hover { border-color: rgba(7,24,65,0.1); }
+      .pkg-card:not(.selected):hover { border-color: #e5e7eb; box-shadow: none; }
+      .country-item:not(.active):hover { background: #fff; }
+      .phone-dial-item:not(.active):hover { background: #fff; }
+      .country-trigger:hover { border-color: rgba(7,24,65,0.12); }
+      .welcome-bullet:hover { transform: none; }
+    }
+
     /* "About you" single-select cards — Step 1 */
     .about-card {
       border: 1px solid rgba(7,24,65,0.1); border-radius: 14px;
