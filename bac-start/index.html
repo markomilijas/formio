@@ -272,7 +272,18 @@
        Compact spacing kicks in progressively on shorter phones so the whole
        welcome step always fits within one screen. */
     @media (max-width: 767px) {
-      .welcome-screen { min-height: 100dvh; }
+      /* Lock the welcome screen to the EXACT visible viewport (dvh tracks the
+         mobile address bar) so there is no phantom scroll and no white gap
+         below the gradient. */
+      html, body { min-height: 100dvh; }
+      body.welcome-active {
+        height: 100dvh; min-height: 100dvh; max-height: 100dvh;
+        overflow: hidden;
+      }
+      .welcome-screen { min-height: 100dvh; height: 100dvh; }
+      /* Funnel steps: use dvh so steps that fit don't scroll and leave no
+         white strip; long steps still overflow naturally and scroll. */
+      #form-container { min-height: 100dvh; }
     }
     @media (max-width: 767px) and (max-height: 800px) {
       .welcome-screen { padding: 76px 20px 16px !important; }
