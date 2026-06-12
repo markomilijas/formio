@@ -1338,10 +1338,11 @@
   };
 
   function flagEmoji(code) {
-    // Koristi flagcdn.com SVG za pravu sliku zastave (radi i na Windows-u)
+    // flagcdn.com PNG (w40 + 2x retina) umesto SVG: manji fajlovi + lazy-load
+    // da iPhone preko 4G ne ispali ~200 zahteva odjednom i ne propusti neke zastave.
     var lower = (code || '').toLowerCase();
     if (!lower) return '';
-    return '<img src="https://flagcdn.com/' + lower + '.svg" alt="' + code.toUpperCase() + '" style="width:20px;height:14px;object-fit:cover;border-radius:2px;display:inline-block;vertical-align:middle;"/>';
+    return '<img src="https://flagcdn.com/w40/' + lower + '.png" srcset="https://flagcdn.com/w80/' + lower + '.png 2x" alt="' + code.toUpperCase() + '" loading="lazy" decoding="async" style="width:20px;height:14px;object-fit:cover;border-radius:2px;display:inline-block;vertical-align:middle;"/>';
   }
 
   function renderDialList(ns, list) {
