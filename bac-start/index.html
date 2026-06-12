@@ -1337,12 +1337,39 @@
     contact: { code: 'US', dial: '+1', localNumber: '' }
   };
 
+  // Da li uredjaj renderuje emoji zastave u boji (iOS/Android/Mac = da, Windows = ne).
+  // Iscrta svajcarsku zastavu na canvas i proveri ima li crvenih piksela; ako podrzava,
+  // emoji se renderuje kao slika u boji bez obzira na fillStyle. UA fallback ako canvas pukne.
+  var SUPPORTS_FLAG_EMOJI = (function () {
+    try {
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      if (!ctx) throw 0;
+      ctx.font = '20px sans-serif';
+      ctx.fillText('🇨🇭', 0, 18); // 🇨🇭
+      var d = ctx.getImageData(0, 0, 30, 24).data;
+      for (var i = 0; i < d.length; i += 4) {
+        if (d[i] > 150 && d[i + 1] < 90 && d[i + 2] < 90) return true; // crveni piksel = prava zastava
+      }
+      return false;
+    } catch (e) {
+      return /iPhone|iPad|iPod|Android|Macintosh|Mac OS X/.test(navigator.userAgent);
+    }
+  })();
+
   function flagEmoji(code) {
-    // flagcdn.com PNG (w40 + 2x retina) umesto SVG: manji fajlovi + lazy-load
-    // da iPhone preko 4G ne ispali ~200 zahteva odjednom i ne propusti neke zastave.
-    var lower = (code || '').toLowerCase();
-    if (!lower) return '';
-    return '<img src="https://flagcdn.com/w40/' + lower + '.png" srcset="https://flagcdn.com/w80/' + lower + '.png 2x" alt="' + code.toUpperCase() + '" loading="lazy" decoding="async" style="width:20px;height:14px;object-fit:cover;border-radius:2px;display:inline-block;vertical-align:middle;"/>';
+    var cc = (code || '').toUpperCase();
+    if (!cc) return '';
+    if (SUPPORTS_FLAG_EMOJI) {
+      // Native emoji zastava: instant, bez mreze, bez flash-a (iOS/Android/Mac).
+      var emoji = cc.replace(/./g, function (ch) {
+        return String.fromCodePoint(0x1F1E6 + ch.charCodeAt(0) - 65);
+      });
+      return '<span style="font-size:17px;line-height:1;display:inline-block;vertical-align:middle;">' + emoji + '</span>';
+    }
+    // Windows/Linux: flagcdn PNG (w40 + 2x), lazy da ne ispali sve zahteve odjednom.
+    var lower = cc.toLowerCase();
+    return '<img src="https://flagcdn.com/w40/' + lower + '.png" srcset="https://flagcdn.com/w80/' + lower + '.png 2x" alt="' + cc + '" loading="lazy" decoding="async" style="width:20px;height:14px;object-fit:cover;border-radius:2px;display:inline-block;vertical-align:middle;"/>';
   }
 
   function renderDialList(ns, list) {
