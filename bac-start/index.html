@@ -130,20 +130,18 @@
       line-height: 1.1; letter-spacing: -0.03em; color: #071841;
       margin: 0 0 18px; text-wrap: balance;
     }
-    .welcome-h1 .lime-accent {
-      color: #1D44E7;
+    .welcome-h1 { position: relative; }
+    .welcome-h1 .lime-accent { color: #1D44E7; }
+    /* Each accent word gets wrapped in .lw by JS; words sit above the bar */
+    .welcome-h1 .lime-accent .lw { position: relative; z-index: 1; }
+    .welcome-h1 .h1-dot { color: #071841; position: relative; z-index: 1; }
+    /* Single continuous lime bar, positioned by JS under the words that
+       fall on the LAST visual line of the headline (any screen size). */
+    .welcome-h1 .h1-underline {
+      position: absolute; z-index: 0; height: 0.30em;
+      background: #C2EF47; opacity: 0.92; border-radius: 3px;
+      pointer-events: none; left: 0; width: 0; top: 0;
     }
-    /* Underline only the LAST WORD of the headline so it scales with the
-       title wrapping on any screen size (one word never line-breaks) */
-    .welcome-h1 .lime-word {
-      position: relative; display: inline-block; z-index: 1;
-    }
-    .welcome-h1 .lime-word::after {
-      content: ''; position: absolute; left: -2px; right: -2px;
-      bottom: 0.06em; height: 0.30em; background: #C2EF47;
-      opacity: 0.92; z-index: -1; border-radius: 3px;
-    }
-    .welcome-h1 .h1-dot { color: #071841; }
     .welcome-sub {
       font-family: 'Inter Tight', sans-serif;
       font-size: clamp(15px, 1.5vw, 17px); line-height: 1.6;
@@ -826,7 +824,7 @@
       </span>
       Trusted by 1300+ founders
     </span>
-    <h1 class="welcome-h1">Book Your <span class="lime-accent">Free US LLC <span style="white-space:nowrap;"><span class="lime-word">Consultation</span><span class="h1-dot">.</span></span></span></h1>
+    <h1 class="welcome-h1">Book Your <span class="lime-accent" id="welcome-accent">Free US LLC Consultation</span><span class="h1-dot">.</span></h1>
 
     <ul class="welcome-bullets" role="list">
       <li class="welcome-bullet">
@@ -3099,6 +3097,60 @@
 
       '</div>';
   }
+
+  // ===== Headline lime underline — follows words on the LAST visual line =====
+  (function(){
+    var h1 = document.querySelector('.welcome-h1');
+    var accent = document.getElementById('welcome-accent');
+    if (!h1 || !accent) return;
+
+    var original = accent.textContent.trim();
+    var bar = document.createElement('span');
+    bar.className = 'h1-underline';
+    h1.appendChild(bar);
+
+    // Wrap every accent word in its own .lw span (spaces kept between)
+    var words = original.split(/\s+/);
+    accent.innerHTML = words.map(function(w, i){
+      return '<span class="lw">' + w + '</span>' + (i < words.length - 1 ? ' ' : '');
+    }).join('');
+
+    function layout() {
+      var spans = accent.querySelectorAll('.lw');
+      if (!spans.length) { bar.style.width = '0'; return; }
+      var fs = parseFloat(getComputedStyle(h1).fontSize) || 40;
+      var h1Rect = h1.getBoundingClientRect();
+
+      // Find the last visual line by the largest rounded top offset
+      var tops = [];
+      spans.forEach(function(s){ tops.push(Math.round(s.getBoundingClientRect().top)); });
+      var maxTop = Math.max.apply(null, tops);
+
+      // Collect the rects of accent words sitting on that last line
+      var lastLine = [];
+      spans.forEach(function(s){
+        var r = s.getBoundingClientRect();
+        if (Math.round(r.top) >= maxTop - 2) lastLine.push(r);
+      });
+      if (!lastLine.length) { bar.style.width = '0'; return; }
+
+      var left   = Math.min.apply(null, lastLine.map(function(r){ return r.left; }));
+      var right  = Math.max.apply(null, lastLine.map(function(r){ return r.right; }));
+      var bottom = Math.max.apply(null, lastLine.map(function(r){ return r.bottom; }));
+
+      bar.style.left  = (left - h1Rect.left - 2) + 'px';
+      bar.style.width = (right - left + 4) + 'px';
+      // Sit the bar near the baseline: ~0.36em up from the line box bottom
+      bar.style.top   = (bottom - h1Rect.top - fs * 0.36) + 'px';
+    }
+
+    window.addEventListener('resize', layout);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+    // Run now + a couple of delayed passes to catch late font/layout shifts
+    layout();
+    setTimeout(layout, 120);
+    setTimeout(layout, 500);
+  })();
 
   // Init
   initCountryDropdown();
