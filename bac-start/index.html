@@ -287,33 +287,39 @@
         height: 100dvh; min-height: 100dvh; max-height: 100dvh;
         overflow: hidden;
       }
-      .welcome-screen { min-height: 100dvh; height: 100dvh; }
+      /* Top-anchor the content (extra space falls to the bottom) and keep the
+         headline at full size — no font shrinking on mobile. padding-top
+         clears the fixed 64px nav. */
+      .welcome-screen {
+        min-height: 100dvh; height: 100dvh;
+        padding: 88px 20px 24px !important;
+        justify-content: flex-start;
+      }
+      .welcome-inner { margin-top: 0; margin-bottom: 0; }
       /* A touch more breathing room between the headline and the bullets */
       .welcome-h1 { margin-bottom: 26px; }
       /* Funnel steps: use dvh so steps that fit don't scroll and leave no
          white strip; long steps still overflow naturally and scroll. */
       #form-container { min-height: 100dvh; }
     }
+    /* Shorter phones: only TIGHTEN SPACING (font stays 34px), so the whole
+       welcome screen still fits within the viewport without scrolling. */
     @media (max-width: 767px) and (max-height: 800px) {
-      .welcome-screen { padding: 76px 20px 16px !important; }
-      .welcome-trust-pill { margin-bottom: 16px; }
-      .welcome-h1 { font-size: clamp(27px, 7.2vw, 36px); margin-bottom: 18px; }
-      .welcome-bullets { gap: 8px; margin: 4px auto 20px; }
-      .welcome-bullet { padding: 11px 14px; gap: 10px; }
-      .welcome-bullet-check { width: 24px; height: 24px; min-width: 24px; }
-      .welcome-bullet-text { font-size: 13px; }
-      .welcome-cta { padding: 14px 20px; }
-      .welcome-trust-line { margin-top: 12px; font-size: 11px; }
+      .welcome-screen { padding-top: 78px !important; }
+      .welcome-trust-pill { margin-bottom: 18px; }
+      .welcome-h1 { margin-bottom: 22px; }
+      .welcome-bullets { gap: 10px; margin: 4px auto 22px; }
+      .welcome-bullet { padding: 12px 16px; gap: 12px; }
+      .welcome-trust-line { margin-top: 14px; }
     }
-    @media (max-width: 767px) and (max-height: 640px) {
-      .welcome-screen { padding-top: 72px !important; }
-      .welcome-trust-pill { margin-bottom: 10px; padding: 4px 12px 4px 6px; font-size: 11px; }
-      .welcome-h1 { font-size: clamp(23px, 6.4vw, 30px); margin-bottom: 10px; }
-      .welcome-bullets { gap: 6px; margin-bottom: 14px; }
-      .welcome-bullet { padding: 8px 12px; }
-      .welcome-bullet-text { font-size: 12.5px; }
-      .welcome-cta { padding: 12px 18px; font-size: 14px; }
-      .welcome-trust-line { margin-top: 10px; }
+    @media (max-width: 767px) and (max-height: 670px) {
+      .welcome-screen { padding-top: 74px !important; }
+      .welcome-trust-pill { margin-bottom: 12px; }
+      .welcome-h1 { margin-bottom: 16px; }
+      .welcome-bullets { gap: 8px; margin: 2px auto 16px; }
+      .welcome-bullet { padding: 10px 14px; }
+      .welcome-bullet-text { font-size: 13px; }
+      .welcome-trust-line { margin-top: 12px; }
     }
 
     /* ===== Compact funnel steps on mobile (minimize need for scrolling) ===== */
