@@ -288,6 +288,8 @@
         overflow: hidden;
       }
       .welcome-screen { min-height: 100dvh; height: 100dvh; }
+      /* A touch more breathing room between the headline and the bullets */
+      .welcome-h1 { margin-bottom: 26px; }
       /* Funnel steps: use dvh so steps that fit don't scroll and leave no
          white strip; long steps still overflow naturally and scroll. */
       #form-container { min-height: 100dvh; }
@@ -295,7 +297,7 @@
     @media (max-width: 767px) and (max-height: 800px) {
       .welcome-screen { padding: 76px 20px 16px !important; }
       .welcome-trust-pill { margin-bottom: 16px; }
-      .welcome-h1 { font-size: clamp(27px, 7.2vw, 36px); margin-bottom: 12px; }
+      .welcome-h1 { font-size: clamp(27px, 7.2vw, 36px); margin-bottom: 18px; }
       .welcome-bullets { gap: 8px; margin: 4px auto 20px; }
       .welcome-bullet { padding: 11px 14px; gap: 10px; }
       .welcome-bullet-check { width: 24px; height: 24px; min-width: 24px; }
@@ -952,7 +954,6 @@
 
       <!-- ===== STEP 1: Which best describes you? ===== -->
       <div id="step-1" class="step-panel active">
-        <p class="text-[11px] uppercase mb-3" style="font-weight:600;letter-spacing:0.15em;color:rgba(7,24,65,0.4);">Step 1 of 7</p>
         <h2 class="mb-9" style="font-family:'Clash Grotesk','Inter Tight',sans-serif;font-weight:500;font-size:30px;line-height:1.15;letter-spacing:-0.025em;color:#071841;text-wrap:balance;">Which of these<br/>are you?</h2>
         <div class="flex flex-col gap-3 mb-9">
           <div class="about-card" onclick="selectAboutYou('solo', this)">
@@ -973,7 +974,6 @@
 
       <!-- ===== STEP 2: Industry ===== -->
       <div id="step-2" class="step-panel">
-        <p class="text-[11px] uppercase mb-3" style="font-weight:600;letter-spacing:0.15em;color:rgba(7,24,65,0.4);">Step 2 of 7</p>
         <h2 class="mb-2" style="font-family:'Clash Grotesk','Inter Tight',sans-serif;font-weight:500;font-size:30px;line-height:1.15;letter-spacing:-0.025em;color:#071841;text-wrap:balance;">What does your<br/>business do?</h2>
         <p class="text-[15px] mb-9" style="color:rgba(7,24,65,0.6);letter-spacing:-0.005em;line-height:1.55;">Pick the category that best fits your work.</p>
         <div class="grid grid-cols-2 gap-3 mb-4">
@@ -996,7 +996,6 @@
 
       <!-- ===== STEP 3: Why do you want a US LLC? (multi-select) ===== -->
       <div id="step-3" class="step-panel">
-        <p class="text-[11px] uppercase mb-3" style="font-weight:600;letter-spacing:0.15em;color:rgba(7,24,65,0.4);">Step 3 of 7</p>
         <h2 class="mb-2" style="font-family:'Clash Grotesk','Inter Tight',sans-serif;font-weight:500;font-size:30px;line-height:1.15;letter-spacing:-0.025em;color:#071841;text-wrap:balance;">Why do you want<br/>a US LLC?</h2>
         <p class="text-[15px] mb-9" style="color:rgba(7,24,65,0.6);letter-spacing:-0.005em;line-height:1.55;">You can pick more than one.</p>
         <div class="flex flex-col gap-2.5 mb-4">
@@ -1035,7 +1034,6 @@
 
       <!-- ===== STEP 4: Which country do you live in? ===== -->
       <div id="step-4" class="step-panel">
-        <p class="text-[11px] uppercase mb-3" style="font-weight:600;letter-spacing:0.15em;color:rgba(7,24,65,0.4);">Step 4 of 7</p>
         <h2 class="mb-9" style="font-family:'Clash Grotesk','Inter Tight',sans-serif;font-weight:500;font-size:30px;line-height:1.15;letter-spacing:-0.025em;color:#071841;text-wrap:balance;">Which country do<br/>you live in?</h2>
 
         <div class="flex flex-col gap-3 mb-9">
@@ -1058,7 +1056,6 @@
 
       <!-- ===== STEP 5: Current monthly business revenue ===== -->
       <div id="step-5" class="step-panel">
-        <p class="text-[11px] uppercase mb-3" style="font-weight:600;letter-spacing:0.15em;color:rgba(7,24,65,0.4);">Step 5 of 7</p>
         <h2 class="mb-9" style="font-family:'Clash Grotesk','Inter Tight',sans-serif;font-weight:500;font-size:30px;line-height:1.15;letter-spacing:-0.025em;color:#071841;text-wrap:balance;">How much does your business<br/>make each month?</h2>
 
         <div class="flex flex-col gap-2.5 mb-9" id="rev-options">
@@ -1076,7 +1073,6 @@
 
       <!-- ===== STEP 6: When do you want to open your LLC? ===== -->
       <div id="step-6" class="step-panel">
-        <p class="text-[11px] uppercase mb-3" style="font-weight:600;letter-spacing:0.15em;color:rgba(7,24,65,0.4);">Step 6 of 7</p>
         <h2 class="mb-9" style="font-family:'Clash Grotesk','Inter Tight',sans-serif;font-weight:500;font-size:30px;line-height:1.15;letter-spacing:-0.025em;color:#071841;text-wrap:balance;">When do you want<br/>to open your LLC?</h2>
 
         <div class="flex flex-col gap-2.5 mb-9">
@@ -1090,7 +1086,6 @@
 
       <!-- ===== STEP 7: Contact + SMS consent ===== -->
       <div id="step-7" class="step-panel">
-        <p class="text-[11px] uppercase mb-3" style="font-weight:600;letter-spacing:0.15em;color:rgba(7,24,65,0.4);">Step 7 of 7</p>
         <h2 class="mb-9" style="font-family:'Clash Grotesk','Inter Tight',sans-serif;font-weight:500;font-size:30px;line-height:1.15;letter-spacing:-0.025em;color:#071841;text-wrap:balance;">Where should we send<br/>your call details?</h2>
 
         <div class="grid grid-cols-2 gap-3 mb-4">
