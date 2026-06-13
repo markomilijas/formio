@@ -1874,12 +1874,15 @@
     if (dial && phoneLocal.indexOf(dial) === 0) phoneLocal = phoneLocal.substring(dial.length).trim();
     var consentBox = document.getElementById('sms-consent-checkbox');
 
-    // Goals -> labels (+ free-text "other"). For the "other" option, use the
-    // text the user typed instead of the generic "Something else" label.
-    var goalsLabeled = (selectedGoals || []).map(function(g){
-      if (g === 'other') return goalOtherText ? goalOtherText : goalLabels.other;
-      return goalLabels[g] || g;
-    });
+    // Goals -> labels. Predefined options first (selection order), and the
+    // free-text "other" entry always appended LAST so it reads cleanly.
+    var selGoals = selectedGoals || [];
+    var goalsLabeled = selGoals
+      .filter(function(g){ return g !== 'other'; })
+      .map(function(g){ return goalLabels[g] || g; });
+    if (selGoals.indexOf('other') !== -1) {
+      goalsLabeled.push(goalOtherText ? goalOtherText : goalLabels.other);
+    }
 
     return {
       source: 'formio.biz/bac-start',
