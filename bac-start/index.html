@@ -1873,8 +1873,12 @@
     if (dial && phoneLocal.indexOf(dial) === 0) phoneLocal = phoneLocal.substring(dial.length).trim();
     var consentBox = document.getElementById('sms-consent-checkbox');
 
-    // Goals -> labels (+ free-text "other")
-    var goalsLabeled = (selectedGoals || []).map(function(g){ return goalLabels[g] || g; });
+    // Goals -> labels (+ free-text "other"). For the "other" option, use the
+    // text the user typed instead of the generic "Something else" label.
+    var goalsLabeled = (selectedGoals || []).map(function(g){
+      if (g === 'other') return goalOtherText ? goalOtherText : goalLabels.other;
+      return goalLabels[g] || g;
+    });
 
     return {
       source: 'formio.biz/bac-start',
