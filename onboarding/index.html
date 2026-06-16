@@ -1729,9 +1729,9 @@
         showOnboardingErrorMessage();
       }
     } else {
-      // No email param - show error
-      console.warn('[onboarding] No email parameter in URL');
-      showOnboardingErrorMessage();
+      // No email param - allow the page to open with a blank form so users
+      // can fill everything manually (link may be sent without a param).
+      console.log('[onboarding] No email parameter in URL - starting with blank form');
     }
     
     // Initialize Step 8 sub-step state
@@ -1747,11 +1747,10 @@
     if (ownersList) ownersList.innerHTML = '';
     ownersData = [];
     
-    // Pre-fill first owner if we have data from Supabase
-    if (ownerFirstName || ownerLastName) {
-      if (typeof appendOwnerCard === 'function') {
-        appendOwnerCard(ownerFirstName || '', ownerLastName || '');
-      }
+    // Pre-fill first owner if we have data from Supabase; otherwise add one
+    // blank owner card so the user can fill it in manually (no-param case).
+    if (typeof appendOwnerCard === 'function') {
+      appendOwnerCard(ownerFirstName || '', ownerLastName || '');
     }
     
     // Pre-fill contact info (sub-8e inputs) so when user navigates there it's already filled
