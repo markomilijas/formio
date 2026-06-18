@@ -4487,13 +4487,23 @@ function generateUniqueId() {
     var html = '';
 
     // 1. Company Information
-    html += frSection('Company Information',
+    // Registration State + Plan are only meaningful when the page was opened
+    // with a prefill param (email/uid/code) — i.e. a real lead whose state/plan
+    // come from Supabase. On a clean link (no params) the user picks neither,
+    // so the state would just be the default and the plan empty ("-"); hide
+    // both rows in that case. The param case is left completely untouched.
+    var _onbParams = new URLSearchParams(window.location.search);
+    var _hasPrefillParam = _onbParams.has('email') || _onbParams.has('uid') || _onbParams.has('code');
+    var companyRows =
       frRow('LLC Name', frLlcInput('fr-llc-name', llcName)) +
       frRow('Alternative LLC Name', frLlcInput('fr-alt-name', altName)) +
-      frRow('Business Description', frTextarea('fr-description', desc)) +
-      frRow('Registration State', frReadonly(stateLabels[selectedState]||'')) +
-      frRow('Plan', frReadonly(pkgLabels[selectedPackage]||''))
-    );
+      frRow('Business Description', frTextarea('fr-description', desc));
+    if (_hasPrefillParam) {
+      companyRows +=
+        frRow('Registration State', frReadonly(stateLabels[selectedState]||'')) +
+        frRow('Plan', frReadonly(pkgLabels[selectedPackage]||''));
+    }
+    html += frSection('Company Information', companyRows);
 
     // 2. Contact Information
     html += frSection('Contact Information',
