@@ -4684,10 +4684,24 @@ function generateUniqueId() {
       fd.append('industry_label', selectedIndustryLabel || '');
       
       // State i Plan
-      fd.append('registration_state', selectedState || '');
-      fd.append('registration_state_label', stateMap[selectedState] || '');
-      fd.append('plan', selectedPackage || '');
-      fd.append('plan_label', pkgLabels[selectedPackage] || '');
+      // Only send these when the page was opened with a prefill param
+      // (email/uid/code) — i.e. a real lead with Supabase data. On a clean link
+      // (no params) the user picks neither, so the state would just be the
+      // default ("wyoming") and the plan empty; send both blank so they don't
+      // get written to the fulfillment folders/columns.
+      var _subParams = new URLSearchParams(window.location.search);
+      var _subHasPrefillParam = _subParams.has('email') || _subParams.has('uid') || _subParams.has('code');
+      if (_subHasPrefillParam) {
+        fd.append('registration_state', selectedState || '');
+        fd.append('registration_state_label', stateMap[selectedState] || '');
+        fd.append('plan', selectedPackage || '');
+        fd.append('plan_label', pkgLabels[selectedPackage] || '');
+      } else {
+        fd.append('registration_state', '');
+        fd.append('registration_state_label', '');
+        fd.append('plan', '');
+        fd.append('plan_label', '');
+      }
       
       // Owners - sakupi sve owner podatke iz Final Review polja
       var ownersFinal = [];
